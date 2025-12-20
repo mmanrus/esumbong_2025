@@ -65,7 +65,6 @@ export default function SubmitConcernForm() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
     const validation = ConcernFormSchema.safeParse(form);
 
     if (!validation.success) {
@@ -79,6 +78,7 @@ export default function SubmitConcernForm() {
     }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("details", form.details);
@@ -111,11 +111,11 @@ export default function SubmitConcernForm() {
       toast.success("Your concern has been successfully submitted!");
 
       setForm({ title: "", categoryId: "", details: "", files: [], other: "" });
-      return
+      return;
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again later.");
-      return
+      return;
     } finally {
       setLoading(false);
     }

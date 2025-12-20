@@ -10,9 +10,7 @@ export async function POST(request: NextRequest) {
 
         const cookieStore = await cookies()
         const accessToken = cookieStore.get(COOKIE_NAME)?.value
-        console.log("Access token in category create route:", accessToken)
         
-        console.log("Category create items:", body)
         if (!accessToken) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
