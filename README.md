@@ -1,40 +1,89 @@
-# esumbong_2025
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# esumbong_2025 (Frontend)
+Mga doo mau ni instructions..
+Naa pangutana chat lang sa GC i mention rako ninyo
+A Next.js 14 + TypeScript project for the eSumbong platform.
 
-## Getting Started
+This document will guide you through installation, environment setup, Git workflow, and running the frontend locally.
 
-First, run the development server:
+---
+
+## 📦 Requirements
+
+Before running the project, install the following:
+
+- **Node.js LTS** (Recommended: 20.x)  
+  Download here: https://nodejs.org/en/download/prebuilt-installer
+
+- **Git**  
+  https://git-scm.com/downloads
+
+---
+
+## 🔥 Getting Started
+
+### 1. Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/mmanrus/esumbong_2025.git
+cd esumbong_2025
+```
+## 🔐 Environment Variables
+
+Before running the project, you must create a `.env` file in the project root.
+
+### Create `.env` file
+In the root folder of the frontend, create a file named: Or add file in the esumbong_2025
+```
+SESSION_SECRET=your_jwt_secret_here
+BACKEND_URL=http://localhost:3005
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Install Dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Running the Development Server
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Open your browser to:
+    http://localhost:3000
+# 🧑‍💻 Git Workflow (Very Important for Developers)
 
-## Learn More
+## Follow this process every time you make changes.
+1. Make sure you're on the latest main branch
+git checkout main
+git pull origin main
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 2. Create a new feature branch
+git checkout -b feature/my-feature
 
 
+## Example:
+git checkout -b feature/login-page
+
+## 3. Make changes → Stage → Commit
+git add .
+git commit -m "Added login UI"
+
+## 4. Rebase with latest main (keep your history clean)
+git pull --rebase origin main
+
+## 5. Push your branch
+git push -u origin feature/login-page
+
+## 6. Create a Pull Request (PR)
+
+## Go to GitHub:
+
+Open your repo
+Click Pull Requests → New Pull Request
+Choose:
+base: main
+compare: your feature branch
+
+## Submit PR
