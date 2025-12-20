@@ -1,47 +1,44 @@
 "use client"
 
-import React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext,ReactNode, useContext, useState, useEffect } from "react"
 
+export type User = {
+  id: string
+  fullname: string
+  email: string
+  role: string
+}
 
-const AuthContext = createContext(undefined)
+type AuthContextType = {
+  user: User | null
+}
 
-export function useAuth() {
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
 }
-export function AuthProvider({ children, initialUser }) {
+
+type AuthProviderProps = {
+  children: ReactNode,
+  initialUser: User | null
+}
+
+export function AuthProvider({ children, initialUser } :AuthProviderProps ) {
   const [user, setUser] = useState(initialUser)
-  const [isLoading, setIsLoading] = useState(true)
+  if (!user) {
+    const getUser = async () => await fetch('/api/me', {
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/me", { credentials: "include", headers: {
-          "Content-Type": "application/json"
-        } })
-        if (!res.ok) {
-          setUser(null)
-        } else {
-          const data = await res.json()
-          console.log("AuthContext:",data)
-          setUser(data)
-        }
-      } catch (error) {
-        console.error("Error getting User data:", error)
-        setUser(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchUser()
-  }, [])
+    })
+  }
 
+  console.log("User :", user)
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
+    <AuthContext.Provider value={{  user }}>
       {children}
     </AuthContext.Provider>
   )

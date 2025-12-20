@@ -2,8 +2,7 @@ import { Bell, Menu } from "lucide-react";
 import LogoutButton from "../logout";
 import Image from "next/image";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import NotificationComponent from "../notifications";
+import { KnockNotificationFeed } from "../KnockNotificationFeed";
 
 export default function TopNavBar({ title="Official Dashboard" }: { title?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,7 +30,7 @@ export default function TopNavBar({ title="Official Dashboard" }: { title?: stri
       </button>
       {/* Logout */}
       <div className="flex gap-5 items-center justify-between">
-        <NotificationComponent />
+        <KnockNotificationFeed />
 
         <LogoutButton />
       </div>

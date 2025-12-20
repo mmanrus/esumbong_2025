@@ -1,24 +1,25 @@
 import { cookies } from "next/headers";
-import { decrypt } from "@/lib/sessions";
 import { COOKIE_NAME } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 const url = process.env.BACKEND_URL;
 if (!url) throw new Error("Backend URL is not defined in environment variables.");
 
-export async function GET(request: Request) {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get(COOKIE_NAME)?.value;
+export async function GET() {
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
-  const session = await decrypt(cookie || "");
-  if (!session?.access) return NextResponse.json({ user: null }, { status: 401 });
+  if (!accessToken) {
+    console.log("Access token", accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   try {
-    const res = await fetch(`${url}/users/me`, {
+    const res = await fetch(`${url}/api/users/me`, {
       method: "GET",
       credentials: "include",
       headers: {
-        Authorization: `Bearer ${session.access}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     });

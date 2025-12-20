@@ -46,8 +46,8 @@ export async function login(prevState: any, formData: FormData) {
   // store SMALL session cookie
   console.log("User type upon login:", user.type)
   await setSession({
-    userId: user.user.id,
-    type: user.user.type,
+    userId: user.user?.id,
+    type: user.user?.type,
   });
 
   // redirect cleanly

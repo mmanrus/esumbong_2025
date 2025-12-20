@@ -2,10 +2,8 @@
 import { cookies } from "next/headers";
 import { decrypt } from "@/lib/sessions";
 import { cache } from "react";
-import { redirect } from "next/navigation";
 
 import { COOKIE_NAME } from "@/lib/constants";
-const backendUrl = process.env.BACKEND_URL;
 
 export const verifySession = cache(async () => {
   try {
@@ -28,22 +26,28 @@ export const verifySession = cache(async () => {
   }
 });
 
-import { fetchWithRefresh } from "@/lib/fetchWithRefresh";
-
 export const getUser = async () => {
-  const session = await verifySession(); // get the current access token
-  if (!session.isAuth) {
-    return null; // 👈 return instead of throwing
-  }
-  const res = await fetchWithRefresh(`${backendUrl}users/me`, {
+  const session = await verifySession();
+
+  if (!session.isAuth) return null;
+  
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get(COOKIE_NAME)?.value
+
+  const res = await fetch(`${process.env.BACKEND_URL}/api/users/me`, {
     method: "GET",
-    credentials: "include",
     headers: {
-      Authorization: `Bearer ${session.access}`, // or from session
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
     },
+    cache: "no-store",
   });
 
-  if (!res?.ok) throw new Error("Failed to fetch user");
+  if (!res.ok) {
+    console.error("Failed to fetch user", res.status);
+    return null;
+  }
 
   return await res.json();
 };
+
