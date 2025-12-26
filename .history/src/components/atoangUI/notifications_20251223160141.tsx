@@ -6,9 +6,8 @@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { useNotification } from "@/hooks/useNotifications"
-export default function  NotificationComponent({userId}: {userId?: string}) {
+export default function  NotificationComponent({userId}: {userId: string}) {
   const notifications = useNotification(userId)
-  console.log(notifications)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

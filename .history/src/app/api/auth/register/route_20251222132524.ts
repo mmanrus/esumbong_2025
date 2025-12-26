@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 const backendUrl = process.env.BaCKEND_URL;
 
 if (!backendUrl) {
-    throw new Error("BaCKEND_URL is not defined in environment variables.")
+    throw new Error("Backend URL is not defined in environment variables.")
 } 
 export async function POST(request: Request) {
 

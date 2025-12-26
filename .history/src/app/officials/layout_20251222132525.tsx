@@ -1,6 +1,8 @@
 // OfficialLayout.jsx
 "use client";
 import { useState, ReactNode } from "react";
+import Image from "next/image";
+import { Menu } from "lucide-react";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -14,6 +16,7 @@ import {
   Calendar,
   ChartBar,
 } from "lucide-react";
+import LogoutButton from "@/components/atoangUI/logout";
 import EsumbongNavBar from "@/components/atoangUI/esumbongSidebar";
 import TopNavBar from "@/components/atoangUI/layout/TopNavBar";
 export default function OfficialLayout({

@@ -1,9 +1,17 @@
 "use client"
+import { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 interface NavBarProps {
   setActivePage: (activePage: string) => void;
   activePage?: string;
   sidebarPages: any;
+}
+interface sidebarPages {
+  id: string;
+  name: string;
+  icon: LucideIcon;
 }
 export default function EsumbongNavBar({
   setActivePage,

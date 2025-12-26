@@ -33,11 +33,11 @@ export async function login(prevState: any, formData: FormData) {
     body: JSON.stringify({ email, password }),
   });
 
-  if (!res.ok) {
-    return { message: "Login failed.", success: false };
-  }
   const result = await res.json()
   const { user, access, refresh } = result;
+  if (!result.ok) {
+    return { message: "Login failed.", success: false };
+  }
   console.log("Login result:", result)
   // store access/refresh separately
   const cookieStore = await cookies();
@@ -61,7 +61,7 @@ export async function login(prevState: any, formData: FormData) {
 
 
 import { clearSession } from "@/lib/sessions";
-  
+
 export async function logout() {
   await clearSession();
   console.log("Logged out");

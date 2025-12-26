@@ -61,7 +61,7 @@ export async function login(prevState: any, formData: FormData) {
 
 
 import { clearSession } from "@/lib/sessions";
-  
+
 export async function logout() {
   await clearSession();
   console.log("Logged out");

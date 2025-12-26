@@ -9,7 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LucideIcon,  } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LucideIcon, OctagonAlert } from "lucide-react";
 import React from "react";
 import { IconType } from "react-icons";
 

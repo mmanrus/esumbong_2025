@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { setSession } from "@/lib/sessions"; // uses jose
 
 const BACKEND_URL = process.env.BACKEND_URL;
-if (!BACKEND_URL) throw new Error("BACKEND_URL is not defined in environment variables")
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 if (!APP_URL) throw new Error("NEXT_PUBLIC_APP_URL is not defined in environment variables")
 
@@ -61,7 +60,7 @@ export async function login(prevState: any, formData: FormData) {
 
 
 import { clearSession } from "@/lib/sessions";
-  
+
 export async function logout() {
   await clearSession();
   console.log("Logged out");

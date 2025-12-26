@@ -45,7 +45,4 @@ export async function setSession(payload: JWTPayload) {
 export async function clearSession() {
   const cookie = await cookies();
   cookie.delete(COOKIE_NAME);
-  
-  cookie.delete("access_token");
-  cookie.delete("refresh_token");
 }

@@ -1,4 +1,4 @@
-
+import React from "react";
 import Link from "next/link";
 import {
   Card,
@@ -40,7 +40,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-row items-center gap-7  justify-between px-10 pt-10">
             <Card className="p-10 rounded-none grow bg-secondary text-white pb-4">
-              <CardHeader className="-mb-2.5">
+              <CardHeader className="mb-[-10px]">
                 <CardTitle className="font-bold">For Residents</CardTitle>
               </CardHeader>
               <CardContent>
@@ -55,7 +55,7 @@ export default function LandingPage() {
               </CardContent>
             </Card>
             <Card className="p-10 rounded-none grow bg-accent pb-4">
-              <CardHeader className="-mb-2.5">
+              <CardHeader className="mb-[-10px]">
                 <CardTitle className="font-bold">For Officials</CardTitle>
               </CardHeader>
               <CardContent>
