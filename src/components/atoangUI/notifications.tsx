@@ -3,16 +3,33 @@
  * @see https://v0.app/t/5orV8nhk5Ac
  * Documentation: https://v0.app/docs#integrating-generated-code-into-your-nextjs-app
  */
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { useNotification } from "@/hooks/useNotifications"
-export default function  NotificationComponent({userId}: {userId?: string}) {
-  const notifications = useNotification(userId)
-  console.log(notifications)
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useNotification } from "@/hooks/useNotifications";
+import Link from "next/link";
+export default function NotificationComponent({
+  userId,
+  type,
+}: {
+  userId?: string;
+  type?: string;
+}) {
+  const notifications = useNotification(userId);
+
+  const roleBasePath =
+    type === "barangay_official"
+      ? "officials"
+      : type === "resident"
+      ? "resident"
+      : "admin";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button  className="bg-transparent">
+        <Button className="bg-transparent">
           <BellIcon className="h-4 w-4 mr-2" />
           Notifications
           {notifications.length > 0 && (
@@ -29,9 +46,24 @@ export default function  NotificationComponent({userId}: {userId?: string}) {
               <span className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
               <div>
                 <p className="text-sm font-medium">{n.message}</p>
-                <a href={n.url} className="text-xs text-blue-600">
-                  View
-                </a>
+                {n.type && (
+                  <Link
+                    href={
+                      n.type === "concern"
+                        ? `/${roleBasePath}/concern/${n.id}`
+                        : n.type === "feedback"
+                        ? `/${roleBasePath}/feedback/${n.id}`
+                        : n.type === "summons"
+                        ? `/${roleBasePath}/summons/${n.id}`
+                        : n.type === "mediation"
+                        ? `/${roleBasePath}/mediation/${n.id}`
+                        : ""
+                    }
+                    className="text-xs text-blue-600"
+                  >
+                    View {n.type}
+                  </Link>
+                )}
               </div>
             </div>
           ))}
@@ -41,7 +73,7 @@ export default function  NotificationComponent({userId}: {userId?: string}) {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function BellIcon(props: any) {
@@ -61,5 +93,5 @@ function BellIcon(props: any) {
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
       <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
     </svg>
-  )
+  );
 }

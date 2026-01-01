@@ -6,7 +6,7 @@ export type User = {
   id: string
   fullname: string
   email: string
-  role: string
+  type: string
 }
 
 type AuthContextType = {
@@ -36,7 +36,7 @@ export function AuthProvider({ children, initialUser } :AuthProviderProps ) {
     })
   }
 
-  console.log("User :", user)
+  console.log("User log from authcontext:", user)
   return (
     <AuthContext.Provider value={{  user }}>
       {children}

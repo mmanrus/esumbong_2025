@@ -1,15 +1,29 @@
 "use client"
 
-import { useState, useEffect} from "react"
+import { useState, useEffect } from "react"
+
 const url = process.env.BACKEND_URL
 export function useNotification(userId?: string) {
      const [notifications, setNotification] = useState<any[]>([])
-     useEffect(()=> {
-          const res = async ()  => {
-               await fetch(`${url}/notification/`)
+     useEffect(() => {
+          res()
+     }, [userId])
+     const res = async () => {
+
+          const result = await fetch(`/api/notification/me`, {
+               method: "GET",
+          })
+          if (!result.ok) {
+               throw new Error("Failed to fetch notifications")
           }
-     })
-     useEffect(()=> {
+          const data = await result.json()
+
+          console.log("Fetched notifications data:", data.data)
+          setNotification(data.data)
+          setNotification((prev) => [notifications, ...prev])
+          console.log("Notifications state after fetch:", notifications)
+     }
+     useEffect(() => {
           const ws = new WebSocket("ws://localhost:4001")
 
           ws.onmessage = (event) => {

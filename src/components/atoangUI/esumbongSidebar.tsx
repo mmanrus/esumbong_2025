@@ -1,16 +1,14 @@
-"use client"
+"use client";
+
 import Link from "next/link";
 interface NavBarProps {
-  setActivePage: (activePage: string) => void;
   activePage?: string;
   sidebarPages: any;
 }
 export default function EsumbongNavBar({
-  setActivePage,
   activePage,
   sidebarPages,
 }: NavBarProps) {
- 
   return (
     <div className="w-72 bg-white border-r shadow-md shrink-0 p-4">
       <nav className="py-6">
@@ -20,15 +18,11 @@ export default function EsumbongNavBar({
             return (
               <li key={page.id}>
                 <Link
-                  onClick={() => setActivePage(page.id)}
-                  className={`w-full cursor-pointer text-left 
-                      px-8 py-3 text-lg hover:bg-blue-50 
-                      rounded flex items-center space-x-3 ${
-                        activePage === page.id
-                          ? "bg-blue-100 font-semibold"
-                          : ""
-                      }`}
                   href={page.id}
+                  className={`w-full px-8 py-3 text-lg flex items-center space-x-3 
+    hover:bg-blue-50 rounded ${
+      activePage === page.id ? "bg-blue-100 font-semibold" : ""
+    }`}
                 >
                   <Icon className="w-6 h-6" />
                   <span>{page.name}</span>

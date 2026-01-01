@@ -32,7 +32,7 @@ export default function TopNavBar({ title="Official Dashboard" }: { title?: stri
       </Button>
       {/* Logout */}
       <div className="flex gap-5 items-center justify-between">
-        <NotificationComponent userId={user?.id}/>
+        <NotificationComponent userId={user?.id} type={user?.type}/>
         <LogoutButton />
       </div>
     </header>

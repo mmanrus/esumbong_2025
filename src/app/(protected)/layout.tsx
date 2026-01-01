@@ -1,6 +1,6 @@
 // OfficialLayout.jsx
 "use client";
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useMemo } from "react";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -16,42 +16,22 @@ import {
 } from "lucide-react";
 import EsumbongNavBar from "@/components/atoangUI/esumbongSidebar";
 import TopNavBar from "@/components/atoangUI/layout/TopNavBar";
-export default function OfficialLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+import { useAuth } from "@/contexts/authContext";
+import { SIDEBAR_CONFIG, UserRole } from "@/lib/sidebarConfig";
+import { usePathname } from "next/navigation";
+export default function Layout({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activePage, setActivePage] = useState("dashboard");
-  const sidebarPages = [
-    { id: "/officials/dashboard", name: "Dashboard", icon: LayoutDashboard },
-    { id: "/officials/viewConcerns", name: "View Concerns", icon: FolderOpen },
-    {
-      id: "/officials/validateConcerns",
-      name: "Validate / Record",
-      icon: CheckCircle,
-    },
-    { id: "/officials/assignConcerns", name: "Assign / Respond", icon: Users },
-    { id: "/officials/updateStatus", name: "Update Status", icon: RotateCw },
-    {
-      id: "/officials/generateSummons",
-      name: "Generate Summons",
-      icon: FileText,
-    },
-    {
-      id: "/officials/scheduleMediation",
-      name: "Schedule Mediation",
-      icon: Calendar,
-    },
-    { id: "/officials/reports", name: "Reports & Analytics", icon: ChartBar },
-    { id: "/officials/archives", name: "Archives", icon: Archive },
-    {
-      id: "/officials/manageAnnouncements",
-      name: "Manage Announcements",
-      icon: Megaphone,
-    },
-    { id: "/officials/profile", name: "Profile", icon: User },
-  ];
+  
+  const sidebarPages = useMemo(() => {
+    return SIDEBAR_CONFIG[user?.type as UserRole] ?? [];
+  }, [user]);
+
+  const activePage = sidebarPages.find((p) =>
+    pathname.startsWith(p.id)
+  )?.id;
 
   return (
     <>
@@ -64,7 +44,6 @@ export default function OfficialLayout({
           <div className="flex flex-1">
             {/* Sidebar */}
             <EsumbongNavBar
-              setActivePage={setActivePage}
               sidebarPages={sidebarPages}
               activePage={activePage}
             />
