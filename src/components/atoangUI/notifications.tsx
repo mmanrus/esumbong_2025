@@ -49,15 +49,7 @@ export default function NotificationComponent({
                 {n.type && (
                   <Link
                     href={
-                      n.type === "concern"
-                        ? `/${roleBasePath}/concern/${n.id}`
-                        : n.type === "feedback"
-                        ? `/${roleBasePath}/feedback/${n.id}`
-                        : n.type === "summons"
-                        ? `/${roleBasePath}/summons/${n.id}`
-                        : n.type === "mediation"
-                        ? `/${roleBasePath}/mediation/${n.id}`
-                        : ""
+                      n.url
                     }
                     className="text-xs text-blue-600"
                   >

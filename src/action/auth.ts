@@ -45,7 +45,7 @@ export async function login(prevState: any, formData: FormData) {
   cookieStore.set("refresh_token", refresh, { httpOnly: true, secure: true });
 
   // store SMALL session cookie
-  console.log("User type upon login:", user.type)
+  console.log("User type upon login:", user.user.type)
   await setSession({
     userId: user.user?.id,
     type: user.user?.type,

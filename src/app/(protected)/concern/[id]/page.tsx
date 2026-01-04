@@ -1,14 +1,11 @@
-"use client";
+
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function Page({ params} : {params: Promise<{ id: string}>}
+) {
   const [concern, setConcern] = useState<any>(null);
-  const { id } = await params;
+  const id = (await params).id;
   useEffect(() => {
     fetchData()
   }, [id]);
