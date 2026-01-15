@@ -9,7 +9,7 @@ export default function TopNavBar({ title="Official Dashboard" }: { title?: stri
   const [menuOpen, setMenuOpen] = useState(false);
   const {user} = useAuth();
   return (
-    <header className="bg-[#1F4251] sticky left-0 right-0 top-0 text-white flex items-center justify-between px-6 py-4 shadow-md h-[90px]">
+    <header className="bg-[#1F4251] sticky left-0 right-0 top-0 z-50 text-white flex items-center justify-between px-6 py-4 shadow-md h-[90px]">
       <div className="flex items-center space-x-3">
         <Image
           height={50}

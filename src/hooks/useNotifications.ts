@@ -20,7 +20,6 @@ export function useNotification(userId?: string) {
 
           console.log("Fetched notifications data:", data.data)
           setNotification(data.data)
-          setNotification((prev) => [notifications, ...prev])
           console.log("Notifications state after fetch:", notifications)
      }
      useEffect(() => {
@@ -28,7 +27,6 @@ export function useNotification(userId?: string) {
 
           ws.onmessage = (event) => {
                const data = JSON.parse(event.data)
-
                if (data.userId === userId) {
                     setNotification((prev) => [data, ...prev])
                }

@@ -8,10 +8,11 @@ export const ConcernFormSchema = z
     other: z.string().optional().default(""),
     details: z.string().min(1, "Details are required"),
     files: z.array(z.instanceof(File)).optional(),
+    needsBarangayAssistance: z.boolean().nullable().optional(),
   })
   .refine(
     (data) => {
-      const hasCategory = !!data.categoryId && data.categoryId !== "";
+      const hasCategory = !!data.categoryId && data.categoryId !== "other";
       const hasOther = !!data.other && data.other !== "";
       // Either categoryId or other must be set, but not both
       return (hasCategory || hasOther) && !(hasCategory && hasOther);

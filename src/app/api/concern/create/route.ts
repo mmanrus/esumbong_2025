@@ -3,9 +3,6 @@ import { COOKIE_NAME } from "@/lib/constants";
 import { decrypt } from "@/lib/sessions";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { FormData as NodeFormData } from "formdata-node";
-import { FormDataEncoder } from "form-data-encoder";
-import { Readable } from "stream";
 
 const BACKEND_URL = process.env.BACKEND_URL;
 if (!BACKEND_URL) throw new Error("BACKEND_URL is not defined");
@@ -14,8 +11,30 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.formData();
 
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: "No session cookie found" },
+        { status: 401 }
+      );
+    }
+
+    await decrypt(accessToken);
+
+    // ✅ FIX 1: read + convert boolean
+    const needsValue = body.get("needsBarangayAssistance");
+    if (needsValue === null) {
+      return NextResponse.json(
+        { error: "Missing needsBarangayAssistance field" },
+        { status: 400 }
+      );
+    }
+    const needsBarangayAssistance = needsValue === "true";
+
     const raw = {
       title: body.get("title") as string,
+      needsBarangayAssistance,
       details: body.get("details") as string,
       categoryId: body.get("categoryId") as string,
       other: (body.get("other") as string | null) ?? "",
@@ -35,21 +54,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
-    if (!accessToken) {
-      return NextResponse.json({ error: "No session cookie found" }, { status: 401 });
-    }
-
-    await decrypt(accessToken);
-
     // Prepare Node FormData
     const forward = new FormData();
     forward.append("title", raw.title);
     forward.append("details", raw.details);
     forward.append("categoryId", raw.categoryId ?? "");
     forward.append("other", raw.other ?? "");
+
+    // ✅ FIX 2: forward boolean
+    forward.append(
+      "needsBarangayAssistance",
+      String(needsBarangayAssistance)
+    );
 
     for (const f of raw.files) {
       const blob = new Blob([await f.arrayBuffer()], { type: f.type });
@@ -65,26 +81,23 @@ export async function POST(request: NextRequest) {
     } as any);
 
     if (!res.ok) {
-      let errorText = await res.text();
-      let errorData;
-
-      try {
-        errorData = JSON.parse(errorText);
-      } catch {
-        errorData = { message: errorText };
-      }
-      console.log("Error: ", errorText)
+      const errorText = await res.text();
       return NextResponse.json(
-        { error: "Failed to submit concern", details: errorData },
+        { error: "Failed to submit concern", details: errorText },
         { status: res.status }
       );
     }
 
     const data = await res.json();
-    return NextResponse.json({ message: "Concern submitted successfully", data }, { status: 200 });
-
+    return NextResponse.json(
+      { message: "Concern submitted successfully", data },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error submitting concern:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

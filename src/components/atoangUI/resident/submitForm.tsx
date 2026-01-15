@@ -47,13 +47,14 @@ export default function SubmitConcernForm() {
     staleTime: 1000 * 60 * 20,
   });
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ConcernForm>({
     title: "",
     categoryId: "",
     details: "",
     other: "",
     files: [],
-  } as ConcernForm);
+    needsBarangayAssistance: null,
+  });
 
   const handleChange = (field: any, value: any) => {
     if (field === "files") {
@@ -65,15 +66,19 @@ export default function SubmitConcernForm() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
     const validation = ConcernFormSchema.safeParse(form);
-
     if (!validation.success) {
-      const errors = validation.error.flatten().fieldErrors;
-
       toast.error("Validation failed", {
-        description: Object.values(errors).flat().join(", "),
+        description: Object.values(validation.error.flatten().fieldErrors)
+          .flat()
+          .join(", "),
       });
+      return;
+    }
 
+    if (form.needsBarangayAssistance === null) {
+      toast.error("Please specify if barangay assistance is needed.");
       return;
     }
 
@@ -82,40 +87,42 @@ export default function SubmitConcernForm() {
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("details", form.details);
+      formData.append(
+        "needsBarangayAssistance",
+        String(form.needsBarangayAssistance)
+      );
+
       if (form.categoryId === "other") {
-        if (!form.other || form.other.trim() === "") {
-          toast.warning("Please specify the other category.");
-          return;
-        }
         formData.append("categoryId", "");
         formData.append("other", form.other);
       } else {
-        // Normal category
-        formData.append("categoryId", String(form.categoryId));
+        formData.append("categoryId", form.categoryId);
       }
 
       form.files?.forEach((file) => formData.append("files", file));
 
       const res = await fetch("/api/resident/concern", {
         method: "POST",
-        body: formData, // DO NOT set Content-Type manually
+        body: formData,
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        console.log("Error submitting concern:", errorData);
         toast.error("Error submitting your concern.");
         return;
       }
 
       toast.success("Your concern has been successfully submitted!");
 
-      setForm({ title: "", categoryId: "", details: "", files: [], other: "" });
-      return;
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again later.");
-      return;
+      setForm({
+        title: "",
+        categoryId: "",
+        details: "",
+        other: "",
+        files: [],
+        needsBarangayAssistance: null,
+      });
+    } catch (err) {
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -220,6 +227,37 @@ export default function SubmitConcernForm() {
               <p className="text-sm text-gray-500 mt-1">
                 Upload images or documents to support your concern.
               </p>
+            </div>
+            <div>
+              <Label className="text-lg font-medium">
+                Do you need barangay assistance?
+              </Label>
+
+              <div className="flex gap-6 mt-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="barangayAssistance"
+                    checked={form.needsBarangayAssistance === true}
+                    onChange={() =>
+                      handleChange("needsBarangayAssistance", true)
+                    }
+                  />
+                  <span>Yes</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="barangayAssistance"
+                    checked={form.needsBarangayAssistance === false}
+                    onChange={() =>
+                      handleChange("needsBarangayAssistance", false)
+                    }
+                  />
+                  <span>No</span>
+                </label>
+              </div>
             </div>
             <div className="flex justify-center">
               <Button

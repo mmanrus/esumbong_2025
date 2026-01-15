@@ -1,5 +1,6 @@
 "use client";
 import DialogAlert from "@/components/atoangUI/alertDialog";
+import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,12 +10,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetcher } from "@/lib/swrFetcher";
 import { Info } from "lucide-react";
-import { useState } from "react";
+import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import useSWR from "swr";
 
 export default function Page() {
   const [status, setStatus] = useState("concern");
   const [input, setInput] = useState("");
+  const [concerns, setConcerns] = useState<any>(null);
+  const { data, error, isLoading, mutate } = useSWR(
+    "/api/concern/getAll/",
+    fetcher
+  );
+  useEffect(() => {
+    if (!data) return;
+    setConcerns(data.data);
+  }, [data]);
+  if (isLoading) return <p>Loading</p>;
+
+  if (error) {
+    toast.error("Failed to load concern data.");
+    notFound();
+  }
   return (
     <>
       <div className="flex items-center justify-between mb-6">
@@ -67,61 +87,7 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="px-4 py-3">C-2025-001</td>
-              <td className="px-4 py-3">Maria Santos</td>
-              <td className="px-4 py-3">Noise Complaint</td>
-              <td className="px-4 py-3">2025-10-01</td>
-              <td className="px-4 py-3">
-                <span className="inline-block px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-sm">
-                  Pending
-                </span>
-              </td>
-              <td className="px-4 py-3 flex gap-1">
-                <Button className="px-3 py-1 cursor-pointer bg-blue-600 text-white rounded text-sm">
-                  View
-                </Button>
-                <DialogAlert
-                  trigger={
-                    <Button className="px-3 py-1 cursor-pointer bg-amber-500 text-white rounded text-sm">
-                      Validate
-                    </Button>
-                  }
-                  Icon={Info}
-                  IconColor="blue-600"
-                  message={"Do you want to mark this data as Validated?"}
-                  headMessage={""}
-                />
-              </td>
-            </tr>
-
-            <tr>
-              <td className="px-4 py-3">C-2025-002</td>
-              <td className="px-4 py-3">Juan Dela Cruz</td>
-              <td className="px-4 py-3">Garbage Disposal</td>
-              <td className="px-4 py-3">2025-10-03</td>
-              <td className="px-4 py-3">
-                <span className="inline-block px-2 py-1 rounded bg-green-100 text-green-800 text-sm">
-                  Validated
-                </span>
-              </td>
-              <td className="px-4 py-3 flex gap-1">
-                <Button className="px-3 py-1 cursor-pointer bg-blue-600 text-white rounded text-sm">
-                  View
-                </Button>
-                <DialogAlert
-                  trigger={
-                    <Button className="px-3 py-1 cursor-pointer bg-amber-500 text-white rounded text-sm">
-                      Validate
-                    </Button>
-                  }
-                  Icon={Info}
-                  IconColor="blue-600"
-                  message={"Do you want to mark this data as Validated?"}
-                  headMessage={""}
-                />
-              </td>
-            </tr>
+            <ViewConcernRows concerns={concerns} />
           </tbody>
         </table>
       </div>

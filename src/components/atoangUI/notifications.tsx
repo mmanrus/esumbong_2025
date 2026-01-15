@@ -19,13 +19,6 @@ export default function NotificationComponent({
   type?: string;
 }) {
   const notifications = useNotification(userId);
-
-  const roleBasePath =
-    type === "barangay_official"
-      ? "officials"
-      : type === "resident"
-      ? "resident"
-      : "admin";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -19,6 +19,7 @@ export const metadata = {
 };
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/contexts/queryContext";
+import { ConcernProvider } from "@/contexts/concernContext";
 
 export default async function RootLayout({
   children,
@@ -31,9 +32,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
       >
-        <AuthProvider initialUser={user as User}>
-          <Providers>{children}</Providers>
-        </AuthProvider>
+        <ConcernProvider>
+          <AuthProvider initialUser={user as User}>
+            <Providers>{children}</Providers>
+          </AuthProvider>
+        </ConcernProvider>
+
         <Toaster position="top-center" richColors />
       </body>
     </html>
