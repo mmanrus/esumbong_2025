@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import DialogAlert from "../alertDialog";
 import { Info, Link } from "lucide-react";
 import clsx from "clsx";
+import { useState } from "react";
+import ConcernDialog from "./concernDialog";
+import { toast } from "sonner";
 
 export type Concern = {
   id: number;
@@ -18,9 +21,10 @@ export type Concern = {
 
 type Props = {
   concerns: Concern[] | null;
+  onDelete: (concernId: any) => void;
 };
 
-export default function ViewConcernRows({ concerns }: Props) {
+export default function ViewConcernRows({ concerns, onDelete }: Props) {
   if (!concerns || concerns.length === 0) {
     return (
       <tr>
@@ -30,7 +34,34 @@ export default function ViewConcernRows({ concerns }: Props) {
       </tr>
     );
   }
+  const [isLoading, setIsLoading] = useState(false);
+  const handleValidation = async (
+    status: "approved" | "rejected" | "pending",
+    concernId: any
+  ) => {
+    setIsLoading(true);
 
+    const res = await fetch(`/api/concern/validate/${concernId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ validation: status }),
+    });
+    if (!res.ok) {
+      toast.error("Error upon validation the concern");
+      return;
+    }
+    toast.success(
+      `Concern has been validated as ${
+        status.charAt(0).toUpperCase() + status.slice(1)
+      }`
+    );
+    setIsLoading(false);
+    return;
+  };
+
+  const [selectedConcern, setSelectedConcern] = useState<any | null>(null);
+  const [newValidation, setNewvalidation] = useState<
+    "approved" | "rejected" | "pending"
+  >();
   return (
     <>
       {concerns.map((concern: Concern, index: number) => (
@@ -48,17 +79,28 @@ export default function ViewConcernRows({ concerns }: Props) {
           </td>
 
           <td className="px-4 py-3">
-            <span className={clsx(concern.validation === "approved"? "bg-green-500 text-white": concern.validation==="pending"? "bg-yellow-100 text-yellow-800": "bg-destructive text-white" ,"inline-block px-2 py-1 rounded   text-sm")}>
-              {concern.validation.charAt(0).toUpperCase() + concern.validation.slice(1)}
+            <span
+              className={clsx(
+                concern.validation === "approved"
+                  ? "bg-green-500 text-white"
+                  : concern.validation === "pending"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-destructive text-white",
+                "inline-block px-2 py-1 rounded   text-sm"
+              )}
+            >
+              {concern.validation.charAt(0).toUpperCase() +
+                concern.validation.slice(1)}
             </span>
           </td>
 
           <td className="px-4 py-3 flex gap-1">
-            <a href={`/concern/${concern.id}`}>
-              <Button className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
-                View
-              </Button>
-            </a>
+            <Button
+              onClick={() => setSelectedConcern(concern)}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+            >
+              View
+            </Button>
             <DialogAlert
               trigger={
                 <Button className="px-3 py-1 bg-amber-500 text-white rounded text-sm">
@@ -67,12 +109,58 @@ export default function ViewConcernRows({ concerns }: Props) {
               }
               Icon={Info}
               IconColor="blue-600"
-              message="Do you want to mark this data as Validated?"
-              headMessage=""
-            />
+              headMessage="Validate Concern as?"
+            >
+              <form
+                className="flex flex-row gap-3 justify-center"
+                onSubmit={async (e) => {
+                  e.preventDefault(); // Prevent the form from reloading the page
+                  if (!newValidation) {
+                    toast.error("Please select a status to validate concern.");
+                    return;
+                  }
+                  await handleValidation(newValidation, concern.id);
+                }}
+              >
+                <Button
+                  disabled={concern?.validation === "approved" || isLoading}
+                  type="submit"
+                  onClick={() => setNewvalidation("approved")}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  disabled={concern?.validation === "rejected" || isLoading}
+                  onClick={() => setNewvalidation("rejected")}
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="outline"
+                  type="submit"
+                  disabled={concern?.validation === "pending" || isLoading}
+                  onClick={() => setNewvalidation("pending")}
+                >
+                  Pending
+                </Button>
+              </form>
+            </DialogAlert>
           </td>
         </tr>
       ))}
+      <ConcernDialog
+        open={!!selectedConcern}
+        concern={selectedConcern}
+        onDelete={(id: number) => {
+          onDelete(id); // call parent callback
+          setSelectedConcern(null); // close modal
+        }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedConcern(null);
+        }}
+      />
     </>
   );
 }

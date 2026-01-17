@@ -3,8 +3,12 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {
-    const body = await request.body
-
+    const {searchParams} = new URL(request.url)
+    const search =  searchParams.get("search") || ""
+    const status = searchParams.get("status") || ""
+    const archived = searchParams.get("archived") || ""
+    
+    const validation = searchParams.get("validation") || ""
     try {
 
         const cookieStore = await cookies()
@@ -15,7 +19,7 @@ export const GET = async (request: Request) => {
             })
         }
 
-        const res = await fetch(`${process.env.BACKEND_URL}/api/concern/`, {
+        const res = await fetch(`${process.env.BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation={${encodeURIComponent(validation)}}`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -27,7 +31,6 @@ export const GET = async (request: Request) => {
             console.error("Error data", data)
             return NextResponse.json({ error: data.error })
         }
-        console.log("All",data)
 
         return NextResponse.json({
             data: data.data,

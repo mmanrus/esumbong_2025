@@ -1,10 +1,52 @@
 "use client";
+import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { fetcher } from "@/lib/swrFetcher";
+import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import useSWR from "swr";
 
 export default function Page() {
+  const [status, setStatus] = useState("all");
   const [input, setInput] = useState("");
+  const [concerns, setConcerns] = useState<any>(null);
+  const [query, setQuery] = useState({
+    search: "",
+    status: "",
+  });
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false&validation=true`,
+    fetcher
+  );
+  useEffect(() => {
+    if (!data) return;
+    setConcerns(data.data);
+  }, [data]);
+  if (isLoading) return <p>Loading</p>;
+
+  if (error) {
+    toast.error("Failed to load concern data.");
+    notFound();
+  }
+  const filteredConcern = concerns?.filter((c: any) => {
+    const search = input.toLowerCase();
+    if (status !== "all" && c.validation !== status && c.status !== status) {
+      return false;
+    }
+
+    // SEARCH FILTER (optional)
+    if (!search) return true;
+    return (
+      c.id.toString().includes(search) ||
+      c.user?.fullname.toLowerCase().includes(search) ||
+      c.category?.name.toLowerCase().includes(search) ||
+      c.details.toLowerCase().includes(search) ||
+      c.title.toLowerCase().includes(search)
+    );
+  });
+
   return (
     <>
       <div className="flex items-center justify-between mb-6">
@@ -44,20 +86,12 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="px-4 py-3">C-2025-002</td>
-              <td className="px-4 py-3">Local Vendor</td>
-              <td className="px-4 py-3">Notice to Comply</td>
-              <td className="px-4 py-3">—</td>
-              <td className="px-4 py-3">
-                <Button
-                  className="px-3 py-1
-                   bg-purple-600 text-white rounded text-sm hover:bg-purple-700 cursor-pointer"
-                >
-                  Generate
-                </Button>
-              </td>
-            </tr>
+            <ViewConcernRows
+              concerns={filteredConcern}
+              onDelete={(id: number) =>
+                setConcerns((prev: any) => prev.filter((c: any) => c.id !== id))
+              }
+            />
           </tbody>
         </table>
       </div>

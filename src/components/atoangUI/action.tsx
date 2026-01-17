@@ -2,7 +2,8 @@ import { useConcern } from "@/contexts/concernContext";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import GenerateSummonModal from "./summon/summonModal";
+import GenerateSummonModal from "./actions/summonModal";
+import ScheduleMediationModal from "./actions/mediationModal";
 
 export default function TakeActionModal({
   open,
@@ -27,6 +28,7 @@ export default function TakeActionModal({
         </DialogContent>
       </Dialog>
       <GenerateSummonModal open={openSummon} setOpen={setOpenSummon}/>
+      <ScheduleMediationModal open={openMediation} setOpen={setOpenMediation}/>
     </>
   );
 }

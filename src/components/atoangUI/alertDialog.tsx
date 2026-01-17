@@ -9,14 +9,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LucideIcon,  } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import React from "react";
 import { IconType } from "react-icons";
 
 interface AlertDialogProps {
   trigger: React.ReactNode;
   Icon: LucideIcon | IconType;
-  message: string;
+  message?: string;
   headMessage: string;
   IconColor?: "destructive" | "success" | "accent" | "info" | string;
   children?: React.ReactNode;
@@ -35,18 +35,19 @@ export default function DialogAlert({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            <div className={`mx-auto sm:mx-0 mb-4 flex h-9 w-9 items-center justify-center rounded-full bg-${IconColor}/10`}>
+            <div
+              className={`mx-auto sm:mx-0 mb-4 flex flex-row gap-3 items-center justify-center rounded-full bg-${IconColor}/10`}
+            >
               <Icon className={`h-6 w-6 text-${IconColor}`} />
+
+              <span>{headMessage}</span>
             </div>
-            {headMessage}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
             {children ? children : message}
-          </AlertDialogDescription>
+          
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

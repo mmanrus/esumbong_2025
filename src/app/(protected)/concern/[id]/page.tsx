@@ -20,6 +20,8 @@ import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fetcher } from "@/lib/swrFetcher";
+import Image from "next/image";
+import ConcernMediaGrid from "@/components/atoangUI/ConcernMediaGrid";
 
 export default function Page() {
   const { user } = useAuth();
@@ -52,7 +54,26 @@ export default function Page() {
     toast.error("Failed to load concern data.");
     notFound();
   }
+  const MAX_VISIBLE = 5;
+  const visibleMedia = concern?.media.slice(0, MAX_VISIBLE);
+  const extraCount = concern?.length - MAX_VISIBLE;
 
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/concern/delete/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const { error } = await res.json();
+        toast.error(error);
+      }
+      const { message } = await res.json();
+      toast.success(message);
+    } catch (error) {
+      toast.error("Something went wrong");
+      return;
+    }
+  };
   return (
     <>
       <Card>
@@ -85,7 +106,7 @@ export default function Page() {
             <span>
               date issued:{" "}
               {concern?.issuedAt
-                ? new Date(concern.issuedAt).toLocaleString()
+                ? new Date(concern?.issuedAt).toLocaleString()
                 : "N/A"}
             </span>
           </CardDescription>
@@ -98,11 +119,15 @@ export default function Page() {
               )}
               {user?.type === "resident" && user?.id === concern?.userId && (
                 <>
-                  <Button>Delete Concern</Button>
+                  <Button onClick={() => handleDelete(id)}>
+                    Delete Concern
+                  </Button>
                   <Button>Update Concern</Button>
                 </>
               )}
             </div>
+            <ConcernMediaGrid media={concern?.media} />
+
           </CardContent>
         </CardHeader>
       </Card>
@@ -123,4 +148,3 @@ export default function Page() {
     </>
   );
 }
-

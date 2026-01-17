@@ -38,14 +38,12 @@ export async function login(prevState: any, formData: FormData) {
   }
   const result = await res.json()
   const { user, access, refresh } = result;
-  console.log("Login result:", result)
   // store access/refresh separately
   const cookieStore = await cookies();
   cookieStore.set("access_token", access, { httpOnly: true, secure: true });
   cookieStore.set("refresh_token", refresh, { httpOnly: true, secure: true });
 
   // store SMALL session cookie
-  console.log("User type upon login:", user.user.type)
   await setSession({
     userId: user.user?.id,
     type: user.user?.type,
