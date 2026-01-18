@@ -2,6 +2,13 @@
 import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetcher } from "@/lib/swrFetcher";
 import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,7 +25,7 @@ export default function Page() {
   });
   const { data, error, isLoading, mutate } = useSWR(
     `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false&validation=true`,
-    fetcher
+    fetcher,
   );
   useEffect(() => {
     if (!data) return;
@@ -57,6 +64,39 @@ export default function Page() {
           <p className="text-sm text-gray-600">
             Create summons documents for concerned parties.
           </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Search by case, name, plate..."
+            className="border p-2 rounded-md cursor-text focus:ring-2 focus:ring-blue-400"
+          />
+
+          <Select defaultValue="all" onValueChange={setStatus} value={status}>
+            <SelectTrigger className="w-[180px] cursor-pointer">
+              <SelectValue placeholder="Report type" />
+            </SelectTrigger>
+            <SelectContent className="cursor-pointer">
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="assigned">Assigned</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() =>
+              setQuery({
+                search: input,
+                status: status === "all" ? "" : status,
+              })
+            }
+            className="px-4 py-2 bg-green-600 rounded cursor-pointer hover:bg-gray-300"
+          >
+            Search
+          </Button>
         </div>
         <div className="flex items-center space-x-3">
           <Input

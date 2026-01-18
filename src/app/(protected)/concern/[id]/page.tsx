@@ -55,8 +55,6 @@ export default function Page() {
     notFound();
   }
   const MAX_VISIBLE = 5;
-  const visibleMedia = concern?.media.slice(0, MAX_VISIBLE);
-  const extraCount = concern?.length - MAX_VISIBLE;
 
   const handleDelete = async (id: string) => {
     try {

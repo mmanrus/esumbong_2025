@@ -1,6 +1,51 @@
+"use client";
+import Tiptap from "@/components/MenuBar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
+  const [form, setForm] = useState({
+    title: "",
+    announcement: "",
+  });
+  const handleChange = (field: any, value: any) => {
+    if (field === "files") {
+      setForm((prev) => ({ ...prev, files: Array.from(value) }));
+    } else {
+      setForm((prev) => ({ ...prev, [field]: value }));
+    }
+  };
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("announcement", form.announcement);
+      // Submit formData to your API endpoint
+      const res = await fetch("/api/announcement", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || "Failed to add announcement");
+        return;
+      }
+      toast.success("Announcement added successfully");
+      setForm({
+        title: "",
+        announcement: "",
+      });
+      return;
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while adding the announcement.");
+      return;
+    }
+  };
+
   return (
     <>
       <h2 className="text-3xl font-bold mb-6 text-[#1F4251] flex items-center space-x-3">
@@ -8,15 +53,25 @@ export default function Page() {
         <span>Manage Announcements</span>
       </h2>
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <form id="announcementForm" className="space-y-4">
-          <input
-            id="announcementInput"
+        <form
+          id="announcementForm"
+          className="space-y-4"
+          onSubmit={handleSubmit}
+        >
+          <Input
             type="text"
-            placeholder="Enter new announcement..."
-            className="w-full border p-3 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            required
+            placeholder="Title of Announcement"
+            value={form.title}
+            onChange={(e) => handleChange("title", e.target.value)}
           />
-          <Button className="cursor-pointer bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700">
+          <Tiptap
+            content={form.announcement}
+            onChange={(html: string) => handleChange("announcement", html)}
+          />
+          <Button
+            type="submit"
+            className="cursor-pointer bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700"
+          >
             Add Announcement
           </Button>
         </form>
