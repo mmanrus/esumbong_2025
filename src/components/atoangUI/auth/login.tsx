@@ -29,10 +29,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/authContext";
 import { login } from "@/action/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-
+  const router = useRouter();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -41,12 +42,32 @@ export default function LoginPage() {
     resolver: zodResolver(LoginFormSchema),
   });
 
-  const [state, action, pending] = useActionState(login, {
-    errors: {},
-    message: "",
-    success: false,
-  });
-  const { isLoading } = useAuth();
+  const { refreshUser, loading } = useAuth();
+  const onSubmit = async (values: { email: string; password: string }) => {
+    try {
+      const formData = new FormData();
+      formData.set("email", values.email);
+      formData.set("password", values.password);
+
+      // Call your server action
+      const result = await login(null, formData);
+
+      if (!result.success) {
+        // Handle errors
+        console.log("Login failed:", result.message, result.errors);
+        return;
+      }
+
+      // Refresh AuthProvider to get updated user
+      await refreshUser();
+      if (result.user.type === "admin") router.push("/admin");
+      else if (result.user.type === "resident") router.push("/resident");
+      else if (result.user.type === "barangay_official")
+        router.push("/officials");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="max-w-xs m-auto w-full flex flex-col items-center">
@@ -100,7 +121,10 @@ export default function LoginPage() {
       </div>
 
       <Form {...form}>
-        <form className="w-full space-y-4" action={action}>
+        <form
+          className="w-full space-y-4"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
           <FormField
             control={form.control}
             name="email"
@@ -137,7 +161,7 @@ export default function LoginPage() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="mt-4 w-full" disabled={isLoading}>
+          <Button type="submit" className="mt-4 w-full" disabled={loading}>
             Login
           </Button>
         </form>

@@ -15,6 +15,8 @@ export async function POST(request: NextRequest) {
         const raw = {
             title: body.get("title") as string,
             content: body.get("announcement") as string,
+            notifyResidents: String(body.get("notifyResidents")) === "true",
+            notifyOfficials: String(body.get("notifyOfficials")) === "true",
         };
 
         const res = await fetch(`${process.env.BACKEND_URL}/api/announcements`, {

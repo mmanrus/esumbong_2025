@@ -49,12 +49,7 @@ export async function login(prevState: any, formData: FormData) {
     type: user.user?.type,
   });
 
-  // redirect cleanly
-  if (user.type === "admin") redirect("/admin");
-  if (user.type === "resident") redirect("/resident");
-  if (user.type === "barangay_official") redirect("/officials");
-
-  redirect("/landingPage");
+  return { message: "Login successful.", success: true, user: user.user };
 }
 
 

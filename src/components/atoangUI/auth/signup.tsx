@@ -37,7 +37,7 @@ export default function SignupPage() {
       address: "",
       confirmPassword: "",
       contactNumber: "",
-      type: "barangay_official",
+      type: "resident",
     },
     resolver: zodResolver(SignupFormSchema),
   });

@@ -21,16 +21,15 @@ export const verifySession = cache(async () => {
     return { isAuth: true, access: session?.access, useId: session?.userId };
   } catch (err) {
     console.error("Failed verifying cookie:", err);
-    console.error("Failed verifying cookie:", err);
-    throw new Error("Failed to get session");
+    return null
   }
 });
 
 export const getUser = async () => {
   const session = await verifySession();
 
-  if (!session.isAuth) return null;
-  
+  if (!session?.isAuth) return null;
+
   const cookieStore = await cookies()
   const accessToken = cookieStore.get(COOKIE_NAME)?.value
 

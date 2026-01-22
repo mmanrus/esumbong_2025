@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogTitle, DialogContent } from "../ui/dialog";
 import { useConcern } from "@/contexts/concernContext";
+import { toast } from "sonner";
 
 export default function ValidationModal({
   open,
@@ -12,13 +13,22 @@ export default function ValidationModal({
 }) {
   
   const { concern, concernId } = useConcern();
+  const [isLoading, setLoading] = useState(false)
   const handleValidation = async (
     status: "approved" | "rejected" | "pending" | null
   ) => {
+    setLoading(true)
     const res = await fetch(`/api/concern/validate/${concernId}`, {
       method: "PATCH",
       body: JSON.stringify({ validation: status }),
     });
+    if (!res.ok) {
+      setLoading(false)
+      toast.error("Error uppon validating")
+      return
+    }
+    setLoading(false)
+    toast.success("Successfully validated.")
   };
   const [newValidation, setNewvalidation] = useState<
     "approved" | "rejected" | "pending" | null
@@ -35,7 +45,7 @@ export default function ValidationModal({
           }}
         >
           <Button
-            disabled={concern?.validation === "approved"}
+            disabled={concern?.validation === "approved" || isLoading}
             type="submit"
             onClick={() => setNewvalidation("approved")}
           >
@@ -44,7 +54,7 @@ export default function ValidationModal({
           <Button
             variant="destructive"
             type="submit"
-            disabled={concern?.validation === "rejected"}
+            disabled={concern?.validation === "rejected" || isLoading}
             onClick={() => setNewvalidation("rejected")}
           >
             Reject
@@ -52,7 +62,7 @@ export default function ValidationModal({
           <Button
             variant="outline"
             type="submit"
-            disabled={concern?.validation === "pending"}
+            disabled={concern?.validation === "pending" || isLoading}
             onClick={() => setNewvalidation("pending")}
           >
             Pending

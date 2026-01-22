@@ -61,7 +61,7 @@ export default function ConcernMediaGrid({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-0 max-w-none! max-h-none! bg-transparent border-0 lg:w-[70%] lg:h-[80%]!">
           <VisuallyHidden>
-            <DialogTitle>Report Concern</DialogTitle>
+            <DialogTitle>Images Concern</DialogTitle>
           </VisuallyHidden>
           <Carousel
             key={selectedIndex}
