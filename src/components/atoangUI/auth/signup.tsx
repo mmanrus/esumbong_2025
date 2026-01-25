@@ -58,9 +58,8 @@ export default function SignupPage() {
         })
       }
 
-      const result = await res.json();
+       await res.json();
       toast.success("Registration successful!")
-      console.log("User registered:", result);
     } catch (error) {
       console.error("Registration error:", error);
     } finally {

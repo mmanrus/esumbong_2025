@@ -1,4 +1,5 @@
 // lib/sidebarConfig.ts
+import { SidebarPage } from "@/components/app-sidebar";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -18,32 +19,31 @@ import {
 } from "lucide-react";
 export type UserRole = "admin" | "resident" | "barangay_official";
 
-export const SIDEBAR_CONFIG = {
+export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
-    { id: "/officials/dashboard", name: "Dashboard", icon: LayoutDashboard },
-    { id: "/officials/viewConcerns", name: "View Concerns", icon: FolderOpen },
-    { id: "/officials/validateConcerns", name: "Validate / Record", icon: CheckCircle },
-    { id: "/officials/assignConcerns", name: "Assign / Respond", icon: Users },
-    { id: "/officials/updateStatus", name: "Update Status", icon: RotateCw },
-    { id: "/officials/generateSummons", name: "Generate Summons", icon: FileText },
-    { id: "/officials/scheduleMediation", name: "Schedule Mediation", icon: Calendar },
-    { id: "/officials/reports", name: "Reports & Analytics", icon: ChartBar },
-    { id: "/officials/archives", name: "Archives", icon: Archive },
-    { id: "/officials/manageAnnouncements", name: "Manage Announcements", icon: Megaphone },
-    { id: "/officials/profile", name: "Profile", icon: User },
+    { id: "/officials/dashboard", url: "/officials/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
+    { id: "/officials/generateSummons", url: "/officials/generateSummons", title: "Generate Summons", icon: FileText },
+    { id: "/officials/scheduleMediation", url: "/officials/scheduleMediation", title: "Schedule Mediation", icon: Calendar },
+    { id: "/officials/reports", url: "/officials/reports", title: "Reports & Analytics", icon: ChartBar },
+    { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
+    { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },
   ],
 
   resident: [
-    { id: "/resident/dashboard", name: "Dashboard", icon: LayoutDashboard },
-    { id: "/resident/submitConcern", name: "Submit Concern", icon: Pencil },
-    { id: "/resident/submitFeedback", name: "Submit Feedback", icon: MessageCircle },
-    { id: "/resident/trackStatus", name: "Track Status", icon: ChartBar },
-    { id: "/resident/history", name: "History", icon: Clock },
-    { id: "/resident/profile", name: "Profile", icon: User },
+    { id: "/resident/dashboard", url: "/resident/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/resident/submitConcern", url: "/resident/submitConcern", title: "Submit Concern", icon: Pencil },
+    { id: "/resident/submitFeedback", url: "/resident/submitFeedback", title: "Submit Feedback", icon: MessageCircle },
+    { id: "/resident/trackStatus", url: "/resident/trackStatus", title: "Track Status", icon: ChartBar },
+    { id: "/resident/history", url: "/resident/history", title: "History", icon: Clock },
+    { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
   ],
 
   admin: [
-    { id: "/admin/dashboard", name: "Dashboard", icon: LayoutDashboard },
-    { id: "/admin/category", name: "Categories", icon: Tag },
+    { id: "/admin/dashboard", url: "/admin/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/admin/category", url: "/admin/category", title: "Categories", icon: Tag },
+    { id: "/admin/users", url: "/admin/users", title: "Users", icon: Users },
+
+    { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
   ],
-};
+}

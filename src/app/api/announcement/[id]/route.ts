@@ -25,7 +25,6 @@ export async function GET(
             return NextResponse.json({ error: data.error || "Failed to fetch announcement" }, { status: res.status })
         }
         const data = await res.json()
-        console.log("Fetched announcement:" + id, data)
         return NextResponse.json({ data: data }, { status: 200 })
 
     } catch (error) {

@@ -7,7 +7,6 @@ export default function Page() {
   const [concern, setConcern] = useState<any>(null);
   const { id } = useParams<{id: string}>()
   useEffect(() => {
-    console.log("Concern id from concern page:", id)
     if(!id) return
     fetchData()
   }, [id]);

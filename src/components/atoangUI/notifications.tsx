@@ -22,7 +22,7 @@ export default function NotificationComponent({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="bg-transparent">
+        <Button className="bg-transparent text-black hover:text-white">
           <BellIcon className="h-4 w-4 mr-2" />
           Notifications
           {notifications.length > 0 && (

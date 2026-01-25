@@ -20,7 +20,7 @@ export default function TopNavBar({ title="Official Dashboard" }: { title?: stri
         />
         <div>
           <h1 className="text-2xl font-semibold leading-tight">E-Sumbong</h1>
-          <p className="text-sm opacity-90">{title}</p>
+        <p className="text-sm opacity-90">{ user?.type === "admin" ? "Admin Dashboard" : user?.type === "resident" ? "Resident Dashboard" : user?.type === "barangay_official" ? "Barangay Official" : "Dashboard"}</p>
         </div>
       </div>
       {/* Mobile Menu Button */}

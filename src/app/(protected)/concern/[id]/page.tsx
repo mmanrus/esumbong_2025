@@ -101,6 +101,7 @@ export default function Page() {
           <CardDescription className="flex flex-col gap-1">
             <span>Submitted by: {concern?.user?.fullname}</span>
             <span>email: {concern?.user?.email}</span>
+            <span>Needs barangay assistance: {concern?.needsBarangayAssistance ? "Yes" : "No"}</span>
             <span>
               date issued:{" "}
               {concern?.issuedAt

@@ -1,0 +1,37 @@
+import { COOKIE_NAME } from "@/lib/constants"
+import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+    const { id } = await params
+
+    try {
+        const cookieStore = await cookies()
+        const accessToken = cookieStore.get(COOKIE_NAME)?.value
+
+        if (!accessToken) {
+            return NextResponse.json({ error: "Unauthorized" })
+        }
+        const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+        if (!res.ok) {
+            const data = await res.json()
+            return NextResponse.json(
+                { error: data.error },
+                { status: res.status }
+            )
+        }
+        const data = await res.json()
+        return NextResponse.json(
+            { message: data.message },
+            { status: res.status }
+        )
+    } catch (error) {
+        console.error("Error deleting profile:", error)
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    }
+}

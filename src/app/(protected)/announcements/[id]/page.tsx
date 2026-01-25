@@ -39,7 +39,6 @@ export default function Page() {
       <div>
         <h1>{announcement?.title}</h1>
         <div className="prose max-w-none">
-          <>{announcement?.content}</>
           <ContentPage content={announcement?.content} />
         </div>
       </div>

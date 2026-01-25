@@ -18,9 +18,7 @@ export function useNotification(userId?: string) {
           }
           const data = await result.json()
 
-          console.log("Fetched notifications data:", data.data)
           setNotification(data.data)
-          console.log("Notifications state after fetch:", notifications)
      }
      useEffect(() => {
           const ws = new WebSocket("ws://localhost:4001")

@@ -2,40 +2,74 @@ import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/sessions";
 import { COOKIE_NAME } from "@/lib/constants";
 
-const protectedRoutes = ["/admin", '/resident', '/officials'];
-const publicRoutes = ["/landingPage"];
+// Dashboard routes
+const dashboardRoutes = {
+  admin: "/admin",
+  resident: "/resident",
+  official: "/officials",
+};
+
+// Public pages (login/landing)
+const publicPages = ["/landingPage", "/landingPage/auth"];
+
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   const cookie = req.cookies.get(COOKIE_NAME)?.value;
   const session = cookie ? await decrypt(cookie) : null;
 
-  console.log("MIDDLEWARE path:", path);
-  console.log("MIDDLEWARE cookie:", cookie);
-  console.log("MIDDLEWARE session:", session);
-  console.log("SESSION KEYS:", Object.keys(session || {}));
+  console.log("Middleware path:", path);
+  console.log("Session:", session);
 
-  if (path === "/" && !session) {
-    return NextResponse.redirect(new URL("/landingPage", req.nextUrl));
-  }
-  if (protectedRoutes.includes(path) && !session) {
-    return NextResponse.redirect(new URL("/landingPage/auth?form=login", req.nextUrl));
-  }
-
-  if (publicRoutes.includes(path) && session && session.type === "admin") {
-    return NextResponse.redirect(new URL("/admin", req.nextUrl));
+  // ----- 1. Redirect not logged-in users to login page if they hit protected routes
+  if (!session) {
+    if (Object.values(dashboardRoutes).some((route) => path.startsWith(route))) {
+      return NextResponse.redirect(new URL("/landingPage/auth?form=login", req.nextUrl));
+    }
+    return NextResponse.next(); // allow public pages
   }
 
-  if (publicRoutes.includes(path) && session && session.type === "resident") {
-    return NextResponse.redirect(new URL("/resident", req.nextUrl));
+  // ----- 2. Prevent logged-in users from accessing login page
+  if (publicPages.includes(path)) {
+    // redirect based on session type
+    switch (session.type) {
+      case "admin":
+        return NextResponse.redirect(new URL("/admin", req.nextUrl));
+      case "resident":
+        return NextResponse.redirect(new URL("/resident", req.nextUrl));
+      case "barangay_official":
+        return NextResponse.redirect(new URL("/officials", req.nextUrl));
+    }
   }
 
-  if (publicRoutes.includes(path) && session && session.type === "barangay_official") {
-    return NextResponse.redirect(new URL("/officials", req.nextUrl));
+  // ----- 3. Prevent users from accessing other dashboards
+  if (session.type) {
+    const userType = session.type;
+
+    if (userType === "admin" && (path.startsWith("/resident") || path.startsWith("/officials"))) {
+      return NextResponse.redirect(new URL("/admin", req.nextUrl));
+    }
+
+    if (userType === "resident" && (path.startsWith("/admin") || path.startsWith("/officials"))) {
+      return NextResponse.redirect(new URL("/resident", req.nextUrl));
+    }
+
+    if (userType === "barangay_official" && (path.startsWith("/admin") || path.startsWith("/resident"))) {
+      return NextResponse.redirect(new URL("/officials", req.nextUrl));
+    }
   }
+
+  // ----- 4. Allow access to correct pages
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/landingPage", "/officials/:path*", "/resident/:path*", "/admin/:path*"],
+  matcher: [
+    "/", 
+    "/landingPage", 
+    "/landingPage/auth", 
+    "/officials/:path*", 
+    "/resident/:path*", 
+    "/admin/:path*"
+  ],
 };

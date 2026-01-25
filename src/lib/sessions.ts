@@ -11,7 +11,6 @@ const key = new TextEncoder().encode(secret);
 
 
 export async function encrypt(payload: JWTPayload) {
-  console.log(`Encrypt: ${payload}`)
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -21,7 +20,6 @@ export async function encrypt(payload: JWTPayload) {
 
 export async function decrypt(token: string) {
   try {
-    console.log("Decrypting token",token)
     const { payload } = await jwtVerify(token, key);
 
     return payload;

@@ -12,20 +12,20 @@ export async function POST(request: NextRequest) {
         if (!accessToken) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
+
         const raw = {
             title: body.get("title") as string,
             content: body.get("announcement") as string,
-            notifyResidents: String(body.get("notifyResidents")) === "true",
-            notifyOfficials: String(body.get("notifyOfficials")) === "true",
+            notifyResidents: body.get("notifyResidents") === "true",
+            notifyOfficials: body.get("notifyOfficials") === "true",
         };
-
         const res = await fetch(`${process.env.BACKEND_URL}/api/announcements`, {
             method: "POST",
+            body: JSON.stringify(raw),
             headers: {
                 Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json", //
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(raw)
         })
         if (!res.ok) {
             const data = await res.json()
