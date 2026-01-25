@@ -1,9 +1,9 @@
 // OfficialLayout.jsx
-"use client";
-import { useState, ReactNode, useEffect } from "react";
+"use client"
+export const dynamic = "force-dynamic";
 
-import EsumbongNavBar from "@/components/atoangUI/esumbongSidebar";
-import TopNavBar from "@/components/atoangUI/layout/TopNavBar";
+import { ReactNode } from "react";
+
 import { useAuth } from "@/contexts/authContext";
 import { SIDEBAR_CONFIG, UserRole } from "@/lib/sidebarConfig";
 import { redirect, usePathname } from "next/navigation";
@@ -15,14 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import NotificationComponent from "@/components/atoangUI/notifications";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";

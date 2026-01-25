@@ -1,9 +1,9 @@
 import { COOKIE_NAME } from "@/lib/constants"
 import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-    const { id } = await params
+export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+    const { id } = await context.params
 
     try {
         const cookieStore = await cookies()

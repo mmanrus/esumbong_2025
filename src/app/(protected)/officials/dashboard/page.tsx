@@ -1,4 +1,5 @@
 "use client"
+
 import { useAuth } from "@/contexts/authContext";
 import { getFirstName } from "@/lib/formatWord";
 

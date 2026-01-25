@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { ConcernFormSchema } from "@/defs/concern";
 import { COOKIE_NAME } from "@/lib/constants";
 import { decrypt } from "@/lib/sessions";

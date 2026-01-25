@@ -1,4 +1,4 @@
-
+export const dynamic = "force-dynamic";
 import { SignupFormSchema} from "@/defs/definitions"
 import { NextResponse } from "next/server"
 const backendUrl = process.env.BaCKEND_URL;

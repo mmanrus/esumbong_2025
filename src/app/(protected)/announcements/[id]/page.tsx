@@ -1,4 +1,5 @@
 "use client";
+
 import ContentPage from "@/components/read-only-editor";
 import { useAuth } from "@/contexts/authContext";
 import { fetcher } from "@/lib/swrFetcher";

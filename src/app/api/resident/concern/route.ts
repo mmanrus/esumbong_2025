@@ -1,11 +1,9 @@
+export const dynamic = "force-dynamic";
 import { ConcernFormSchema } from "@/defs/concern";
 import { COOKIE_NAME } from "@/lib/constants";
 import { decrypt } from "@/lib/sessions";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { FormData as NodeFormData } from "formdata-node";
-import { FormDataEncoder } from "form-data-encoder";
-import { Readable } from "stream";
 
 const BACKEND_URL = process.env.BACKEND_URL;
 if (!BACKEND_URL) throw new Error("BACKEND_URL is not defined");

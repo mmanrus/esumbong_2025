@@ -1,9 +1,9 @@
 import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const { id } = await params
+export async function PATCH(req: NextRequest, context : { params: Promise<{ id: string }> }) {
+  const { id } = await context.params
   const formData = await req.formData();
   const parsed = {
     fullname: formData.get("fullname") as string,

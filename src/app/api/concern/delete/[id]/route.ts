@@ -1,10 +1,14 @@
+export const dynamic = "force-dynamic";
 import { COOKIE_NAME } from "@/lib/constants"
 import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 
-export async function DELETE({ params }: { params: { id: string } }) {
-    const { id } =  params
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params; // destructure inside body
 
     try {
         const cookieStore = await cookies()

@@ -1,13 +1,14 @@
+export const dynamic = "force-dynamic";
 
 import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest, // must be NextRequest
+    context: { params: Promise<{ id: string}> } // do NOT destructure here
 ) {
-    const { id } = params;
+    const { id } =  await context.params; // destructure inside function body
 
     try {
         const cookieStore = await cookies();
@@ -19,11 +20,13 @@ export async function GET(
 
         const [res, resUpdates] = await Promise.all([
             fetch(`${process.env.BACKEND_URL}/api/concern/${id}`, {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             }),
             fetch(`${process.env.BACKEND_URL}/api/concern/updates/${id}`, {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

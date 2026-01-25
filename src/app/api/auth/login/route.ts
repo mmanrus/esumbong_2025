@@ -1,5 +1,5 @@
 
-
+export const dynamic = "force-dynamic";
 const url = process.env.BACKEND_URL;
 if (!url) {
     throw new Error("Backend Url is not defined in environment variables.")

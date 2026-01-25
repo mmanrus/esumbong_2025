@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+export const dynamic = "force-dynamic";
 import "./globals.css";
 import { AuthProvider, User } from "@/contexts/authContext";
 import { getUser } from "@/lib/dal";

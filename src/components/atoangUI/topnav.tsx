@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { ReactNode} from "react";
 import Link from "next/link";
 import {cn} from "@/lib/utils"
 import {
@@ -65,20 +65,5 @@ export default function NavigationMenuDemo() {
         </NavigationMenuList>
       </NavigationMenu>
     </div>
-  );
-}
-
-function ListItem({ title, children, href, ...props }) {
-  return (
-    <li {...props}>
-      <NavigationMenuLink asChild>
-        <Link href={href}>
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
   );
 }

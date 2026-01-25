@@ -1,12 +1,14 @@
+export const dynamic = "force-dynamic";
+
 import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params; // destructure inside body
   try {
     const body = await request.json();
     const { validation } = body;

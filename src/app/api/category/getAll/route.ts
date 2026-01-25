@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextResponse, NextRequest } from "next/server";
