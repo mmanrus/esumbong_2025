@@ -9,7 +9,7 @@ export async function POST(
     { params }: { params: { id: string } }
 ) {
     const body = await request.formData();
-    const { id } = await params
+    const { id } =  params
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
     if (!accessToken) {

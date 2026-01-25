@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 
 
 export async function DELETE({ params }: { params: { id: string } }) {
-    const { id } = await params
+    const { id } =  params
 
     try {
         const cookieStore = await cookies()
