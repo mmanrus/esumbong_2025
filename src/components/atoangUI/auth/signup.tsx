@@ -43,7 +43,6 @@ export default function SignupPage() {
   });
   const onSubmit = async (data: SignUpFormType) => {
     setIsLoading(true);
-    console.log("Data to be sent", data);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
