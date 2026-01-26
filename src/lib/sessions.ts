@@ -34,6 +34,7 @@ export async function setSession(payload: JWTPayload) {
   const token = await encrypt(payload);
   cookie.set(COOKIE_NAME, token, {
     httpOnly: true,
+    sameSite: "none",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
