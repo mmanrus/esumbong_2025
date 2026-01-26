@@ -5,7 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 
 
-const url = process.env.BACKEND_URL
+const url = process.env.NEXT_PUBLIC_BACKEND_URL
 if (!url) {
     throw new Error("Backend Url is not defined in environment variables.")
 }

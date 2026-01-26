@@ -18,7 +18,7 @@ export async function DELETE(
                 error: "Unauthorize"
             })
         }
-        const res = await fetch(`${process.env.BACKEND_URL}/api/concern/${id}`,
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/${id}`,
             {
                 method: "DELETE",
                 credentials: "include",

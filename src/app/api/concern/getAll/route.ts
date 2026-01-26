@@ -20,7 +20,7 @@ export const GET = async (request: NextRequest) => {
             })
         }
 
-        const res = await fetch(`${process.env.BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation={${encodeURIComponent(validation)}}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation={${encodeURIComponent(validation)}}`, {
             method: "GET",
             credentials: "include",
             headers: {

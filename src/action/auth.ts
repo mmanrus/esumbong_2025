@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { setSession } from "@/lib/sessions"; // uses jose
 
-const BACKEND_URL = process.env.BACKEND_URL;
-if (!BACKEND_URL) throw new Error("BACKEND_URL is not defined in environment variables")
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+if (!NEXT_PUBLIC_BACKEND_URL) throw new Error("BACKEND_URL is not defined in environment variables")
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 if (!APP_URL) throw new Error("NEXT_PUBLIC_APP_URL is not defined in environment variables")
 

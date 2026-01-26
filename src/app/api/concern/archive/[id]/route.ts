@@ -19,7 +19,7 @@ export async function PATCH(
             })
         }
 
-        const res = await fetch(`${process.env.BACKEND_URL}/api/concern/archive/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/archive/${id}`, {
             method: "PATCH",
             credentials: "include",
             headers: {

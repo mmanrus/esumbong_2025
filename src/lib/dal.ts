@@ -33,7 +33,7 @@ export const getUser = async () => {
   const cookieStore = await cookies()
   const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
-  const res = await fetch(`${process.env.BACKEND_URL}/api/users/me`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
     method: "GET",
     credentials: "include",
     headers: {

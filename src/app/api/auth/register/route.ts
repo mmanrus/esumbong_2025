@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 import { SignupFormSchema} from "@/defs/definitions"
 import { NextResponse } from "next/server"
-const backendUrl = process.env.BACKEND_URL;
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (!backendUrl) {
-    throw new Error("BACKEND_URL is not defined in environment variables.")
+    throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined in environment variables.")
 } 
 export async function POST(request: Request) {
 

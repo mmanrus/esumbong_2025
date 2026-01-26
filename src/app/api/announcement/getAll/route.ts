@@ -15,7 +15,7 @@ export async function GET(request: Request) {
         if (!accessToken) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
-        const res = await fetch(`${process.env.BACKEND_URL}/api/announcements?sidbar=${encodeURIComponent(sidbar)}?search=${encodeURIComponent(search)}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/announcements?sidbar=${encodeURIComponent(sidbar)}?search=${encodeURIComponent(search)}`, {
             method: "GET",
             credentials: "include",
             headers: {

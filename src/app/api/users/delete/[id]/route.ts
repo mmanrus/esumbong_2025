@@ -12,7 +12,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
         if (!accessToken) {
             return NextResponse.json({ error: "Unauthorized" })
         }
-        const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${id}`, {
             method: "DELETE",
             credentials: "include",
             headers: {

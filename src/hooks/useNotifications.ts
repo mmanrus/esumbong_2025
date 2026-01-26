@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 
-const url = process.env.BACKEND_URL
+const url = process.env.NEXT_PUBLIC_BACKEND_URL
 export function useNotification(userId?: string) {
      const [notifications, setNotification] = useState<any[]>([])
      useEffect(() => {

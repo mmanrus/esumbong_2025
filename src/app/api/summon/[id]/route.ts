@@ -3,7 +3,7 @@ import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL;
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function POST(
     request: NextRequest,
@@ -39,7 +39,7 @@ export async function POST(
             forward.append("files", blob, f.name);
         }
 
-        const res = await fetch(`${BACKEND_URL}/api/summon/${id}`, {
+        const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/summon/${id}`, {
             method: "POST",
             credentials: "include",
             body: forward,

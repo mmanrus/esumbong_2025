@@ -4,8 +4,8 @@ export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL;
-if (!BACKEND_URL) throw new Error("BACKEND_URL is not defined");
+const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+if (!NEXT_PUBLIC_BACKEND_URL) throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
 
 export async function POST(request: NextRequest) {
     console.log("POST /api/resident/concern hit"); // <-- top of function
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
             media: media, // ✅ metadata only
         };
      
-        const res = await fetch(`${BACKEND_URL}/api/concern`, {
+        const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/concern`, {
             method: "POST",
             credentials: "include",
             body: JSON.stringify(raw),

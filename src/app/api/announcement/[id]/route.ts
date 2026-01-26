@@ -18,7 +18,7 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`${process.env.BACKEND_URL}/api/announcements/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/announcements/${id}`, {
       method: "GET",
       credentials: "include",
       headers: {
