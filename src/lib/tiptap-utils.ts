@@ -378,7 +378,7 @@ export const handleImageUpload = async (
     throw new Error("Upload cancelled")
   }
   try {
-    const uploaded = await uploadFiles("imageUploader", {
+    const uploaded = await uploadFiles("mediaUploader", {
       files: [file],
       onUploadProgress: ({ progress }) => onProgress?.({ progress })
     })

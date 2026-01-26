@@ -1,39 +1,43 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
-import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-//const auth = (req: NextApiRequest, res: NextApiResponse) => ({ id: "fakeId" }); // Fake auth function
-
-// FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
-  imageUploader: f({
+  mediaUploader: f({
     image: {
-      /**
-       * For full list of options and defaults, see the File Route API reference
-       * @see https://docs.uploadthing.com/file-routes#route-config
-       */
-      maxFileSize: "4MB",
-      maxFileCount: 1,
+      maxFileCount: 10,
+      maxFileSize: "16MB", // ✅ string, uppercase MB
     },
-  })
-    /** // Set permissions and file types for this FileRoute
-    .middleware(async ({ req, res }) => {
-      // This code runs on your server before upload
-      const user = await auth(req, res);
+    video: {
+      maxFileCount: 1, // <--- this MUST be present
+      maxFileSize: "128MB", // ✅ string, uppercase MB
+    },
+  }).onUploadComplete(async ({ file }) => {
 
-      // If you throw, the user will not be able to upload
-      if (!user) throw new UploadThingError("Unauthorized");
+    //console.log("Upload success:", file);
+    // Optional: do something with DB
+    // await prisma.media.create({ data: { url: file.ufsUrl, name: file.name, type: file.type } });
+    return { url: file.ufsUrl, name: file.name, type: file.type, size: file.size };
+  }),
+  pdfOrDocxUploader: f({
+    image: {
+      maxFileCount: 10,
+      maxFileSize: "16MB", // ✅ string, uppercase MB
+    },
+    pdf: {
+      maxFileCount: 5,
+      maxFileSize: "16MB",
+    },
+    blob: {
+      maxFileCount: 5,
+      maxFileSize: "16MB",
+    },
+  }).onUploadComplete(async ({ file }) => {
 
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: user.id };
-    }) */
-    .onUploadComplete(async ({ file }) => {
-        return { url: file.ufsUrl };
-    }),
+    return { url: file.ufsUrl, name: file.name, type: file.type, size: file.size };
+  }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

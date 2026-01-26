@@ -1,11 +1,12 @@
 "use client";
 // submit Concern
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
   Select,
   SelectTrigger,
@@ -19,6 +20,8 @@ import clsx from "clsx";
 import { ConcernForm, ConcernFormSchema } from "@/defs/concern";
 import { useQuery } from "@tanstack/react-query";
 import { Category } from "@/defs/category";
+import { uploadFiles } from "@/lib/uploadthing";
+import { useDropzone } from "@uploadthing/react";
 
 const getCategories = async () => {
   try {
@@ -52,10 +55,27 @@ export default function SubmitConcernForm() {
     categoryId: "",
     details: "",
     other: "",
-    files: [],
     needsBarangayAssistance: null,
   });
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [progress, setProgress] = useState(0);
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setFiles(acceptedFiles);
 
+    const urls = acceptedFiles.map((file) => URL.createObjectURL(file));
+    setPreviews(urls);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [], "video/*": [] },
+    onDrop,
+  });
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
   const handleChange = (field: any, value: any) => {
     if (field === "files") {
       setForm((prev) => ({ ...prev, files: Array.from(value) }));
@@ -63,7 +83,6 @@ export default function SubmitConcernForm() {
       setForm((prev) => ({ ...prev, [field]: value }));
     }
   };
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -84,24 +103,66 @@ export default function SubmitConcernForm() {
 
     try {
       setLoading(true);
+
       const formData = new FormData();
+      let uploadedFiles:
+        | {
+            ufsUrl: string;
+            name: string;
+            size: number;
+            type: string;
+          }[]
+        | null = null;
+      if (files.length > 0) {
+        try {
+          console.log("Uploading files:", files);
+          const uploaded = await uploadFiles("mediaUploader", {
+            files,
+            onUploadProgress({ progress }) {
+              setProgress(progress);
+            },
+          });
+
+          if (!uploaded?.length) throw new Error("Upload failed");
+
+          const mediaData =
+            uploaded?.map((file) => ({
+              url: file.ufsUrl.toString(),
+              name: file.name,
+              size: file.size,
+              type: file.type,
+            })) ?? [];
+
+          formData.append("metaData", JSON.stringify(mediaData));
+
+          // reset UI
+          setFiles([]);
+          setPreviews([]);
+          setProgress(0);
+        } catch (err) {
+          console.log(err);
+          toast.error("Upload failed");
+          return;
+        }
+      }
+      console.log(formData.get("metaData"));
       formData.append("title", form.title);
       formData.append("details", form.details);
       formData.append(
         "needsBarangayAssistance",
-        String(form.needsBarangayAssistance)
+        String(form.needsBarangayAssistance),
       );
+      console.log("Uploaded files:::", uploadedFiles);
 
+      console.log("Media formdata:", formData.get("metaData"));
       if (form.categoryId === "other") {
         formData.append("categoryId", "");
         formData.append("other", form.other);
       } else {
         formData.append("categoryId", form.categoryId);
       }
-
-      form.files?.forEach((file) => formData.append("files", file));
-
-      const res = await fetch("/api/resident/concern", {
+      console.log(formData);
+      const res = await fetch("/api/concern/create", {
         method: "POST",
         body: formData,
       });
@@ -118,7 +179,6 @@ export default function SubmitConcernForm() {
         categoryId: "",
         details: "",
         other: "",
-        files: [],
         needsBarangayAssistance: null,
       });
     } catch (err) {
@@ -211,23 +271,57 @@ export default function SubmitConcernForm() {
                 onChange={(e) => handleChange("details", e.target.value)}
               />
             </div>
+            <div
+              {...getRootProps()}
+              className={`cursor-pointer border-2 border-dashed 
+              rounded-lg p-12 text-center transition ${
+                isDragActive
+                  ? "border-blue-500 bg-blue-50"
+                  : "boder-gray-300 bg-white"
+              }`}
+            >
+              <input {...getInputProps()} />
+              {previews.length === 0 ? (
+                <p>Drop the files here ...</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {previews.map((previewUrl, index) => {
+                    const currentFile = files[index];
 
-            <div className="cursor-pointer">
-              <Label htmlFor="files" className="text-lg font-medium">
-                Attach Supporting Files
-              </Label>
+                    if (!currentFile) return null;
 
-              <Input
-                id="files"
-                type="file"
-                multiple
-                className="mt-2 h-20 border"
-                onChange={(e) => handleChange("files", e.target.files)}
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Upload images or documents to support your concern.
-              </p>
+                    return currentFile.type.startsWith("image") ? (
+                      <Image
+                        key={previewUrl}
+                        src={previewUrl}
+                        alt="Concern file preview"
+                        width={300}
+                        height={150}
+                        className="max-h-64 w-full object-contain rounded"
+                      />
+                    ) : (
+                      <video
+                        key={previewUrl}
+                        src={previewUrl}
+                        controls
+                        className="max-h-64 w-full rounded"
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
+            {isLoading && (
+              <div className="space-y-2">
+                <div className="bg-gray-200 rounded-full h-3">
+                  <div
+                    className="bg-blue-600 h-1 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-center text-sm">{progress}</p>
+              </div>
+            )}
             <div>
               <Label className="text-lg font-medium">
                 Do you need barangay assistance?
@@ -266,7 +360,7 @@ export default function SubmitConcernForm() {
                   `bg-green-600 text-white px-6 py-3 
                          rounded-md hover:bg-green-700 text-lg
                          font-semibold transition`,
-                  loading && "bg-green-950"
+                  loading && "bg-green-950",
                 )}
                 disabled={loading}
               >
