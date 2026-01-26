@@ -17,6 +17,7 @@ export async function GET(request: Request) {
         }
         const res = await fetch(`${process.env.BACKEND_URL}/api/announcements?sidbar=${encodeURIComponent(sidbar)}?search=${encodeURIComponent(search)}`, {
             method: "GET",
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }

@@ -70,6 +70,7 @@ export default function UserDetailsDialog({
     setIsLoading(true);
     try {
       const res = await fetch(`/api/users/delete/${userId}`, {
+        credentials: "include",
         method: "DELETE",
       });
       if (!res.ok) {
@@ -120,6 +121,7 @@ export default function UserDetailsDialog({
     }
     try {
       const res = await fetch(`/api/users/update/${user?.id}`, {
+        credentials: "include",
         method: "PATCH",
         body: formData,
       });

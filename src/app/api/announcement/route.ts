@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
         const res = await fetch(`${process.env.BACKEND_URL}/api/announcements`, {
             method: "POST",
             body: JSON.stringify(raw),
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json"

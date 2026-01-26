@@ -19,6 +19,7 @@ export async function PATCH(
       `${process.env.BACKEND_URL}/api/concern/validate/${id}`,
       {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,

@@ -16,6 +16,7 @@ export async function GET() {
 
         const result = await fetch(`${url}/api/notification`, {
             method: "GET",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`,

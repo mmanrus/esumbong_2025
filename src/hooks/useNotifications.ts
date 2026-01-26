@@ -11,6 +11,7 @@ export function useNotification(userId?: string) {
      const res = async () => {
 
           const result = await fetch(`/api/notification/me`, {
+               credentials: "include",
                method: "GET",
           })
           if (!result.ok) {

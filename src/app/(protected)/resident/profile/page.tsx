@@ -27,6 +27,7 @@ export default function Page() {
       formData.append("contact", form.contact)
       formData.append("password", "") // No password change for now
       const res = await fetch("/api/profile/update", {
+        credentials: "include",
         method: "PATCH",
         body: formData
       })

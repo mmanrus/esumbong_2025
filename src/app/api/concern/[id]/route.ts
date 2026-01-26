@@ -21,12 +21,14 @@ export async function GET(
         const [res, resUpdates] = await Promise.all([
             fetch(`${process.env.BACKEND_URL}/api/concern/${id}`, {
                 method: "GET",
+                credentials: "include",
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             }),
             fetch(`${process.env.BACKEND_URL}/api/concern/updates/${id}`, {
                 method: "GET",
+                credentials: "include",
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

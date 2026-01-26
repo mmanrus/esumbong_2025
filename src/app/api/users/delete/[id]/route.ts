@@ -14,6 +14,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
         }
         const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}`, {
             method: "DELETE",
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }

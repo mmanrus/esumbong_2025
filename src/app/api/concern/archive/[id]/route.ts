@@ -21,6 +21,7 @@ export async function PATCH(
 
         const res = await fetch(`${process.env.BACKEND_URL}/api/concern/archive/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }

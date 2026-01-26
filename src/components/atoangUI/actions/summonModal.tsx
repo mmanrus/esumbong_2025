@@ -92,6 +92,7 @@ export default function GenerateSummonModal({
 
       const res = await fetch(`/api/summon/${concern?.id}`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
@@ -232,14 +233,4 @@ export default function GenerateSummonModal({
 }
 //https://time.openstatus.dev/#time-picker-utils.tsx
 
-const postSummon = async (form: any) => {
-  try {
-    const res = await fetch("", {
-      method: "POST",
-      body: form,
-    });
-  } catch (error) {
-    console.error("Error creating Summon:", error);
-    toast.error("Something went wrong upon creating summon.");
-  }
-};
+

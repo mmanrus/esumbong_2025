@@ -41,6 +41,7 @@ export default function Page() {
       // Submit formData to your API endpoint
       const res = await fetch("/api/announcement", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
       if (!res.ok) {

@@ -26,6 +26,7 @@ import { useDropzone } from "@uploadthing/react";
 const getCategories = async () => {
   try {
     const res = await fetch("/api/category/getAll", {
+      credentials: "include",
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -163,6 +164,7 @@ export default function SubmitConcernForm() {
       }
       console.log(formData);
       const res = await fetch("/api/concern/create", {
+        credentials: "include",
         method: "POST",
         body: formData,
       });

@@ -30,6 +30,7 @@ export async function login(prevState: any, formData: FormData) {
   const res = await fetch(`${APP_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ email, password }),
   });
 

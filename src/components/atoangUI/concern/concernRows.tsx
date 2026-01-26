@@ -42,6 +42,7 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
     setIsLoading(true);
 
     const res = await fetch(`/api/concern/validate/${concernId}`, {
+      credentials: "include",
       method: "PATCH",
       body: JSON.stringify({ validation: status }),
     });

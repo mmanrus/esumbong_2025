@@ -30,6 +30,7 @@ export default function ConcernDialog({
     setIsLoading(true);
     try {
       const res = await fetch(`/api/concern/archive/${concernId}`, {
+        credentials: "include",
         method: "PATCH",
       });
       if (!res.ok) {
@@ -51,6 +52,7 @@ export default function ConcernDialog({
     setIsLoading(true);
     try {
       const res = await fetch(`/api/concern/delete/${concernId}`, {
+        credentials: "include",
         method: "DELETE",
       });
       if (!res.ok) {

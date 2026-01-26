@@ -60,6 +60,7 @@ export default function Page() {
     try {
       const res = await fetch(`/api/concern/delete/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!res.ok) {
         const { error } = await res.json();

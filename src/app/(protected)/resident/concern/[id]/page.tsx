@@ -14,7 +14,9 @@ export default async function Page({
     fetchData()
   }, [id]);
   const fetchData = async () => {
-    const res = await fetch(`/api/concern/${id}`);
+    const res = await fetch(`/api/concern/${id}`,{
+      credentials: "include",
+    });
     const data = await res.json();
     if (!res.ok) {
       toast.error(data.message || "Something went wrong.");

@@ -35,6 +35,7 @@ export const getUser = async () => {
 
   const res = await fetch(`${process.env.BACKEND_URL}/api/users/me`, {
     method: "GET",
+    credentials: "include",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",

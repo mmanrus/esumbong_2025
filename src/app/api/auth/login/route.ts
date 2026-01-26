@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     try {
         const res = await fetch(`${url}/api/users/login/`, {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(parseResult.data)
         })

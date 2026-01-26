@@ -21,6 +21,7 @@ export async function PATCH(req: NextRequest, context : { params: Promise<{ id: 
     }
     const res = await fetch(`${process.env.BACKEND_URL}/api/users/${id}`, {
       method: "PATCH",
+      credentials: "include",
       body: JSON.stringify(parsed),
       headers: {
         "Content-Type": "application/json",

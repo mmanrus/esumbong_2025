@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
      
         const res = await fetch(`${BACKEND_URL}/api/concern`, {
             method: "POST",
+            credentials: "include",
             body: JSON.stringify(raw),
             headers: {
                 Authorization: `Bearer ${accessToken}`,

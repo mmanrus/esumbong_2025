@@ -20,6 +20,7 @@ export default function ValidationModal({
     setLoading(true)
     const res = await fetch(`/api/concern/validate/${concernId}`, {
       method: "PATCH",
+      credentials: "include",
       body: JSON.stringify({ validation: status }),
     });
     if (!res.ok) {

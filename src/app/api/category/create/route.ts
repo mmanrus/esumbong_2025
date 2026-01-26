@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
 
         const result = await fetch(`${url}/api/category`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`,

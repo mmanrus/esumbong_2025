@@ -91,13 +91,20 @@ export default function GenerateSummonModal({
 
       const res = await fetch(`/api/mediation/${concern?.id}`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
       if (!res.ok) {
-        const data = await res.json()
-        toast.error(data.error ? data.error: data.message ? data.message : "error upon creating summon")
-        return
+        const data = await res.json();
+        toast.error(
+          data.error
+            ? data.error
+            : data.message
+              ? data.message
+              : "error upon creating summon",
+        );
+        return;
       }
       setForm({
         residentId: null as unknown as number,
@@ -181,8 +188,8 @@ export default function GenerateSummonModal({
                   {!selectedDate
                     ? "Select Date First"
                     : !selectStart
-                    ? "Select Start Time First"
-                    : "Generate Document"}
+                      ? "Select Start Time First"
+                      : "Generate Document"}
                 </Button>
               </div>
             </div>
@@ -231,14 +238,3 @@ export default function GenerateSummonModal({
 }
 //https://time.openstatus.dev/#time-picker-utils.tsx
 
-const postSummon = async (form: any) => {
-  try {
-    const res = await fetch("", {
-      method: "POST",
-      body: form,
-    });
-  } catch (error) {
-    console.error("Error creating Summon:", error);
-    toast.error("Something went wrong upon creating summon.");
-  }
-};

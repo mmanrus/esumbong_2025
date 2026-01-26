@@ -46,6 +46,7 @@ export function CategoryDialog() {
       setLoading(true);
 
       const result = await fetch("/api/category/create", {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

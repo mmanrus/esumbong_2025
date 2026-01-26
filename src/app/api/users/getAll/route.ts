@@ -21,6 +21,7 @@ export const GET = async (request: NextRequest) => {
 
         const res = await fetch(`${process.env.BACKEND_URL}/api/users?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation={${encodeURIComponent(validation)}}`, {
             method: "GET",
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }

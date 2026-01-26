@@ -21,6 +21,7 @@ export async function DELETE(
         const res = await fetch(`${process.env.BACKEND_URL}/api/concern/${id}`,
             {
                 method: "DELETE",
+                credentials: "include",
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }

@@ -41,6 +41,7 @@ export async function POST(
 
         const res = await fetch(`${BACKEND_URL}/api/summon/${id}`, {
             method: "POST",
+            credentials: "include",
             body: forward,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
