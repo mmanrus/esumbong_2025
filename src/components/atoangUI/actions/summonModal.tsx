@@ -26,7 +26,6 @@ export default function GenerateSummonModal({
     files: [],
   });
   const { concern } = useConcern();
-  console.log("concern in summon modal", concern);
   const [openCalendar, setOpenCalendar] = useState(false);
   const [requireDocument, setRequiredDocument] = useState(false);
   const {

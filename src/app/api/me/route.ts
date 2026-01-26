@@ -11,7 +11,6 @@ export async function GET() {
   const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
   if (!accessToken) {
-    console.log("Access token", accessToken)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -30,7 +29,6 @@ export async function GET() {
     }
 
     const data = await res.json();
-    console.log("Data got from user getData", data);
     return NextResponse.json({ user: data });
   } catch (error) {
     console.error("Error getting data from api/me/route.ts:", error);

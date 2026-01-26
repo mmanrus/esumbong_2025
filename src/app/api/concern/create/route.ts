@@ -8,7 +8,6 @@ const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 if (!NEXT_PUBLIC_BACKEND_URL) throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
 
 export async function POST(request: NextRequest) {
-    console.log("POST /api/resident/concern hit"); // <-- top of function
     try {
         const body = await request.formData();
 

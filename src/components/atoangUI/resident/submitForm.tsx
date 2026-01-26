@@ -116,7 +116,6 @@ export default function SubmitConcernForm() {
         | null = null;
       if (files.length > 0) {
         try {
-          console.log("Uploading files:", files);
           const uploaded = await uploadFiles("mediaUploader", {
             files,
             onUploadProgress({ progress }) {
@@ -141,7 +140,7 @@ export default function SubmitConcernForm() {
           setPreviews([]);
           setProgress(0);
         } catch (err) {
-          console.log(err);
+          console.error(err);
           toast.error("Upload failed");
           return;
         }
@@ -153,16 +152,12 @@ export default function SubmitConcernForm() {
         "needsBarangayAssistance",
         String(form.needsBarangayAssistance),
       );
-      console.log("Uploaded files:::", uploadedFiles);
-
-      console.log("Media formdata:", formData.get("metaData"));
       if (form.categoryId === "other") {
         formData.append("categoryId", "");
         formData.append("other", form.other);
       } else {
         formData.append("categoryId", form.categoryId);
       }
-      console.log(formData);
       const res = await fetch("/api/concern/create", {
         credentials: "include",
         method: "POST",

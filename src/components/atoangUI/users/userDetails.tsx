@@ -144,7 +144,7 @@ export default function UserDetailsDialog({
       setIsEditing(true);
       return;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("An unexpected error occurred.");
       return;
     }
