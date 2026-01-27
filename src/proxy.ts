@@ -18,8 +18,6 @@ export default async function middleware(req: NextRequest) {
   const cookie = req.cookies.get(COOKIE_NAME)?.value;
   const session = cookie ? await decrypt(cookie) : null;
 
-  console.log("Middleware path:", path);
-  console.log("Session:", session);
 
   // ----- 1. Redirect not logged-in users to login page if they hit protected routes
   if (!session) {

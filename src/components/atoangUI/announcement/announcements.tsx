@@ -43,7 +43,7 @@ export default function AnnouncementList({
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       {announcement.map((a) => (
         <li
           key={a.id}
@@ -57,6 +57,6 @@ export default function AnnouncementList({
           </span>
         </li>
       ))}
-    </>
+    </div>
   );
 }

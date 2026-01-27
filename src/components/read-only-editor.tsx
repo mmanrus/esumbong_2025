@@ -31,8 +31,8 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
-export default function ContentPage({ content }: { content: string;}) {
-     const editor = useEditor({
+export default function ContentPage({ content }: { content: string }) {
+  const editor = useEditor({
     immediatelyRender: false,
     editable: false,
     extensions: [
@@ -49,7 +49,10 @@ export default function ContentPage({ content }: { content: string;}) {
     ],
     content: content,
   });
-  return (
-      <EditorContent editor={editor} />
-  );
+  useEffect(() => {
+    if (editor && content) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
+  return <EditorContent editor={editor} />;
 }

@@ -3,14 +3,9 @@ import { SidebarPage } from "@/components/app-sidebar";
 import {
   LayoutDashboard,
   FolderOpen,
-  CheckCircle,
   Users,
-  User,
   Megaphone,
-  FileText,
-  RotateCw,
   Archive,
-  Calendar,
   ChartBar,
   Pencil,
   MessageCircle,
@@ -23,8 +18,6 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
     { id: "/officials/dashboard", url: "/officials/dashboard", title: "Dashboard", icon: LayoutDashboard },
     { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
-    { id: "/officials/generateSummons", url: "/officials/generateSummons", title: "Generate Summons", icon: FileText },
-    { id: "/officials/scheduleMediation", url: "/officials/scheduleMediation", title: "Schedule Mediation", icon: Calendar },
     { id: "/officials/reports", url: "/officials/reports", title: "Reports & Analytics", icon: ChartBar },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
     { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },

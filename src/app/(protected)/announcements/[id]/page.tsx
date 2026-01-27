@@ -28,12 +28,6 @@ export default function Page() {
     toast.error("Failed to load Announcement data.");
     notFound();
   }
-  if (!announcement?.notifyResidents && user?.type === "resident") {
-    notFound();
-  }
-  if (!announcement?.notifyOfficials && user?.type === "official") {
-    notFound();
-  }
 
   return (
     <>

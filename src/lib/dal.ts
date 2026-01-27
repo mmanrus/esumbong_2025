@@ -18,7 +18,7 @@ export const verifySession = cache(async () => {
       return { isAuth: false };
     }
 
-    return { isAuth: true, access: session?.access, useId: session?.userId };
+    return { isAuth: true, access: session?.access, userId: session?.userId };
   } catch (err) {
     console.error("Failed verifying cookie:", err);
     return null

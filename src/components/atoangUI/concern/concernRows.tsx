@@ -8,8 +8,10 @@ import { toast } from "sonner";
 
 export type Concern = {
   id: number;
+  title: string;
   validation: string;
   issuedAt: string;
+  archivedOn: string,
   user?: {
     fullname: string;
   };
@@ -37,7 +39,7 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const handleValidation = async (
     status: "approved" | "rejected" | "pending",
-    concernId: any
+    concernId: any,
   ) => {
     setIsLoading(true);
 
@@ -53,7 +55,7 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
     toast.success(
       `Concern has been validated as ${
         status.charAt(0).toUpperCase() + status.slice(1)
-      }`
+      }`,
     );
     setIsLoading(false);
     return;
@@ -85,9 +87,9 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
                 concern.validation === "approved"
                   ? "bg-green-500 text-white"
                   : concern.validation === "pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-destructive text-white",
-                "inline-block px-2 py-1 rounded   text-sm"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-destructive text-white",
+                "inline-block px-2 py-1 rounded   text-sm",
               )}
             >
               {concern.validation.charAt(0).toUpperCase() +

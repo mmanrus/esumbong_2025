@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         }, { status: 400 })
     }
     try {
-        const res = await fetch(`${url}/api/users/login/`, {
+        const res = await fetch(`${url}/api/users/login`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },

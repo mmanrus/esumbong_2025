@@ -2,20 +2,8 @@ import { Button } from "@/components/ui/button";
 import clsx from "clsx";
 import { useState } from "react";
 import ConcernDialog from "./concernDialog";
+import { Concern } from "./concernRows";
 
-export type Concern = {
-  id: number;
-  validation: string;
-  issuedAt: string;
-  archivedOn: string;
-  user?: {
-    fullname: string;
-  };
-  category?: {
-    name: string;
-  } | null;
-  other?: string | null;
-};
 
 type Props = {
   concerns: Concern[] | null;

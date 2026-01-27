@@ -82,13 +82,13 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/**<DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator />*/}
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <a href="/profile" className="flex flex-row items-center gap-2">
@@ -96,15 +96,7 @@ export function NavUser({
                   <span>Account</span>
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <form action={logout}>
