@@ -4,6 +4,7 @@ import { decrypt } from "@/lib/sessions";
 import { cache } from "react";
 
 import { COOKIE_NAME } from "@/lib/constants";
+import { logout } from "@/action/auth";
 
 export const verifySession = cache(async () => {
   try {
@@ -21,33 +22,32 @@ export const verifySession = cache(async () => {
     return { isAuth: true, access: session?.access, userId: session?.userId };
   } catch (err) {
     console.error("Failed verifying cookie:", err);
-    return null
+       return { isAuth: false };
   }
 });
-
 export const getUser = async () => {
-  const session = await verifySession();
+  try {
+    const session = await verifySession();
+    if (!session?.isAuth) return null;
 
-  if (!session?.isAuth) return null;
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
 
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get(COOKIE_NAME)?.value
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
+      method: "GET",
+      credentials: "include",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      cache: "no-store",
+    });
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
+    if (!res.ok) {
+      console.error("Failed to fetch user", res.status);
+      return null;
+    }
 
-  if (!res.ok) {
-    console.error("Failed to fetch user", res.status);
-    return null;
+    return await res.json();
+  } catch (err) {
+    console.error("getUser fetch failed:", err);
+    return null; // never throw
   }
-
-  return await res.json();
 };
-

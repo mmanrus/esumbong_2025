@@ -33,7 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    redirect("/login");
+    redirect("/");
   }
 
   const sidebarPages = SIDEBAR_CONFIG[user.type as UserRole] ?? [];

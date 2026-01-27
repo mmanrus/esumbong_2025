@@ -21,13 +21,24 @@ export const metadata = {
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/contexts/queryContext";
 import { ConcernProvider } from "@/contexts/concernContext";
+import { cookies } from "next/headers";
+import { COOKIE_NAME } from "@/lib/constants";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
+  let user = null
+  try {
+    user = await getUser();
+  } catch (err) {
+    console.error("Failed to fetch user in RootLayout:", err);
+
+    // Delete the invalid cookie immediately
+    const cookieStore = await cookies();
+    cookieStore.delete(COOKIE_NAME);
+  }
   return (
     <html lang="en">
       <body

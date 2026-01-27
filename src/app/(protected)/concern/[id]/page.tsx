@@ -101,7 +101,8 @@ export default function Page() {
           </CardAction>
           <CardDescription className="flex flex-col gap-1">
             <span>Submitted by: {concern?.user?.fullname}</span>
-            <span>email: {concern?.user?.email}</span>
+            <span>Email: {concern?.user?.email}</span>
+            <span>Contact Number: {concern?.user?.contactNumber}</span>
             <span>Needs barangay assistance: {concern?.needsBarangayAssistance ? "Yes" : "No"}</span>
             <span>
               date issued:{" "}
@@ -111,7 +112,6 @@ export default function Page() {
             </span>
           </CardDescription>
           <CardContent>
-            <span></span>
             <span>{concern?.details}</span>
             <div className="flex flex-row gap-3">
               {user?.type === "barangay_official" && (
@@ -144,7 +144,7 @@ export default function Page() {
         </CardContent>
       </Card>
       <ValidationModal open={openValidation} setOpen={setOpenValidation} />
-      <TakeActionModal open={openAction} setOpen={setOpenAction} />
+      {/**<TakeActionModal open={openAction} setOpen={setOpenAction} />*/}
     </>
   );
 }
