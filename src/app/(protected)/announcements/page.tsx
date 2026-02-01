@@ -2,14 +2,35 @@
 import AnnouncementList from "@/components/atoangUI/announcement/announcements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {  useState } from "react";
+import { useEffect, useState } from "react";
+import { DataTable } from "./data-table";
+import useSWR from "swr";
+import { Announcement, columns } from "./columns";
+import { fetcher } from "@/lib/swrFetcher";
+import { toast } from "sonner";
+import { notFound } from "next/navigation";
 
 export default function Page() {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState({
     search: "",
   });
-  
+  const [announcement, setAnnouncements] = useState<Announcement[]>([]);
+
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/announcement/getAll?search=${query.search}`,
+    fetcher,
+  );
+  useEffect(() => {
+    if (!data) return;
+    setAnnouncements(data.data);
+  }, [data]);
+  if (isLoading) return <p>Loading...</p>;
+
+  if (error) {
+    toast.error("Failed to load announcements.");
+    notFound();
+  }
 
   return (
     <>
@@ -43,7 +64,8 @@ export default function Page() {
         </div>
       </div>
       <div>
-        <AnnouncementList sidebar={"false"} search={query.search}/>
+        <DataTable columns={columns} data={announcement} />
+        <AnnouncementList sidebar={"false"} search={query.search} />
       </div>
     </>
   );

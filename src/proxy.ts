@@ -10,7 +10,7 @@ const dashboardRoutes = {
 };
 
 // Public pages (login/landing)
-const publicPages = ["/landingPage", "/landingPage/auth"];
+const publicPages = ["/", "/login", "/landingPage", "/register", "/about", "/contact", "/forgot-password"];
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -22,7 +22,7 @@ export default async function middleware(req: NextRequest) {
   // ----- 1. Redirect not logged-in users to login page if they hit protected routes
   if (!session) {
     if (Object.values(dashboardRoutes).some((route) => path.startsWith(route))) {
-      return NextResponse.redirect(new URL("/landingPage/auth?form=login", req.nextUrl));
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
     return NextResponse.next(); // allow public pages
   }
@@ -63,11 +63,15 @@ export default async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/", 
-    "/landingPage", 
-    "/landingPage/auth", 
-    "/officials/:path*", 
-    "/resident/:path*", 
-    "/admin/:path*"
+    "/",
+    "/landingPage",                    // landing page
+    "/login",
+    "/register",
+    "/about/:path*",
+    "/contact/:path*",
+    "/forgot-password",
+    "/admin/:path*",
+    "/resident/:path*",
+    "/officials/:path*",
   ],
 };

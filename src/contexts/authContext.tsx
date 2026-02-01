@@ -17,6 +17,7 @@ export type User = {
 
 type AuthContextType = {
   user: User | null;
+  isAuthenticated: boolean;
   loading: boolean;
   refreshUser: () => Promise<void>;
 };
@@ -31,6 +32,8 @@ type AuthProviderProps = {
 export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(initialUser ?? null);
   const [loading, setLoading] = useState<boolean>(!initialUser);
+  const [isAuthenticated, setIsAuthenticated] =
+    useState<boolean>(!!initialUser);
 
   const fetchUser = async () => {
     try {
@@ -42,11 +45,13 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
       if (!res.ok) {
         setUser(null);
+        setIsAuthenticated(false);
         return;
       }
 
       const data = await res.json();
       setUser(data.user ?? data);
+      setIsAuthenticated(true);
     } catch (err) {
       console.error("Auth fetch failed:", err);
       setUser(null);
@@ -62,7 +67,9 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser: fetchUser }}>
+    <AuthContext.Provider
+      value={{ user, loading, refreshUser: fetchUser, isAuthenticated }}
+    >
       {children}
     </AuthContext.Provider>
   );

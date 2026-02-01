@@ -30,12 +30,13 @@ export async function login(prevState: any, formData: FormData) {
   const res = await fetch(`${APP_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
+    ...(process.env.NODE_ENV === "production" ? { credentials: "include" } : {}),
     body: JSON.stringify({ email, password }),
   });
 
   if (!res.ok) {
-    return { message: "Login failed.", success: false };
+    console.log("Login request failed:", res.statusText);
+    return { message: "Invalid email or password", success: false };
   }
   const result = await res.json()
   const { user, access, refresh } = result;
@@ -55,8 +56,8 @@ export async function login(prevState: any, formData: FormData) {
 
 
 import { clearSession } from "@/lib/sessions";
-  
+
 export async function logout() {
   await clearSession();
-  redirect("/landingPage/auth?form=login");
+  redirect("/login");
 }
