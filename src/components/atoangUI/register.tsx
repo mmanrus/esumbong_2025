@@ -14,11 +14,8 @@ import { SignupFormSchema, SignUpFormType } from "@/defs/definitions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import {
-  Form,
-  FormField,
-  FormMessage,
-} from "../ui/form";
+import { Form, FormField, FormMessage } from "../ui/form";
+import Image from "next/image";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -57,11 +54,11 @@ export default function RegisterPage() {
 
       await res.json();
       toast.success("Registration successful!");
-      return
+      return;
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("An error occurred during registration.");
-      return
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -90,8 +87,9 @@ export default function RegisterPage() {
             }}
             className="relative z-10 p-12 w-full max-w-2xl"
           >
-            <img
-              src="https://horizons-cdn.hostinger.com/dc83a72d-c886-4b51-9b04-6e3650b4f96a/l4-bnkdX.jpg"
+            <Image
+              fill
+              src="/register.webp"
               alt="Kalinisan Day Community Activity"
               className="w-full h-auto rounded-2xl shadow-2xl object-cover"
             />

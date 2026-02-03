@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -47,8 +48,10 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <img
-              src="https://horizons-cdn.hostinger.com/dc83a72d-c886-4b51-9b04-6e3650b4f96a/ef2764c8c3ddc0ca98424939fee68cbb.png"
+            <Image
+              width={180}
+              height={60}
+              src="/esumbong-logo.png"
               alt="e-Sumbong Logo"
               className="h-[45px]  md:h-[50px] lg:h-[60px] w-auto transition-transform duration-300 group-hover:scale-105"
             />
@@ -64,10 +67,10 @@ export default function Navbar() {
                   isActive(link.path)
                     ? isScrolled
                       ? "text-teal-700"
-                      : "text-white"
+                      : "text-gray-700"
                     : isScrolled
                       ? "text-gray-700 hover:text-teal-700"
-                      : "text-white/90 hover:text-white"
+                      : "text-gray-700 hover:text-white"
                 }`}
               >
                 {link.name}
@@ -75,7 +78,7 @@ export default function Navbar() {
                   <motion.div
                     layoutId="activeNav"
                     className={`absolute -bottom-1 left-0 right-0 h-0.5 ${
-                      isScrolled ? "bg-teal-700" : "bg-white"
+                      isScrolled ? "bg-teal-700" : "bg-teal-700"
                     }`}
                   />
                 )}

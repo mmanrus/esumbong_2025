@@ -7,6 +7,7 @@ import {
   Shield,
   ChevronRight,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 
@@ -68,10 +69,11 @@ export default function HomePage() {
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0">
-            <img
-              src="https://horizons-cdn.hostinger.com/dc83a72d-c886-4b51-9b04-6e3650b4f96a/l1-NVjWS.jpg"
+            <Image
+
+              src="/homePage.webp"
               alt="Community gathering"
-              className="w-full h-full object-cover"
+              fill
             />
             <div className="absolute inset-0 bg-linear-to-r from-teal-900/90 via-teal-800/85 to-teal-700/80"></div>
           </div>

@@ -18,6 +18,7 @@ import {
 } from "../ui/form";
 import Link from "next/link";
 import { toast } from "sonner";
+import Image from "next/image";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -236,9 +237,10 @@ function LoginPage() {
               className="hidden lg:flex items-center justify-center"
             >
               <div className="relative w-full h-full min-h-[600px] rounded-2xl overflow-hidden shadow-2xl group">
-                <img
-                  src="https://horizons-cdn.hostinger.com/dc83a72d-c886-4b51-9b04-6e3650b4f96a/l2-wl85L.jpg"
+                <Image
+                  src="/login.webp"
                   alt="Community collaboration"
+                  fill
                   className="
                     w-full
                     object-cover
