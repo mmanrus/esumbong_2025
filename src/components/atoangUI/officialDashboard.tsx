@@ -1,0 +1,198 @@
+"use client";
+import { fetcher } from "@/lib/swrFetcher";
+import {
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { Concern } from "./concern/concernRows";
+import { formatDate } from "@/lib/formatDate";
+import { Skeleton } from "../ui/skeleton";
+import { useRouter } from "next/navigation";
+
+export function OfficialDashboard() {
+  const [recentConcerns, setRecentConcerns] = useState<any>(null);
+
+  const stats = [
+    {
+      label: "Total Concerns",
+      value: recentConcerns.length,
+      icon: FileText,
+      colorClass: "stat-card-total",
+      textColor: "text-status-ongoing",
+    },
+    {
+      label: "Pending",
+      value: recentConcerns.filter((c: any) => c.status === "pending").length,
+      icon: Clock,
+      colorClass: "stat-card-pending",
+      textColor: "text-status-pending",
+    },
+    {
+      label: "Resolved",
+      value: recentConcerns.filter((c: any) => c.status === "resolved").length,
+      icon: CheckCircle,
+      colorClass: "stat-card-resolved",
+      textColor: "text-status-resolved",
+    },
+    {
+      label: "Unresolved",
+      value: recentConcerns.filter((c: any) => c.status === "unresolved")
+        .length,
+      icon: XCircle,
+      colorClass: "stat-card-unresolved",
+      textColor: "text-status-unresolved",
+    },
+    {
+      label: "Unverified",
+      value: recentConcerns.filter((c: any) => c.status === "unverified")
+        .length,
+      icon: AlertCircle,
+      colorClass: "stat-card-unverified",
+      textColor: "text-status-unverified",
+    },
+  ];
+  const { data, error, isLoading, mutate } = useSWR(
+    `/api/concern/getAll?recent=true&archived=false`,
+    fetcher,
+  );
+  useEffect(() => {
+    if (!data) return;
+    setRecentConcerns(data.data);
+  }, [data]);
+  const router = useRouter();
+  return (
+    <div className="space-y-8">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          Dashboard Overview
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Monitor and manage barangay concerns
+        </p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className={`stat-card ${stat.colorClass}`}>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground font-medium">
+                  {stat.label}
+                </p>
+                <p className={`text-3xl font-bold mt-2 ${stat.textColor}`}>
+                  {stat.value}
+                </p>
+              </div>
+              <div className={`p-2 rounded-lg bg-muted/50`}>
+                <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Concerns */}
+      <div className="bg-card rounded-xl shadow-sm border">
+        <div className="p-5 border-b">
+          <h2 className="text-lg font-semibold text-foreground">
+            Recent Concerns
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Latest submitted concerns
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-muted/50">
+              <tr>
+                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                  Ticket #
+                </th>
+                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                  Complainant
+                </th>
+                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                  Cagegory
+                </th>
+                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                  Date
+                </th>
+                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array.from({ length: 6 }).map((_, index) => (
+                  <tr key={index}>
+                    <td colSpan={1} className="px-5 py-6 ">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    </td>
+                    <td colSpan={1} className="px-5 py-6 ">
+                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
+                    </td>
+                    <td colSpan={1} className="px-5 py-6 ">
+                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
+                    </td>
+                    <td colSpan={1} className="px-5 py-6 ">
+                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
+                    </td>
+                    <td colSpan={1} className="px-5 py-6 ">
+                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
+                    </td>
+                  </tr>
+                ))
+              ) : recentConcerns?.length === 0 || !recentConcerns ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-5 py-6 text-center text-muted-foreground"
+                  >
+                    No recent concerns yet
+                  </td>
+                </tr>
+              ) : (
+                recentConcerns?.map((concern: Concern) => (
+                  <tr
+                    key={concern.id}
+                    className="border-t hover:bg-muted/30 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/concern/${concern.id}`)}
+                  >
+                    <td className="px-5 py-4 text-sm font-medium text-foreground">
+                      {concern.id}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-foreground">
+                      {concern?.user?.fullname}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-muted-foreground">
+                      {concern?.category?.name ?? concern?.other ?? "N/A"}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-muted-foreground">
+                      {formatDate(new Date(concern?.issuedAt))}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span
+                        className={`status-badge status-${concern?.validation}`}
+                      >
+                        {concern.status.charAt(0).toUpperCase() +
+                          concern.status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

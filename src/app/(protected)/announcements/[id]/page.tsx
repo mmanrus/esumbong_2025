@@ -1,7 +1,6 @@
 "use client";
 
 import ContentPage from "@/components/read-only-editor";
-import { useAuth } from "@/contexts/authContext";
 import { fetcher } from "@/lib/swrFetcher";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import useSWR from "swr";
 
 export default function Page() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+
   const [announcement, setAnnouncement] = useState<any>(null);
   const { data, error, isLoading, mutate } = useSWR(
     id ? `/api/announcement/${id}` : null,

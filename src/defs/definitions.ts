@@ -6,7 +6,7 @@ export const SignupFormSchema = z
       .string()
       .min(10, { message: "Full name must be at least 10 characters long." })
       .trim(),
-    address: z.string().min(10, {message: "Address must be at least 10 characters long."}).trim(),
+    address: z.string().min(10, { message: "Address must be at least 10 characters long." }).trim(),
     email: z.string().email({ message: "Please enter a valid email." }).trim(),
     password: z
       .string()
@@ -18,7 +18,12 @@ export const SignupFormSchema = z
       })
       .trim(),
     confirmPassword: z.string().trim(),
-    type: z.string(),
+    type: z
+      .enum(["resident", "barangay_official", "admin"])
+      .refine((val) => !!val, {
+        message: "User type is required",
+      }),
+
     contactNumber: z.string().min(1, "Contact number required"),
   })
   .refine((data) => data.password === data.confirmPassword, {

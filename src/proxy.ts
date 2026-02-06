@@ -10,7 +10,7 @@ const dashboardRoutes = {
 };
 
 // Public pages (login/landing)
-const publicPages = ["/", "/login", "/landingPage", "/register", "/about", "/contact", "/forgot-password"];
+const publicPages = ["/", "/login", "/register", "/about", "/contact", "/forgot-password"];
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -64,7 +64,6 @@ export default async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/landingPage",                    // landing page
     "/login",
     "/register",
     "/about/:path*",

@@ -18,10 +18,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-
-export function NavMain({
-  items,
-}: {
+type NavMainProps = {
   items: {
     title: string;
     url: string;
@@ -32,7 +29,9 @@ export function NavMain({
       url: string;
     }[];
   }[];
-}) {
+ 
+};
+export function NavMain({ items }: NavMainProps) {
   return (
     <SidebarGroup className="bg-[#1F4251] text-white">
       {/**<SidebarGroupLabel className="text-white">Platform</SidebarGroupLabel>*/}

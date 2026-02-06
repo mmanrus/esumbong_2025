@@ -1,8 +1,11 @@
 
-import { redirect } from "next/navigation";
-export default function ResidentPage() {
-  
+
+import { DashboardOverview } from "@/components/atoangUI/dashboardResident";
+
+
+export default function Page() {
+ 
   return (
-    redirect('/resident/dashboard')
+    <DashboardOverview/>
   );
 }

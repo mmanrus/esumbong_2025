@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignupFormSchema, SignUpFormType } from "@/defs/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -38,7 +38,7 @@ export default function OpenAddUserDialog({
       address: "",
       confirmPassword: "",
       contactNumber: "",
-      type: "resident",
+      type: undefined,
     },
     resolver: zodResolver(SignupFormSchema),
   });
@@ -60,11 +60,10 @@ export default function OpenAddUserDialog({
         });
       }
 
-      const result = await res.json();
+     
       toast.success("Registration successful!");
       setOpen(false);
       form.reset();
-
     } catch (error) {
       console.error("Registration error:", error);
     } finally {
@@ -156,6 +155,7 @@ export default function OpenAddUserDialog({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -174,7 +174,35 @@ export default function OpenAddUserDialog({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select user type" />
+                      </SelectTrigger>
+                    </FormControl>
 
+                    <SelectContent>
+                      <SelectItem value="resident">Resident</SelectItem>
+                      <SelectItem value="barangay_official">
+                        Barangay Official
+                      </SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="contactNumber"

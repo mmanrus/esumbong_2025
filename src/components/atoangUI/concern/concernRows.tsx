@@ -1,17 +1,21 @@
 import { Button } from "@/components/ui/button";
 import DialogAlert from "../alertDialog";
-import { Info, Link } from "lucide-react";
+import { Eye, Info, Link } from "lucide-react";
 import clsx from "clsx";
 import { useState } from "react";
 import ConcernDialog from "./concernDialog";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/formatDate";
 
 export type Concern = {
   id: number;
   title: string;
   validation: string;
+  details: string;
   issuedAt: string;
-  archivedOn: string,
+  updatedAt: string;
+  archivedOn: string;
+  status: "approved" | "rejected" | "pending";
   user?: {
     fullname: string;
   };
@@ -30,8 +34,10 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
   if (!concerns || concerns.length === 0) {
     return (
       <tr>
-        <td colSpan={6} className="text-center py-6 text-gray-500">
-          No Concerns Found
+        <td colSpan={6} className="p-0">
+          <div className="flex h-full min-h-[300px] md:min-h-[400px] items-center justify-center text-gray-500">
+            No Concerns Found
+          </div>
         </td>
       </tr>
     );
@@ -68,20 +74,27 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
   return (
     <>
       {concerns.map((concern: Concern, index: number) => (
-        <tr key={concern.id ?? index}>
-          <td className="px-4 py-3">C-{concern.id}</td>
+        <tr
+          key={concern.id ?? index}
+          className="border-t hover:bg-muted/30 transition-colors"
+        >
+          <td className="px-5 py-4 text-sm font-medium text-foreground">
+            C-{concern.id}
+          </td>
 
-          <td className="px-4 py-3">{concern.user?.fullname ?? "Unknown"}</td>
+          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
+            {concern.user?.fullname ?? "Unknown"}
+          </td>
 
-          <td className="px-4 py-3">
+          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
             {concern.category?.name ?? concern.other ?? "N/A"}
           </td>
 
-          <td className="px-4 py-3">
-            {new Date(concern.issuedAt).toLocaleDateString()}
+          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
+            {formatDate(new Date(concern.issuedAt))}
           </td>
 
-          <td className="px-4 py-3">
+          <td className="px-5 py-4">
             <span
               className={clsx(
                 concern.validation === "approved"
@@ -97,11 +110,12 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
             </span>
           </td>
 
-          <td className="px-4 py-3 flex gap-1">
+          <td className="px-5 py-4 flex gap-1">
             <Button
               onClick={() => setSelectedConcern(concern)}
               className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
             >
+              <Eye className="w-4 h-4 mr-1 inline" />
               View
             </Button>
             <DialogAlert

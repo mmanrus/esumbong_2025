@@ -22,7 +22,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm({
+  const form = useForm<SignUpFormType>({
     defaultValues: {
       fullname: "",
       email: "",

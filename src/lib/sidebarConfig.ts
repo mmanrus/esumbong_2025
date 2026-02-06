@@ -16,7 +16,7 @@ export type UserRole = "admin" | "resident" | "barangay_official";
 
 export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
-    { id: "/officials/dashboard", url: "/officials/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
     { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
     { id: "/officials/reports", url: "/officials/reports", title: "Reports & Analytics", icon: ChartBar },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
@@ -24,7 +24,7 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   ],
 
   resident: [
-    { id: "/resident/dashboard", url: "/resident/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/resident", url: "/resident", title: "Dashboard", icon: LayoutDashboard },
     { id: "/resident/submitConcern", url: "/resident/submitConcern", title: "Submit Concern", icon: Pencil },
     { id: "/resident/submitFeedback", url: "/resident/submitFeedback", title: "Submit Feedback", icon: MessageCircle },
     { id: "/resident/trackStatus", url: "/resident/trackStatus", title: "Track Status", icon: ChartBar },

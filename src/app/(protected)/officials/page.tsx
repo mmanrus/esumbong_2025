@@ -1,9 +1,7 @@
-
-
-import { redirect } from "next/navigation";
+import { OfficialDashboard } from "@/components/atoangUI/officialDashboard";
 
 export default function Page() {
     return (
-        redirect('officials/dashboard')
+       <OfficialDashboard/>
     );
 }

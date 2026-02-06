@@ -1,5 +1,6 @@
 "use client"
 
+import { Concern } from "@/components/atoangUI/concern/concernRows"
 import React, { createContext, useContext, useState } from "react"
 
 export type ConcernUpdates = {
@@ -21,7 +22,7 @@ const ConcernContext = createContext<ConcernContextType | undefined>(undefined)
 
 export function ConcernProvider({ children }: { children: React.ReactNode }) {
   const [concernId, setConcernId] = useState<string | null>(null)
-  const [concern, setConcern] = useState<any>(null)
+  const [concern, setConcern] = useState<Concern | null>(null)
   const [concernUpdates, setConcernUpdates] = useState<ConcernUpdates[]>([])
 
   return (

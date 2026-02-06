@@ -29,7 +29,7 @@ export default function ConcernMediaGrid({
   };
   return (
     <>
-      <div className="grid grid-cols-3 gap-2 mt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-6">
         {visibleMedia.map((item, index) => {
           const isLast = index === MAX_VISIBLE - 1 && extraCount > 0;
 
@@ -38,7 +38,7 @@ export default function ConcernMediaGrid({
               key={item.id}
               className="relative aspect-square rounded overflow-hidden
               cursor-pointer hover:opacity-80 transition-opacity
-              "
+              bg-muted border"
               onClick={() => openDialog(index)}
             >
               <img
