@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/authContext";
 import { useConcern } from "@/contexts/concernContext";
 
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fetcher } from "@/lib/swrFetcher";
@@ -64,7 +64,8 @@ const statusConfig: Record<
   },  */
 }
 
-export default function ConcernIdPage({ id }: { id: string }) {
+export default function ConcernIdPage() {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [openValidation, setOpenValidation] = useState(false);
   const {
@@ -128,7 +129,11 @@ export default function ConcernIdPage({ id }: { id: string }) {
             </Badge>
             <Button
               disabled={user?.type !== "barangay_official"}
-              className={cn(config?.bgColor, config?.color, "border-0 disabled:opacity-100 disabled:pointer-events-none")}
+              className={cn(
+                config?.bgColor,
+                config?.color,
+                "border-0 disabled:opacity-100 disabled:pointer-events-none",
+              )}
               onClick={() => setOpenValidation(true)}
             >
               {StatusIcon && <StatusIcon className="inline h-3 w-3 mr-1" />}
@@ -164,13 +169,16 @@ export default function ConcernIdPage({ id }: { id: string }) {
               <p className="text-xs text-muted-foreground">Submitted By:</p>
               <div className="grid grid-cols-2 gap-1">
                 <span className="text-sm font-medium">
-                  <User className="h-3 w-3 inline mr-1" />{concern?.user?.fullname}
+                  <User className="h-3 w-3 inline mr-1" />
+                  {concern?.user?.fullname}
                 </span>
                 <span className="text-sm font-medium">
-                  <Mail className="h-3 w-3 inline mr-1" />{concern?.user?.email}
+                  <Mail className="h-3 w-3 inline mr-1" />
+                  {concern?.user?.email}
                 </span>
                 <span className="text-sm font-medium">
-                  <Phone className="h-3 w-3 inline mr-1" />{concern?.user?.contactNumber}
+                  <Phone className="h-3 w-3 inline mr-1" />
+                  {concern?.user?.contactNumber}
                 </span>
                 <span className="text-sm font-medium">
                   Needs barangay assistance:{" "}

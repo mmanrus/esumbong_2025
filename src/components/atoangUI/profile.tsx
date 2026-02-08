@@ -23,32 +23,33 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/authContext";
+import { formatDate } from "@/lib/formatDate";
 
 interface ProfileData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  barangay: string;
-  memberSince: string;
+  fullname?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  barangay?: string;
+  memberSince?: string;
 }
 
-const initialProfile: ProfileData = {
-  firstName: "Juan",
-  lastName: "Dela Cruz",
-  email: "resident@gmail.com",
-  phone: "+63 912 345 6789",
-  address: "123 Main Street, Purok 1",
-  barangay: "Barangay San Antonio",
-  memberSince: "January 2024",
-};
-
 export function ProfilePage() {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<ProfileData>(initialProfile);
-  const [editedProfile, setEditedProfile] =
-    useState<ProfileData>(initialProfile);
+  const [profile, setProfile] = useState<ProfileData>({
+    fullname: user?.fullname,
+    email: user?.email,
+    phone: user?.contactNumber,
+    address: user?.address,
+    barangay: user?.barangay,
+    memberSince: user?.createdAt
+      ? formatDate(new Date(user.createdAt))
+      : undefined,
+  });
+
+  const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
 
   const handleSave = () => {
     setProfile(editedProfile);
@@ -104,14 +105,11 @@ export function ProfilePage() {
             <Avatar className="h-20 w-20">
               <AvatarImage src="" />
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                {profile.firstName[0]}
-                {profile.lastName[0]}
+                {profile.fullname ? profile?.fullname[0] : "U"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-xl font-semibold">
-                {profile.firstName} {profile.lastName}
-              </h3>
+              <h3 className="text-xl font-semibold">{profile.fullname}</h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                 <Calendar className="h-3 w-3" />
                 Member since {profile.memberSince}
@@ -122,45 +120,28 @@ export function ProfilePage() {
           <Separator />
 
           {/* Profile Fields */}
-          <div className="grid gap-5">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  First Name
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="firstName"
-                    value={editedProfile.firstName}
-                    onChange={(e) =>
-                      setEditedProfile({
-                        ...editedProfile,
-                        firstName: e.target.value,
-                      })
-                    }
-                  />
-                ) : (
-                  <p className="text-foreground py-2">{profile.firstName}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                {isEditing ? (
-                  <Input
-                    id="lastName"
-                    value={editedProfile.lastName}
-                    onChange={(e) =>
-                      setEditedProfile({
-                        ...editedProfile,
-                        lastName: e.target.value,
-                      })
-                    }
-                  />
-                ) : (
-                  <p className="text-foreground py-2">{profile.lastName}</p>
-                )}
-              </div>
+          <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="fullname" className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                Full Name
+              </Label>
+              {isEditing ? (
+                <Input
+                  className="w-full"
+                  id="fullname"
+                  type="text"
+                  value={editedProfile.fullname}
+                  onChange={(e) =>
+                    setEditedProfile({
+                      ...editedProfile,
+                      fullname: e.target.value,
+                    })
+                  }
+                />
+              ) : (
+                <p className="text-foreground py-2">{profile.fullname}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -241,7 +222,9 @@ export function ProfilePage() {
                   }
                 />
               ) : (
-                <p className="text-foreground py-2">{profile.barangay}</p>
+                <p className="text-foreground py-2">
+                  {profile.barangay ? profile.barangay : "Unaffiliated"}
+                </p>
               )}
             </div>
           </div>

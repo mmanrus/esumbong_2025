@@ -11,6 +11,7 @@ import {
   MessageCircle,
   Clock,
   Tag,
+  MessageSquare,
 } from "lucide-react";
 export type UserRole = "admin" | "resident" | "barangay_official";
 
@@ -21,6 +22,7 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/officials/reports", url: "/officials/reports", title: "Reports & Analytics", icon: ChartBar },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
     { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },
+    { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
   ],
 
   resident: [
@@ -30,13 +32,14 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/resident/trackStatus", url: "/resident/trackStatus", title: "Track Status", icon: ChartBar },
     { id: "/resident/history", url: "/resident/history", title: "History", icon: Clock },
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
+    { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
   ],
 
   admin: [
     { id: "/admin/dashboard", url: "/admin/dashboard", title: "Dashboard", icon: LayoutDashboard },
     { id: "/admin/category", url: "/admin/category", title: "Categories", icon: Tag },
     { id: "/admin/users", url: "/admin/users", title: "Users", icon: Users },
-
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
+    { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
   ],
 }

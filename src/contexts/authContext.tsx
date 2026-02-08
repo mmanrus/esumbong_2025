@@ -13,6 +13,12 @@ export type User = {
   fullname: string;
   email: string;
   type: string;
+  createdAt: Date;
+  contactNumber: string;
+  position?: string;
+  profilePhoto?: string;
+  address: string;
+  barangay?: string;
 };
 
 type AuthContextType = {
@@ -74,6 +80,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
     </AuthContext.Provider>
   );
 }
+
 export function useAuth() {
   const context = useContext(AuthContext);
 

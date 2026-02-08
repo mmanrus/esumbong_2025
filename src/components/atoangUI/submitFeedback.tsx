@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,24 +5,69 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-
+import { toast } from "sonner";
+import { FeedbackInput, FeedbackSchema } from "@/defs/feedback";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 
 export default function SubmitFeedbackPage() {
-  const [title, setTitle] = useState("");
-  const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(false);
-  const handleSubmit = (e: any) => {
+  const form = useForm<FeedbackInput>({
+    defaultValues: {
+      title: "",
+      feedback: "",
+    },
+    resolver: zodResolver(FeedbackSchema),
+  });
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log({ title, feedback });
-    
-    // You can send data to API here
+    console.log({
+      title: form.getValues("title"),
+      feedback: form.getValues("feedback"),
+    });
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error("Please fix the errors in the form before submitting.");
+      return;
+    }
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("title", form.getValues("title"));
+    formData.append("feedback", form.getValues("feedback"));
+    try {
+      const res = await fetch("/api/feedback/submit", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(
+          errorData.message || "Failed to submit feedback. Please try again.",
+        );
+        return;
+      }
+      toast.success("Feedback submitted successfully!");
+      return;
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      toast.error("Failed to submit feedback. Please try again.");
+      return;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in h-full flex flex-col">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
           <MessageSquare className="h-7 w-7 text-primary" />
@@ -34,30 +78,68 @@ export default function SubmitFeedbackPage() {
         </p>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm flex flex-col flex-1">
         <CardHeader>
           <CardTitle className="text-lg">Feedback Form</CardTitle>
+          <CardAction></CardAction>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <CardContent className="flex flex-1 ">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5 flex-1 flex-col flex"
+          >
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
+              <div className="flex flex-row gap-2 items-center">
+                <Label
+                  htmlFor="subject"
+                  className={clsx(
+                    form.formState.errors.title && "text-destructive",
+                    "",
+                  )}
+                >
+                  Subject
+                </Label>
+                {form.formState.errors.title && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.title.message}
+                  </p>
+                )}
+              </div>
               <Input
                 id="subject"
+                className={clsx(
+                  form.formState.errors.title && "border-red-400",
+                )}
+                {...form.register("title")}
                 placeholder="e.g., Suggestion for better service"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
-
-            <div className="space-y-2">
-              <Label htmlFor="message">Your Feedback</Label>
+            <div className="space-y-2 flex flex-1 flex-col ">
+              <div className="flex flex-row gap-2 items-center">
+                <Label
+                  htmlFor="message"
+                  className={clsx(
+                    form.formState.errors.feedback && "text-destructive",
+                    "",
+                  )}
+                >
+                  Your Feedback
+                </Label>
+                {form.formState.errors.feedback && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.feedback.message}
+                  </p>
+                )}
+              </div>
               <Textarea
                 id="message"
+                className={clsx(
+                  form.formState.errors.feedback && "border-red-400",
+                  "flex-1",
+                )}
                 placeholder="Share your feedback, suggestions, or comments..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
+                {...form.register("feedback")}
                 rows={6}
               />
             </div>

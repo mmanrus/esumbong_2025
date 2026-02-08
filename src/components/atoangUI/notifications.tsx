@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNotification } from "@/hooks/useNotifications";
 import Link from "next/link";
+import { useIsMobile } from "@/hooks/use-mobile";
 export default function NotificationComponent({
   userId,
   type,
@@ -19,12 +20,13 @@ export default function NotificationComponent({
   type?: string;
 }) {
   const notifications = useNotification(userId);
+  const isMobile = useIsMobile();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="bg-transparent text-black hover:text-white">
           <BellIcon className="h-4 w-4 mr-2" />
-          Notifications
+          {!isMobile && "Notifications"}
           {notifications.length > 0 && (
             <span className="ml-2 text-xs bg-red-500 text-white px-2 rounded-full">
               {notifications.length}

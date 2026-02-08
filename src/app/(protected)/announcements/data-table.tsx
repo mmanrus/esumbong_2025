@@ -15,13 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
+  isLoading: boolean;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
 export function DataTable<TData, TValue>({
+  isLoading,
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -30,14 +33,19 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
   return (
     <div className="overflow rounded-md border">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
+              {isLoading ? (
+                headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    <Skeleton className="h-8 bg-gray-200 animate-pulse"/>
+                  </TableHead>
+                ))
+              ) :headerGroup.headers.map((header) => (
                 <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
@@ -51,7 +59,17 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isLoading ? (
+            Array.from({ length: 10 }).map((_, i) => (
+              <TableRow key={i} className="h-10 border-0">
+                {columns.map((col) => (
+                  <TableCell key={col.id}>
+                    <Skeleton className="h-8 bg-gray-200 rounded animate-pulse"></Skeleton>
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}

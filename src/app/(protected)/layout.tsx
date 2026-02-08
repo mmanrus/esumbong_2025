@@ -19,17 +19,12 @@ import NotificationComponent from "@/components/atoangUI/notifications";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-export default function Layout({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
-  const pathname = usePathname();
+import { useIsMobile } from "@/hooks/use-mobile";
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
+export default function Layout({ children }: { children: ReactNode }) {
+  const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const pathname = usePathname();
 
   if (!user) {
     redirect("/");
@@ -78,7 +73,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   onClick={() => router.back()}
                 >
                   <ChevronLeft />
-                  <span>Back</span>
+                  {!isMobile && <span>Back</span>}
                 </Button>
                 <NotificationComponent userId={user?.id} type={user?.type} />
               </div>

@@ -36,6 +36,7 @@ export default function RegisterPage() {
   });
   const onSubmit = async (data: SignUpFormType) => {
     setIsLoading(true);
+    
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",

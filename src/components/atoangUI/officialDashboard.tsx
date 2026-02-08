@@ -5,7 +5,6 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
@@ -20,40 +19,32 @@ export function OfficialDashboard() {
   const stats = [
     {
       label: "Total Concerns",
-      value: recentConcerns.length,
+      value: recentConcerns?.length || 0,
       icon: FileText,
       colorClass: "stat-card-total",
       textColor: "text-status-ongoing",
     },
     {
       label: "Pending",
-      value: recentConcerns.filter((c: any) => c.status === "pending").length,
+      value: recentConcerns?.filter((c: any) => c.status === "pending").length || 0,
       icon: Clock,
       colorClass: "stat-card-pending",
       textColor: "text-status-pending",
     },
     {
       label: "Resolved",
-      value: recentConcerns.filter((c: any) => c.status === "resolved").length,
+      value: recentConcerns?.filter((c: any) => c.status === "resolved").length || 0,
       icon: CheckCircle,
       colorClass: "stat-card-resolved",
       textColor: "text-status-resolved",
     },
     {
       label: "Unresolved",
-      value: recentConcerns.filter((c: any) => c.status === "unresolved")
-        .length,
+      value: recentConcerns?.filter((c: any) => c.status === "unresolved")
+        .length || 0,
       icon: XCircle,
       colorClass: "stat-card-unresolved",
       textColor: "text-status-unresolved",
-    },
-    {
-      label: "Unverified",
-      value: recentConcerns.filter((c: any) => c.status === "unverified")
-        .length,
-      icon: AlertCircle,
-      colorClass: "stat-card-unverified",
-      textColor: "text-status-unverified",
     },
   ];
   const { data, error, isLoading, mutate } = useSWR(
@@ -78,10 +69,10 @@ export function OfficialDashboard() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 align-items-center">
         {stats.map((stat) => (
           <div key={stat.label} className={`stat-card ${stat.colorClass}`}>
-            <div className="flex items-start justify-between">
+            <div className="flex items-start bg-gray-50 hover:bg-gray-100 transition-colors p-2 rounded justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">
                   {stat.label}

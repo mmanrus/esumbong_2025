@@ -14,7 +14,13 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardDescription,CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { ConcernForm, ConcernFormSchema } from "@/defs/concern";
@@ -116,6 +122,13 @@ export default function SubmitConcernForm() {
         | null = null;
       if (files.length > 0) {
         try {
+          //  const isAiGenerated = await detectConflictingPaths(files);
+          //if (isAiGenerated) {
+          //toast.error("AI-generated files are not allowed.");
+          // ret
+          ///}
+
+          
           const uploaded = await uploadFiles("mediaUploader", {
             files,
             onUploadProgress({ progress }) {
@@ -132,7 +145,26 @@ export default function SubmitConcernForm() {
               size: file.size,
               type: file.type,
             })) ?? [];
-
+          const truthscanRes = await fetch(
+            "https://detect-image.truthscan.com/detect",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
+          if (!truthscanRes.ok) {
+            console.error("TruthScan API error:", await truthscanRes.text());
+            toast.error("Failed to validate media files.");
+            return;
+          }
+          const data = await truthscanRes.json();
+          if (data.result_details.final_result !== "Real") {
+            toast.error("AI-generated media files are not allowed.");
+            return;
+          }
+          toast.info("Files uploaded are", data.result_details.final_result);
           formData.append("metaData", JSON.stringify(mediaData));
 
           // reset UI

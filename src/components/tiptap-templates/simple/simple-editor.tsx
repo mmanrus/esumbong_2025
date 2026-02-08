@@ -261,6 +261,7 @@ export function SimpleEditor({ content, onChange }: TiptapProps) {
                 }
               : {}),
           }}
+          className="flex flex-wrap gap-2 items-start simple-editor-toolbar"
         >
           {mobileView === "main" ? (
             <MainToolbarContent

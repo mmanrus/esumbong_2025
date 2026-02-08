@@ -1,5 +1,4 @@
 "use client";
-import AnnouncementList from "@/components/atoangUI/announcement/announcements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -25,7 +24,6 @@ export default function Page() {
     if (!data) return;
     setAnnouncements(data.data);
   }, [data]);
-  if (isLoading) return <p>Loading...</p>;
 
   if (error) {
     toast.error("Failed to load announcements.");
@@ -52,6 +50,7 @@ export default function Page() {
             className="border p-2 rounded-md cursor-text focus:ring-2 focus:ring-blue-400"
           />
           <Button
+            disabled={isLoading}
             onClick={() =>
               setQuery({
                 search: input,
@@ -64,8 +63,11 @@ export default function Page() {
         </div>
       </div>
       <div>
-        <DataTable columns={columns} data={announcement} />
-        <AnnouncementList sidebar={"false"} search={query.search} />
+        <DataTable
+          columns={columns}
+          isLoading={isLoading}
+          data={announcement}
+        />
       </div>
     </>
   );

@@ -25,7 +25,7 @@ export default function Page() {
             Generate summaries and charts (prototype UI).
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col gap-1 items-end md:flex-row md:items-center md:space-x-3">
           <Select defaultValue="concern" onValueChange={setReportType} value={reportType}>
             <SelectTrigger className="w-[180px] cursor-pointer">
               <SelectValue placeholder="Report type" />
