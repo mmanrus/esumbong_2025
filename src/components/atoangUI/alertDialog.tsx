@@ -3,7 +3,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -43,10 +42,10 @@ export default function DialogAlert({
               <span>{headMessage}</span>
             </div>
           </AlertDialogTitle>
-            {children ? children : message}
-          
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex justify-center sm:justify-center items-center">
+
+          {children ? children : message}
           <AlertDialogCancel>Cancel</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

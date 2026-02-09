@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
+  DeleteIcon,
   Edit2,
   Mail,
   MessageSquare,
@@ -27,12 +28,12 @@ import { FeedbackInput, FeedbackSchema } from "@/defs/feedback";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import { notFound, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 import { fetcher } from "@/lib/swrFetcher";
 import useSWR from "swr";
-import Loading from "@/app/(protected)/feedback/[id]/loading";
 import { formatDate } from "@/lib/formatDate";
+import DialogAlert from "../alertDialog";
 
 type Feedback = {
   id: string;
@@ -52,6 +53,7 @@ export default function FeedbackById() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   //const [editedFeedback, setEditedFeedback] = useState(feedback);
   const { id } = useParams<{ id: string }>();
+
   const [loading, setLoading] = useState(false);
   const { data, error, isLoading, mutate } = useSWR(
     `/api/feedback/${id}`,
@@ -78,39 +80,88 @@ export default function FeedbackById() {
     },
     resolver: zodResolver(FeedbackSchema),
   });
-  const handleEdit = async (e: any) => {
-    e.preventDefault();
-    console.log({
-      title: form.getValues("title"),
-      feedback: form.getValues("feedback"),
+
+  const [originalValues, setOriginalValues] = useState<{
+    title: string;
+    feedback: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setOriginalValues({
+      title: data.data.title,
+      feedback: data.data.feedback,
     });
-    const isValid = await form.trigger();
-    if (!isValid) {
-      toast.error("Please fix the errors in the form before submitting.");
+
+    form.reset({
+      title: data.data.title,
+      feedback: data.data.feedback,
+    });
+  }, [data]);
+
+  const { watch, formState, register, trigger, getValues, reset } = form;
+
+  const watchedTitle = watch("title");
+  const watchedFeedback = watch("feedback");
+
+  const hasChanges =
+    originalValues &&
+    (watchedTitle !== originalValues.title ||
+      watchedFeedback !== originalValues.feedback);
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentValues = form.getValues();
+
+    if (
+      originalValues &&
+      currentValues.title === originalValues.title &&
+      currentValues.feedback === originalValues.feedback
+    ) {
+      toast.info("No changes detected.");
       return;
     }
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("title", form.getValues("title"));
-    formData.append("feedback", form.getValues("feedback"));
+
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
+
+    // Build payload dynamically
+    const payload: Partial<{ title: string; feedback: string }> = {};
+    if (currentValues.title !== originalValues?.title) {
+      payload.title = currentValues.title;
+    }
+    if (currentValues.feedback !== originalValues?.feedback) {
+      payload.feedback = currentValues.feedback;
+    }
+
     try {
+      setLoading(true);
+
       const res = await fetch(`/api/feedback/update/${id}`, {
-        method: "POST",
-        body: formData,
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
+
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
-        toast.error(
-          errorData.message || "Failed to submit feedback. Please try again.",
-        );
+        toast.error(data.error || "Failed to update feedback");
         return;
       }
-      toast.success("Feedback submitted successfully!");
-      return;
+
+      toast.success("Feedback updated!");
+      setIsEditing(false);
+      mutate(); // refresh SWR data
     } catch (error) {
-      console.error("Error submitting feedback:", error);
-      toast.error("Failed to submit feedback. Please try again.");
-      return;
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -120,9 +171,31 @@ export default function FeedbackById() {
     //setEditedFeedback(feedback);
     setIsEditing(false);
   };
-  if (user?.type === "resident" && user?.id !== feedback?.user.id) {
-    return notFound();
-  }
+  const router = useRouter();
+  const handleDelete = async (id: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/feedback/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(
+          data.error ? data.error : "Error upon deleting the feedback",
+        );
+        return;
+      }
+
+      toast.success("Successfully deleted the feedback.");
+      router.push("/feedback");
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in h-full flex flex-col">
       <div>
@@ -138,17 +211,19 @@ export default function FeedbackById() {
       <Card className="shadow-sm flex flex-col flex-1">
         <CardHeader>
           <CardTitle className="text-lg">Submitted Feedback</CardTitle>
-          <CardAction>
+          <CardAction className="flex flex-col gap-1 md:flex-row">
             {user?.id === feedback?.user?.id &&
               (!isEditing ? (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Edit2 className="h-4 w-4" />
-                  Edit
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    Edit
+                  </Button>
+                </>
               ) : (
                 <div className="flex gap-2">
                   <Button onClick={handleCancel} variant="ghost" size="icon">
@@ -158,6 +233,24 @@ export default function FeedbackById() {
                     <Save className="h-4 w-4" />
                     Save
                   </Button>
+                  <DialogAlert
+                    trigger={
+                      <Button variant={"destructive"}>
+                        <DeleteIcon className="h-4 w-4" />
+                        Delete
+                      </Button>
+                    }
+                    headMessage="Are you sure you want to delete this feedback?"
+                    Icon={DeleteIcon}
+                  >
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDelete(id)}
+                      disabled={isLoading}
+                    >
+                      Yes
+                    </Button>
+                  </DialogAlert>
                 </div>
               ))}
           </CardAction>
@@ -266,14 +359,14 @@ export default function FeedbackById() {
                 </div>
               )}
             </div>
-
+            {/**
             <div className="flex justify-end pt-2">
               {isEditing && (
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Submitting..." : "Submit Feedback"}
+                <Button type="submit" disabled={loading || !hasChanges}>
+                  Edit
                 </Button>
               )}
-            </div>
+            </div>  */}
           </form>
         </CardContent>
       </Card>
