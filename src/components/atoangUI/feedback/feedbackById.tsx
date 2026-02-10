@@ -168,7 +168,6 @@ export default function FeedbackById() {
   };
 
   const handleCancel = () => {
-    //setEditedFeedback(feedback);
     setIsEditing(false);
   };
   const router = useRouter();
@@ -221,7 +220,7 @@ export default function FeedbackById() {
                     className="gap-2"
                   >
                     <Edit2 className="h-4 w-4" />
-                    Edit
+                    Edit Feedback
                   </Button>
                 </>
               ) : (
@@ -229,7 +228,11 @@ export default function FeedbackById() {
                   <Button onClick={handleCancel} variant="ghost" size="icon">
                     <X className="h-4 w-4" />
                   </Button>
-                  <Button onClick={handleEdit} className="gap-2">
+                  <Button
+                    onClick={handleEdit}
+                    disabled={loading}
+                    className="gap-2"
+                  >
                     <Save className="h-4 w-4" />
                     Save
                   </Button>

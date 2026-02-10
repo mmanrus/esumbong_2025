@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import clsx from "clsx";
 import { ConcernForm, ConcernFormSchema } from "@/defs/concern";
 import { useQuery } from "@tanstack/react-query";
-import { Category } from "@/defs/category";
+import { CategoryInput } from "@/defs/category";
 import { uploadFiles } from "@/lib/uploadthing";
 import { useDropzone } from "@uploadthing/react";
 
@@ -252,7 +252,7 @@ export default function SubmitConcernForm() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories?.categories?.map((cat: Category) => (
+                    {categories?.categories?.map((cat: CategoryInput) => (
                       <SelectItem key={cat.id} value={String(cat.id)}>
                         {cat.name}
                       </SelectItem>

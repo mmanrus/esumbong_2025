@@ -28,8 +28,10 @@ import {
 } from "@/components/ui/form";
 
 import { CategorySchema } from "@/defs/category";
+import { Textarea } from "@/components/ui/textarea";
 
-export function CategoryDialog() {
+export function CategoryDialog({ mutate }: { mutate: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm({
@@ -64,6 +66,8 @@ export function CategoryDialog() {
       }
 
       toast.success("Category created successfully");
+      setIsOpen(false)
+      mutate()
       form.reset();
     } catch (err) {
       console.error(err);
@@ -74,10 +78,10 @@ export function CategoryDialog() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="cursor-pointer">
-          Open Dialog
+          Create Category
         </Button>
       </DialogTrigger>
 
@@ -114,7 +118,7 @@ export function CategoryDialog() {
                 <FormItem>
                   <FormLabel>Category Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="Description"
                       className="h-20"
                       {...field}

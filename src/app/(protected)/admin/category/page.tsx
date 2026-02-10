@@ -1,16 +1,5 @@
-"use client";
-
-import { useState } from "react";
-import { CategoryDialog } from "@/components/atoangUI/forms/categoryForm";
+import CategoryPage from "@/components/atoangUI/category/categoryPage";
 
 export default function Page() {
-  const [categoryName, setCategoryName] = useState<string>("");
-
-  const [categoryDescription, setCategoryDescription] = useState<string>("");
-  return (
-    <>
-      <div>Create Category Page</div>
-      <CategoryDialog/>
-    </>
-  );
+  return <CategoryPage />;
 }

@@ -61,10 +61,10 @@ export const columns: ColumnDef<Feedback>[] = [
         <div className="flex justify-end  pr-5">
           <Button
             onClick={() => redirect(`/feedback/${feedback.id}`)}
-            className="flex items-center"
+            className="flex items-center text-sm sm:text-base px-2 sm:px-4 py-1 sm:py-2"
           >
-            <Eye className="inline mr-1" />
-            View Feedback
+            <Eye className="inline mr-1 h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">View Feedback</span>
           </Button>
         </div>
       );
