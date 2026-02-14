@@ -91,7 +91,7 @@ export function NavUser({
             <DropdownMenuSeparator />*/}
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <a href="/profile" className="flex flex-row items-center gap-2">
+                <a href="/profile" className="flex flex-row w-full items-center gap-2">
                   <BadgeCheck />
                   <span>Account</span>
                 </a>
@@ -99,10 +99,10 @@ export function NavUser({
              </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <form action={logout}>
+              <form action={logout} className="w-full">
                 <button
                   type="submit"
-                  className="flex flex-row items-center gap-2"
+                  className="flex flex-1 cursor-pointer w-full flex-row items-center gap-2"
                 >
                   <LogOut />
                   Logout

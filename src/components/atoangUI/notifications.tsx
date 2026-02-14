@@ -19,7 +19,7 @@ export default function NotificationComponent({
   userId?: string;
   type?: string;
 }) {
-  const notifications = useNotification(userId);
+  const notifications = useNotification(userId, type);
   const isMobile = useIsMobile();
   return (
     <DropdownMenu>
