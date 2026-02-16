@@ -20,9 +20,9 @@ export function useNotification(userId?: string, type?: string) {
                setNotification(data.data)
           }
           fetchNotification()
-          const wsUrl = process.env.WEBSOCKET_URL
+          const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
           if (!wsUrl) {
-               throw new Error("Please set up WEBSOCKET_URL in the ENV.")
+               throw new Error("Please set up NEXT_PUBLIC_WEBSOCKET_URL in the ENV.")
           }
           const ws = new WebSocket(wsUrl)
           ws.onopen = () => {
