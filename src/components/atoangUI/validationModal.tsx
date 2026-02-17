@@ -7,15 +7,17 @@ import { toast } from "sonner";
 export default function ValidationModal({
   open,
   setOpen,
+  mutate
 }: {
   open: boolean;
   setOpen: (value: boolean) => void;
+  mutate: ()=> void
 }) {
   
   const { concern, concernId } = useConcern();
   const [isLoading, setLoading] = useState(false)
   const handleValidation = async (
-    status: "approved" | "rejected" | "pending" | null
+    status: "approved" | "rejected" | "pending" | null, 
   ) => {
     setLoading(true)
     const res = await fetch(`/api/concern/validate/${concernId}`, {
@@ -29,26 +31,23 @@ export default function ValidationModal({
       return
     }
     setLoading(false)
+    setOpen(false)
+    mutate()
     toast.success("Successfully validated.")
   };
-  const [newValidation, setNewvalidation] = useState<
-    "approved" | "rejected" | "pending" | null
-  >(null);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogTitle>Validate Concern as</DialogTitle>
         <form
           className="flex flex-row gap-3 justify-center"
-          onSubmit={async (e) => {
-            e.preventDefault(); // Prevent the form from reloading the page
-            await handleValidation(newValidation);
-          }}
+          
         >
           <Button
             disabled={concern?.validation === "approved" || isLoading}
             type="submit"
-            onClick={() => setNewvalidation("approved")}
+            onClick={() => handleValidation("approved")}
           >
             Approve
           </Button>
@@ -56,7 +55,7 @@ export default function ValidationModal({
             variant="destructive"
             type="submit"
             disabled={concern?.validation === "rejected" || isLoading}
-            onClick={() => setNewvalidation("rejected")}
+            onClick={() => handleValidation("rejected")}
           >
             Reject
           </Button>
@@ -64,7 +63,7 @@ export default function ValidationModal({
             variant="outline"
             type="submit"
             disabled={concern?.validation === "pending" || isLoading}
-            onClick={() => setNewvalidation("pending")}
+            onClick={() => handleValidation("pending")}
           >
             Pending
           </Button>

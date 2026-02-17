@@ -75,7 +75,7 @@ export default function ConcernIdPage() {
     setConcernUpdates,
     concernUpdates,
   } = useConcern();
-  const [openAction, setOpenAction] = useState(false);
+  //const [openAction, setOpenAction] = useState(false);
 
   const { data, error, isLoading, mutate } = useSWR(
     id ? `/api/concern/${id}` : null,
@@ -95,7 +95,7 @@ export default function ConcernIdPage() {
     notFound();
   }
   const MAX_VISIBLE = 5;
-  const config = concern ? statusConfig[concern.status as Status] : undefined;
+  const config = concern ? statusConfig[concern.validation as Status] : undefined;
 
   const StatusIcon = config?.icon;
   const handleDelete = async (id: string) => {
@@ -305,7 +305,7 @@ export default function ConcernIdPage() {
           )}
         </CardContent>
       </Card>
-      <ValidationModal open={openValidation} setOpen={setOpenValidation} />
+      <ValidationModal open={openValidation} mutate={mutate} setOpen={setOpenValidation} />
       {/**<TakeActionModal open={openAction} setOpen={setOpenAction} />*/}
     </>
   );

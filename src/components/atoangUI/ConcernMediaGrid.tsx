@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "../ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -10,6 +10,8 @@ import {
 } from "../ui/carousel";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
+import { X } from "lucide-react";
+import { Button } from "../ui/button";
 
 export default function ConcernMediaGrid({
   media,
@@ -59,24 +61,33 @@ export default function ConcernMediaGrid({
         })}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="p-0 max-w-none! max-h-none! bg-transparent border-0 lg:w-[70%] lg:h-[80%]!">
+        <DialogContent
+          showCloseButton={false}
+          className="p-0 bg-transparent flex justify-center items-center border-0 w-[90vw] max-w-5xl h-[60vh]"
+        >
           <VisuallyHidden>
             <DialogTitle>Images Concern</DialogTitle>
           </VisuallyHidden>
+          <DialogClose asChild>
+            <Button className="absolute z-100 top-[-110] right-4 text-white hover:opacity-70 transition">
+              <X className="w-6 h-6 opacity-100" />
+            </Button>
+          </DialogClose>
           <Carousel
             key={selectedIndex}
             opts={{ loop: true, startIndex: selectedIndex }}
-            className="w-fit h-full"
+            className="w-full h-full flex justify-center items-center"
           >
-            <CarouselContent className="w-fit h-full!">
-              {" "}
-              {media.map((item: any, index: number) => (
-                <CarouselItem key={item.id} className="w-full h-full">
+            <CarouselContent className="h-full">
+              {media.map((item, index) => (
+                <CarouselItem
+                  key={item.id}
+                  className="flex items-center justify-center h-full"
+                >
                   <img
-                    key={index}
                     src={item.url}
                     alt={`Concern media ${index + 1}`}
-                    className="rounded-lg object-contain h-full"
+                    className="max-h-full max-w-full object-contain"
                   />
                 </CarouselItem>
               ))}

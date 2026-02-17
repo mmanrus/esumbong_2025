@@ -315,7 +315,7 @@ export default function SubmitConcernForm() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {previews.map((previewUrl, index) => {
                       const currentFile = files[index];
-
+ 
                       if (!currentFile) return null;
 
                       return currentFile.type.startsWith("image") ? (
