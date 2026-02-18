@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
 import { formatDate } from "@/lib/formatDate";
+import { profileSchema } from "@/defs/definitions";
 
 interface ProfileData {
   fullname?: string;
@@ -38,6 +39,7 @@ interface ProfileData {
 export function ProfilePage() {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({
     fullname: user?.fullname,
     email: user?.email,
@@ -51,12 +53,39 @@ export function ProfilePage() {
 
   const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
-    toast.success("Profile Updated", {
-      description: "Your profile has been updated successfully.",
-    });
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const result = profileSchema.safeParse(editedProfile);
+      if (!result.success) {
+        const firstError = result.error.issues[0].message;
+        toast.warning(firstError);
+        return;
+      }
+      const res = await fetch(`/api/users/update/${user?.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(editedProfile),
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        toast.error("Something went wrong upon updating your profile.");
+        return;
+      }
+      setProfile(editedProfile);
+
+      toast.success("Profile Updated", {
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      toast.error("Something went wrong");
+      
+    } finally {
+      setIsEditing(false);
+      setIsLoading(false)
+    }
   };
 
   const handleCancel = () => {

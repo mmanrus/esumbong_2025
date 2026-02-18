@@ -1,18 +1,22 @@
 import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-export async function PATCH(req: NextRequest, context : { params: Promise<{ id: string }> }) {
+const updateProfileSchema = z.object({
+  fullname: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string(),
+  address: z.string().optional(),
+  barangay: z.string().optional(),
+});
+
+export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params
-  const formData = await req.formData();
-  const parsed = {
-    fullname: formData.get("fullname") as string,
-    email: formData.get("email") as string,
-    contactNumber: formData.get("contactNumber") as string,
-    password: formData.get("password") as string,
-  }
+  const body = await req.json()
 
   try {
+    const parsed = updateProfileSchema.parse(body);
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
