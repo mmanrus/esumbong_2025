@@ -16,6 +16,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
   const body = await req.json()
 
   try {
+    if (process.env.NODE_ENV === "development") console.log("Updating")
     const parsed = updateProfileSchema.parse(body);
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
@@ -34,6 +35,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
     })
     if (!res.ok) {
       const data = await res.json()
+      if (process.env.NODE_ENV === "development") console.log(data)
       return NextResponse.json(
         { error: data.error },
         { status: res.status }

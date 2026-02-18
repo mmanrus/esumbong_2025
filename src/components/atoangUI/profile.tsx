@@ -25,15 +25,13 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
 import { formatDate } from "@/lib/formatDate";
-import { profileSchema } from "@/defs/definitions";
+import { profileSchema, profileSchemaType } from "@/defs/definitions";
 
 interface ProfileData {
   fullname?: string;
   email?: string;
   phone?: string;
   address?: string;
-  barangay?: string;
-  memberSince?: string;
 }
 
 export function ProfilePage() {
@@ -45,10 +43,6 @@ export function ProfilePage() {
     email: user?.email,
     phone: user?.contactNumber,
     address: user?.address,
-    barangay: user?.barangay,
-    memberSince: user?.createdAt
-      ? formatDate(new Date(user.createdAt))
-      : undefined,
   });
 
   const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
@@ -60,18 +54,37 @@ export function ProfilePage() {
       if (!result.success) {
         const firstError = result.error.issues[0].message;
         toast.warning(firstError);
+        setIsLoading(false);
+        return;
+      }
+      const updatedFields: Partial<profileSchemaType> = {};
+
+      (Object.keys(result.data) as (keyof profileSchemaType)[]).forEach(
+        (key) => {
+          if (result.data[key] !== profile[key]) {
+            updatedFields[key] = result.data[key];
+          }
+        },
+      );
+
+      // If nothing changed
+      if (Object.keys(updatedFields).length === 0) {
+        toast.info("No changes detected.");
+        setIsLoading(false);
+        setIsEditing(false);
         return;
       }
       const res = await fetch(`/api/users/update/${user?.id}`, {
         method: "PATCH",
-        body: JSON.stringify(editedProfile),
-        credentials: "include",
+        body: JSON.stringify(result.data),
         headers: {
           "Content-Type": "application/json",
         },
       });
       if (!res.ok) {
-        toast.error("Something went wrong upon updating your profile.");
+        const data = await res.json()
+        toast.error(data.error);
+        setIsLoading(false);
         return;
       }
       setProfile(editedProfile);
@@ -81,10 +94,9 @@ export function ProfilePage() {
       });
     } catch (error) {
       toast.error("Something went wrong");
-      
     } finally {
       setIsEditing(false);
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -120,7 +132,11 @@ export function ProfilePage() {
                 <Button onClick={handleCancel} variant="ghost" size="icon">
                   <X className="h-4 w-4" />
                 </Button>
-                <Button onClick={handleSave} className="gap-2">
+                <Button
+                  disabled={isLoading}
+                  onClick={handleSave}
+                  className="gap-2"
+                >
                   <Save className="h-4 w-4" />
                   Save
                 </Button>
@@ -137,13 +153,14 @@ export function ProfilePage() {
                 {profile.fullname ? profile?.fullname[0] : "U"}
               </AvatarFallback>
             </Avatar>
+            {/**
             <div>
               <h3 className="text-xl font-semibold">{profile.fullname}</h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                 <Calendar className="h-3 w-3" />
-                Member since {profile.memberSince}
+                Member since {user?.createdAt}
               </p>
-            </div>
+            </div> */}
           </div>
 
           <Separator />
@@ -236,7 +253,7 @@ export function ProfilePage() {
                 <p className="text-foreground py-2">{profile.address}</p>
               )}
             </div>
-
+            {/**
             <div className="space-y-2">
               <Label htmlFor="barangay">Barangay</Label>
               {isEditing ? (
@@ -255,7 +272,7 @@ export function ProfilePage() {
                   {profile.barangay ? profile.barangay : "Unaffiliated"}
                 </p>
               )}
-            </div>
+            </div>  */}
           </div>
         </CardContent>
       </Card>
