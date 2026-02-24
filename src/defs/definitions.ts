@@ -57,10 +57,6 @@ export const profileSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  //barangay: z
-  //  .string()
-  //  .optional()
-  //  .or(z.literal("")),
 });
 
 

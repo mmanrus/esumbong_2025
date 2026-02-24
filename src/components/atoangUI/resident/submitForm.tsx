@@ -104,7 +104,7 @@ export default function SubmitConcernForm() {
     }
 
     if (form.needsBarangayAssistance === null) {
-      toast.error("Please specify if barangay assistance is needed.");
+      toast.warning("Please specify if barangay assistance is needed.");
       return;
     }
 
@@ -120,29 +120,16 @@ export default function SubmitConcernForm() {
       });
       const validationData = await validationRes.json();
       if (!validationData.ok || !validationData.allowed) {
-        toast.error(
+        toast.warning(
           validationData.message ||
             "AI-generated or edited media is not allowed.",
         );
-        return;
       }
+
+      const aiResults = validationData.files;
       const formData = new FormData();
-      let uploadedFiles:
-        | {
-            ufsUrl: string;
-            name: string;
-            size: number;
-            type: string;
-          }[]
-        | null = null;
       if (files.length > 0) {
         try {
-          //  const isAiGenerated = await detectConflictingPaths(files);
-          //if (isAiGenerated) {
-          //toast.error("AI-generated files are not allowed.");
-          // ret
-          ///}
-
           const uploaded = await uploadFiles("mediaUploader", {
             files,
             onUploadProgress({ progress }) {
@@ -153,13 +140,18 @@ export default function SubmitConcernForm() {
           if (!uploaded?.length) throw new Error("Upload failed");
 
           const mediaData =
-            uploaded?.map((file) => ({
+            uploaded?.map((file) => {
+              const matchedValidation = aiResults.find((v: any) => {
+                v.name === file.name
+              })
+              return {
               url: file.ufsUrl.toString(),
               name: file.name,
               size: file.size,
               type: file.type,
-            })) ?? [];
-          
+              isAi: matchedValidation?.isAI ?? false,
+            }}) ?? [];
+
           formData.append("metaData", JSON.stringify(mediaData));
 
           // reset UI
@@ -315,7 +307,7 @@ export default function SubmitConcernForm() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {previews.map((previewUrl, index) => {
                       const currentFile = files[index];
- 
+
                       if (!currentFile) return null;
 
                       return currentFile.type.startsWith("image") ? (

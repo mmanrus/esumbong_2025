@@ -43,15 +43,17 @@ export default async function middleware(req: NextRequest) {
   // ----- 3. Prevent users from accessing other dashboards
   if (session.type) {
     const userType = session.type;
-
+    const isVerified = session.isVerified;
     if (userType === "admin" && (path.startsWith("/resident") || path.startsWith("/officials"))) {
       return NextResponse.redirect(new URL("/admin", req.nextUrl));
     }
 
+    if (userType === "resident" && !isVerified) {
+      return NextResponse.redirect(new URL("/verified", req.nextUrl));
+    }
     if (userType === "resident" && (path.startsWith("/admin") || path.startsWith("/officials"))) {
       return NextResponse.redirect(new URL("/resident", req.nextUrl));
     }
-
     if (userType === "barangay_official" && (path.startsWith("/admin") || path.startsWith("/resident"))) {
       return NextResponse.redirect(new URL("/officials", req.nextUrl));
     }
@@ -72,5 +74,6 @@ export const config = {
     "/admin/:path*",
     "/resident/:path*",
     "/officials/:path*",
+    "/verify/:path"
   ],
 };

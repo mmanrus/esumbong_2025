@@ -7,51 +7,46 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const files = formData.getAll("files") as File[];
 
-  for (const file of files) {
-    if (file.type.startsWith("image/")) {
-      console.log("Start detecting")
-      const allowed = await detectImage(file);
-      if (!allowed) {
-        return NextResponse.json(
-          {
-            ok: false,
-            allowed: false,
-            message: "AI-generated image detected.",
-          },
-          { status: 400 }
-        );
+  const results: {
+    name: string;
+    type: string;
+    isAI: boolean;
+  }[] = [];
 
-      }
+  for (const file of files) {
+    let isAI = false;
+
+    if (file.type.startsWith("image/")) {
+      const allowed = await detectImage(file);
+      isAI = !allowed;
     }
 
     if (file.type.startsWith("video/")) {
       const allowed = await detectVideo(file);
-      if (!allowed) {
-        return NextResponse.json(
-          {
-            ok: false,
-            allowed: false,
-            message: "AI-generated video detected.",
-          },
-          { status: 400 }
-        );
-
-      }
+      isAI = !allowed;
     }
+
+    results.push({
+      name: file.name,
+      type: file.type,
+      isAI,
+    });
   }
+
+  const hasAI = results.some((f) => f.isAI);
 
   return NextResponse.json({
     ok: true,
-    allowed: true,
+    allowed: !hasAI,
+    files: results,
   });
-
 }
 
 async function detectImage(file: File): Promise<boolean> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const base64 = buffer.toString("base64");
   const mime = file.type;
-  console.log("Hello world")
+
   const res = await fetch(
     "https://api.bitmind.ai/oracle/v1/34/detect-image",
     {
@@ -70,14 +65,14 @@ async function detectImage(file: File): Promise<boolean> {
 
   if (!res.ok) {
     console.error("BitMind image error:", await res.text());
-    return false; // fail-closed
+    return true; // fail-safe: treat as AI
   }
 
   const data = await res.json();
-
-  // IMPORTANT: correct casing
-  return data.isAI === false;
+  return data.isAI === true; // return directly
 }
+
+
 async function detectVideo(file: File): Promise<boolean> {
   const fd = new FormData();
   fd.append("video", file);
@@ -97,9 +92,9 @@ async function detectVideo(file: File): Promise<boolean> {
 
   if (!res.ok) {
     console.error("BitMind video error:", await res.text());
-    return false;
+    return true;
   }
 
   const data = await res.json();
-  return data.isAI === false;
+  return data.isAI === true;
 }
