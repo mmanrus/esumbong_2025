@@ -14,6 +14,7 @@ export type User = {
   email: string;
   type: string;
   createdAt: Date;
+  isVerified?: Boolean
   contactNumber: string;
   position?: string;
   profilePhoto?: string;
@@ -24,6 +25,7 @@ export type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  setUser: (user: User) => void;
   loading: boolean;
   refreshUser: () => Promise<void>;
 };
@@ -74,7 +76,13 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, refreshUser: fetchUser, isAuthenticated }}
+      value={{
+        user,
+        setUser,
+        loading,
+        refreshUser: fetchUser,
+        isAuthenticated,
+      }}
     >
       {children}
     </AuthContext.Provider>

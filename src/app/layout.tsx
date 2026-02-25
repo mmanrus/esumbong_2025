@@ -23,13 +23,14 @@ import Providers from "@/contexts/queryContext";
 import { ConcernProvider } from "@/contexts/concernContext";
 import { cookies } from "next/headers";
 import { COOKIE_NAME } from "@/lib/constants";
+import { WebSocketProvider } from "@/contexts/webSocketContext";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  let user = null
+  let user = null;
   try {
     user = await getUser();
   } catch (err) {
@@ -46,7 +47,9 @@ export default async function RootLayout({
       >
         <ConcernProvider>
           <AuthProvider initialUser={user as User}>
-            <Providers>{children}</Providers>
+            <WebSocketProvider>
+              <Providers>{children}</Providers>
+            </WebSocketProvider>
           </AuthProvider>
         </ConcernProvider>
 

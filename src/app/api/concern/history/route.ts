@@ -18,11 +18,11 @@ export async function GET(
     }
 
     try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-        console.log("Fetching concern history with access token:", accessToken, "from backend URL:", backendUrl);
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/history`, {
+            credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
             },
         });
 
@@ -30,12 +30,11 @@ export async function GET(
             const data = await res.json();
             return NextResponse.json({ error: data.error || "Failed to fetch announcement" }, { status: res.status });
         }
-        console.log("Successfully fetched concern history");
         const data = await res.json();
-        console.log("Concern history data:", data);
+        if (process.env.NODE_ENV === "development") console.log("Concern history data:", data);
         return NextResponse.json({ data }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching announcement:" + error);
+        if (process.env.NODE_ENV === "development") console.error("Error fetching announcement:" + error);
         return NextResponse.json({ error: "An error occurred while processing the request." }, { status: 500 });
     }
 }

@@ -12,34 +12,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/authContext";
 
 import { useRouter } from "next/navigation";
-
-const stats = [
-  {
-    title: "Total Concerns",
-    value: 7,
-    icon: FileText,
-    borderColor: "border-l-info",
-    valueColor: "text-info",
-    link: "/resident/history",
-  },
-  {
-    title: "Pending Issues",
-    value: 3,
-    icon: Clock,
-    borderColor: "border-l-warning",
-    valueColor: "text-warning",
-    link: "/resident/history?status=Pending",
-  },
-  {
-    title: "Resolved",
-    value: 4,
-    icon: CheckCircle,
-    borderColor: "border-l-success",
-    valueColor: "text-success",
-    link: "/resident/history?status=Resolved",
-  },
-];
-
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useWebSocket } from "@/contexts/webSocketContext";
+type ConcernStats = {
+  pending: number;
+  inProgress: number;
+  verified: number;
+  canceled: number;
+  approved: number;
+  rejected: number;
+  resolved: number;
+};
 // Floating animated icons for visual interest
 const FloatingIcon = ({
   icon: Icon,
@@ -61,6 +45,84 @@ const FloatingIcon = ({
 export function DashboardOverview() {
   const router = useRouter();
   const { user } = useAuth();
+  const socket = useWebSocket();
+  const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState<ConcernStats | null>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (process.env.NODE_ENV === "development") {
+        console.log("Websocket response", data);
+      }
+      if (data.type === "NEW_STAT") {
+        setStats(data.stats);
+      }
+    };
+  }, [socket]);
+  const fetchStats = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/concern/getStats`);
+      if (!res.ok) {
+        setIsLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setStats(data.stats);
+      setIsLoading(false);
+      return;
+    } catch (error) {
+      if (process.env.NODE_ENV === "development")
+        console.error("error retrieving history:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const statsCard = [
+    {
+      title: "Total Concerns",
+      value: stats
+        ? Object.values(stats).reduce((a: number, b: number) => a + b, 0)
+        : 0,
+      icon: FileText,
+      borderColor: "border-l-info",
+      valueColor: "text-info",
+      link: "/resident/history",
+    },
+    {
+      title: "Pending Issues",
+      value: stats?.pending ?? 0,
+      icon: Clock,
+      borderColor: "border-l-warning",
+      valueColor: "text-warning",
+      link: "/resident/history?status=Pending",
+    },
+
+    {
+      title: "In Progress",
+      value: stats?.inProgress ?? 0,
+      icon: Clock,
+      borderColor: "border-l-warning",
+      valueColor: "text-warning",
+      link: "/resident/history?status=Pending",
+    },
+    {
+      title: "Resolved",
+      value: stats?.resolved ?? 0,
+      icon: CheckCircle,
+      borderColor: "border-l-success",
+      valueColor: "text-success",
+      link: "/resident/history?status=Resolved",
+    },
+  ];
   return (
     <div className="space-y-6 relative overflow-hidden">
       {/* Floating Background Icons */}
@@ -86,13 +148,12 @@ export function DashboardOverview() {
 
       <div className="relative z-10">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Welcome back, <span className="text-primary">{user?.fullname}</span>
-          !
+          Welcome back, <span className="text-primary">{user?.fullname}</span>!
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-        {stats.map((stat, index) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+        {statsCard.map((stat, index) => (
           <Card
             key={stat.title}
             className={`border-l-4 ${stat.borderColor} shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 animate-fade-in cursor-pointer`}

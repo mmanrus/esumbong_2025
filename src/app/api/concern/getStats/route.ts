@@ -5,12 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url)
-    const search = searchParams.get("search") || ""
-    const status = searchParams.get("status") || ""
-    const archived = searchParams.get("archived") || ""
-    const recent = searchParams.get("recent") || ""
+    const search = searchParams.get("official") || ""
 
-    const validation = searchParams.get("validation") || ""
     try {
 
         const cookieStore = await cookies()
@@ -21,7 +17,7 @@ export const GET = async (request: NextRequest) => {
             })
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation=${encodeURIComponent(validation)}&recent=${encodeURIComponent(recent)}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/stats?official=${encodeURIComponent(search)}`, {
             method: "GET",
             credentials: "include",
             headers: {
@@ -32,16 +28,16 @@ export const GET = async (request: NextRequest) => {
         const data = await res.json()
 
         if (!res.ok) {
-            if (process.env.NODE_ENV === "development") console.error("Error data", data)
-            return NextResponse.json({ error: data.error })
+            if (process.env.NODE_ENV === "development") console.error("Error data getting stats", data)
+            return NextResponse.json({ error: data.error }, {status: data.status})
         }
+        if (process.env.NODE_ENV === "development") console.log("Stats data", data)
 
         return NextResponse.json({
-            data: data.data,
-        })
+            stats: data,
+        }, { status: 200 })
     } catch (error) {
-
-        if (process.env.NODE_ENV === "development") console.error("Error getting concern:", error);
+        if (process.env.NODE_ENV === "development") console.error("Error getting concern stats:", error);
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

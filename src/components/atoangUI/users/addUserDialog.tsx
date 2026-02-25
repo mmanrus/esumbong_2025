@@ -16,7 +16,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SignupFormSchema, SignUpFormType } from "@/defs/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -26,8 +32,10 @@ import { toast } from "sonner";
 export default function OpenAddUserDialog({
   open,
   setOpen,
+  mutate,
 }: {
   open: boolean;
+  mutate: () => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const form = useForm({
@@ -60,8 +68,8 @@ export default function OpenAddUserDialog({
         });
       }
 
-     
       toast.success("Registration successful!");
+      mutate();
       setOpen(false);
       form.reset();
     } catch (error) {

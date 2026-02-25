@@ -1,12 +1,14 @@
 "use client"
 
+import { useWebSocket } from "@/contexts/webSocketContext"
 import { useState, useEffect } from "react"
 
 const url = process.env.NEXT_PUBLIC_BACKEND_URL
-export function useNotification(userId?: string, type?: string) {
+export function useNotification() {
      const [notifications, setNotification] = useState<any[]>([])
+     const socket = useWebSocket()
      useEffect(() => {
-          if (!userId) return
+          if (!socket) return
           const fetchNotification = async () => {
                const result = await fetch(`/api/notification/me`, {
                     credentials: "include",
@@ -20,22 +22,7 @@ export function useNotification(userId?: string, type?: string) {
                setNotification(data.data)
           }
           fetchNotification()
-          const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
-          if (!wsUrl) {
-               throw new Error("Please set up NEXT_PUBLIC_WEBSOCKET_URL in the ENV.")
-          }
-          const ws = new WebSocket(wsUrl)
-          ws.onopen = () => {
-               console.log("Connected");
-               ws.send(JSON.stringify({
-                    type: "AUTH",
-                    userId,
-                    role: type
-               }))
-
-          }
-          ws.onerror = (err) => console.error("WS error", err)
-          ws.onmessage = (event) => {
+          socket.onmessage = (event) => {
                const data = JSON.parse(event.data)
                if (process.env.NODE_ENV === "development") {
                     console.log("Websocket response", data)
@@ -47,13 +34,7 @@ export function useNotification(userId?: string, type?: string) {
                     ])
                }
           }
-          ws.onclose = () => {
-               console.log("Disconnected")
-          }
-          return () => {
-               ws.close()
-          }
-     }, [userId, type])
+     }, [socket])
 
      return notifications
 }

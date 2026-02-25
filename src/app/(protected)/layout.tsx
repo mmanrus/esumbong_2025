@@ -75,7 +75,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   <ChevronLeft />
                   {!isMobile && <span>Back</span>}
                 </Button>
-                <NotificationComponent userId={user?.id} type={user?.type} />
+                <NotificationComponent />
               </div>
             </div>
           </header>

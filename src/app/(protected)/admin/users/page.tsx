@@ -131,7 +131,7 @@ export default function Page() {
           </tbody>
         </table>
       </div>
-      <OpenAddUserDialog open={openAddUser} setOpen={setOpenAddUser} />
+      <OpenAddUserDialog open={openAddUser} mutate={mutate} setOpen={setOpenAddUser} />
     </>
   );
 }

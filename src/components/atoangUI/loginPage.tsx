@@ -241,9 +241,9 @@ function LoginPage() {
                 <Image
                   src="/login.webp"
                   alt="Community collaboration"
+                  sizes="w-full"
                   fill
                   className="
-                    w-full
                     object-cover
                     transform-gpu
                     transition-transform

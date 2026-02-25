@@ -12,14 +12,8 @@ import { Button } from "@/components/ui/button";
 import { useNotification } from "@/hooks/useNotifications";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
-export default function NotificationComponent({
-  userId,
-  type,
-}: {
-  userId?: string;
-  type?: string;
-}) {
-  const notifications = useNotification(userId, type);
+export default function NotificationComponent() {
+  const notifications = useNotification();
   const isMobile = useIsMobile();
   return (
     <DropdownMenu>

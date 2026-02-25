@@ -10,19 +10,24 @@ import {
   Linkedin,
 } from "lucide-react";
 import { toast } from "sonner";
-import { SignupFormSchema, SignUpFormType } from "@/defs/definitions";
+import {
+  SignUpFormInput,
+  SignupFormSchema,
+  SignUpFormType,
+} from "@/defs/definitions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { Form, FormField, FormMessage } from "../ui/form";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<SignUpFormType>({
+  const router = useRouter();
+  const form = useForm<SignUpFormInput, any, SignUpFormType>({
     defaultValues: {
       fullname: "",
       email: "",
@@ -31,13 +36,22 @@ export default function RegisterPage() {
       confirmPassword: "",
       contactNumber: "",
       type: "resident",
-      age: "",
+      age: undefined,
     },
     resolver: zodResolver(SignupFormSchema),
   });
   const onSubmit = async (data: SignUpFormType) => {
     setIsLoading(true);
-    
+    const validation = SignupFormSchema.safeParse(data);
+    if (!validation.success) {
+      toast.error("Validation failed", {
+        description: Object.values(validation.error.flatten().fieldErrors)
+          .flat()
+          .join(", "),
+      });
+      setIsLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -56,6 +70,7 @@ export default function RegisterPage() {
 
       await res.json();
       toast.success("Registration successful!");
+      router.push("/login");
       return;
     } catch (error) {
       console.error("Registration error:", error);
@@ -87,19 +102,21 @@ export default function RegisterPage() {
             transition={{
               duration: 0.8,
             }}
-            className="relative z-10 p-12 w-full max-w-2xl"
+            className="absolute z-10 inset-0"
           >
             <Image
               fill
               src="/register.webp"
+              sizes="w-full"
               alt="Kalinisan Day Community Activity"
-              className="w-full h-auto rounded-2xl shadow-2xl object-cover"
+              className="rounded-2xl shadow-2xl object-cover"
             />
+            <div className="absolute rounded-2xl shadow-2xl inset-0 bg-gray-400/50" />
           </motion.div>
         </div>
 
         {/* Right Side - Form Container */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12 overflow-y-auto">
+        <div className="w-full md:mt-6 lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12 overflow-y-auto">
           <motion.div
             initial={{
               opacity: 0,
@@ -124,7 +141,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Social Sign Up */}
-            <div className="flex justify-center gap-4 py-2">
+            {/**<div className="flex justify-center gap-4 py-2">
               {[
                 {
                   icon: Instagram,
@@ -162,7 +179,7 @@ export default function RegisterPage() {
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-white px-2 text-gray-500">OR</span>
               </div>
-            </div>
+            </div>*/}
 
             <Form {...form}>
               <form
@@ -246,32 +263,59 @@ export default function RegisterPage() {
                     </div>
                   )}
                 />
-                {/* Age */}
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field, fieldState }) => (
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-gray-700">
-                        Age
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="Enter your Age"
-                        {...field}
-                        className={`flex h-11 w-full rounded-md border ${
-                          fieldState.error
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        } bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400
+                <div className="flex flex-row w-full justify-between gap-1">
+                  {/* Age */}
+                  <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field, fieldState }) => (
+                      <div className="space-y-1 w-1/2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Age
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="Enter your Age"
+                          {...field}
+                          value={(field.value as number) ?? ""}
+                          className={`flex h-11 w-full rounded-md border ${
+                            fieldState.error
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400
             focus:outline-none focus:ring-2 focus:ring-teal-500
             focus:border-transparent transition-all`}
-                      />
-                      <FormMessage className="text-xs text-red-500" />
-                    </div>
-                  )}
-                />
-
+                        />
+                        <FormMessage className="text-xs text-red-500" />
+                      </div>
+                    )}
+                  />
+                  {/* Contact Number */}
+                  <FormField
+                    control={form.control}
+                    name="contactNumber"
+                    render={({ field, fieldState }) => (
+                      <div className="space-y-1 w-1/2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Contact Number
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Enter your contact number"
+                          {...field}
+                          className={`flex h-11 w-full rounded-md border ${
+                            fieldState.error
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400
+        focus:outline-none focus:ring-2 focus:ring-teal-500
+        focus:border-transparent transition-all`}
+                        />
+                        <FormMessage className="text-xs text-red-500" />
+                      </div>
+                    )}
+                  />
+                </div>
                 {/* Password */}
                 <FormField
                   control={form.control}
@@ -298,7 +342,7 @@ export default function RegisterPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2
+                          className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2
               text-gray-400 hover:text-gray-600"
                         >
                           {showPassword ? (
@@ -342,7 +386,7 @@ export default function RegisterPage() {
                             setShowConfirmPassword(!showConfirmPassword)
                           }
                           className="absolute right-3 top-1/2 -translate-y-1/2
-              text-gray-400 hover:text-gray-600"
+              text-gray-400 hover:text-gray-600 cursor-pointer"
                         >
                           {showConfirmPassword ? (
                             <EyeOff size={18} />
@@ -365,7 +409,7 @@ export default function RegisterPage() {
       focus:ring-2 focus:ring-teal-500 focus:ring-offset-2
       transition-all duration-200 disabled:opacity-70
       disabled:cursor-not-allowed flex items-center
-      justify-center shadow-lg"
+      justify-center shadow-lg cursor-pointer"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">

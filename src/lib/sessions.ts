@@ -41,6 +41,13 @@ export async function setSession(payload: JWTPayload) {
   });
 }
 
+export async function getSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value
+  if (!token) return null;
+  const session = await decrypt(token)
+  return session
+}
 export async function clearSession() {
   const cookie = await cookies();
   cookie.delete(COOKIE_NAME);

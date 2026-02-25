@@ -25,7 +25,12 @@ export const SignupFormSchema = z
       }),
 
     contactNumber: z.string().min(1, "Contact number required"),
-    age: z.string()
+    age: z.coerce
+      .number({
+        error: "Age must be a number"
+      })
+      .min(18, "Must be at least 18")
+      .max(100, "Must be 100 or less"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
@@ -37,6 +42,8 @@ export type SignUpFormInput = z.input<typeof SignupFormSchema>;
 
 /** VALIDATED values (after resolver) */
 export type SignUpFormType = z.output<typeof SignupFormSchema>;
+
+
 export const LoginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }).trim(),
   password: z.string().trim(),

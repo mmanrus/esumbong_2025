@@ -85,34 +85,16 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {isAuthenticated ? (
-              <div className="flex items-center gap-4 ml-2">
-                <Link
-                  href="/dashboard"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                    isActive("/dashboard")
-                      ? "bg-teal-700 text-white"
-                      : isScrolled
-                        ? "text-teal-700 hover:bg-teal-50"
-                        : "text-white hover:bg-white/10"
-                  }`}
-                >
-                  <LayoutDashboard size={18} />
-                  <span>Dashboard</span>
-                </Link>
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 ${
-                  isScrolled
-                    ? "bg-teal-700 text-white hover:bg-teal-800 shadow-md hover:shadow-lg"
-                    : "bg-white text-teal-700 hover:bg-teal-50 shadow-lg hover:shadow-xl"
-                }`}
-              >
-                Login
-              </Link>
-            )}
+            <Link
+              href="/login"
+              className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 ${
+                isScrolled
+                  ? "bg-teal-700 text-white hover:bg-teal-800 shadow-md hover:shadow-lg"
+                  : "bg-white text-teal-700 hover:bg-teal-50 shadow-lg hover:shadow-xl"
+              }`}
+            >
+              Login
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
