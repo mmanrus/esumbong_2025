@@ -12,11 +12,12 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 export default function ConcernMediaGrid({
   media,
 }: {
-  media: { id: number; url: string }[];
+  media: { id: number; url: string; isAI: boolean }[];
 }) {
   if (!media || media.length === 0) return null;
 
@@ -89,6 +90,15 @@ export default function ConcernMediaGrid({
                     alt={`Concern media ${index + 1}`}
                     className="max-h-full max-w-full object-contain"
                   />
+
+                  {item.isAI ?? (
+                    <Badge
+                      className="relative top-5 left-5"
+                      variant={"destructive"}
+                    >
+                      AI Generated
+                    </Badge>
+                  )}
                 </CarouselItem>
               ))}
             </CarouselContent>

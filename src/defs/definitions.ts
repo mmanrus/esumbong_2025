@@ -25,13 +25,18 @@ export const SignupFormSchema = z
       }),
 
     contactNumber: z.string().min(1, "Contact number required"),
+    age: z.string()
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Password do not match.",
   });
 
-export type SignUpFormType = z.infer<typeof SignupFormSchema>
+/** RAW form values (before validation) */
+export type SignUpFormInput = z.input<typeof SignupFormSchema>;
+
+/** VALIDATED values (after resolver) */
+export type SignUpFormType = z.output<typeof SignupFormSchema>;
 export const LoginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }).trim(),
   password: z.string().trim(),

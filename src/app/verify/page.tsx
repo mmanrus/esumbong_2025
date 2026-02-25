@@ -17,11 +17,16 @@ import clsx from "clsx";
 import { tr } from "zod/v4/locales";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
+import useSWR from "swr";
+import { fetcher } from "@/lib/swrFetcher";
+import { redirect, useRouter } from "next/navigation";
+import PendingPage from "@/components/pending";
 
 export default function Page() {
   const { user } = useAuth();
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const router = useRouter();
 
   const [progress, setProgress] = useState(0);
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -40,7 +45,6 @@ export default function Page() {
       }
     };
   }, [preview]);
-
   const [loading, setLoading] = useState(false);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [], "video/*": [] },
@@ -63,12 +67,7 @@ export default function Page() {
         body: fd,
       });
       const validationData = await validationRes.json();
-      if (!validationData.ok || !validationData.allowed) {
-        toast.warning(
-          validationData.message ||
-            "AI-generated or edited media is not allowed.",
-        );
-      }
+
       const aiResults = validationData.files[0].isAI ?? false;
       let metaData = {};
       try {
@@ -86,25 +85,24 @@ export default function Page() {
           name: uploaded[0].name,
           size: uploaded[0].size,
           type: uploaded[0].type,
-          isAi: aiResults,
+          isAI: aiResults,
         };
         if (!user) {
           toast.error("User not found");
           setLoading(false);
           return;
         }
-
-        setFile(null);
-        setPreview(null);
-        setProgress(0);
       } catch (err) {
         console.error(err);
         toast.error("Upload failed");
         return;
       }
-      const res = await fetch(`/api/user/validate/${user?.id}`, {
+      const res = await fetch(`/api/auth/verify/`, {
         credentials: "include",
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(metaData),
       });
 
@@ -112,6 +110,14 @@ export default function Page() {
         toast.error("Error submitting your concern.");
         return;
       }
+
+      router.push("/verify/pending");
+
+      setFile(null);
+      setPreview(null);
+      setProgress(0);
+      toast.success("You sent your verification Id.");
+      return;
     } catch (error) {
       toast.error("Something went wrong.");
       setLoading(false);
@@ -120,6 +126,7 @@ export default function Page() {
       setLoading(false);
     }
   };
+
   return (
     <div className="flex w-screen h-screen items-center justify-center">
       <Card className="w-[90%] md:w-[50%]">

@@ -3,35 +3,40 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest) {
 
-    const body = await req.json()
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
     if (!accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verify`, {
-            method: "POST",
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verification`, {
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(body),
             credentials: "include"
         })
+
         if (!res.ok) {
-            const data = await res.json()
-            return NextResponse.json({
-                error: data.error
-            })
+            const text = await res.text()
+
+            if (process.env.NODE_ENV === "development") console.error("Backend error response:", text);
+
+            return NextResponse.json(
+                { error: "Backend verification failed." },
+                { status: res.status }
+            );
         }
+        const result = await res.json()
+          if (process.env.NODE_ENV === "development") console.error("Response:", result.data.verificationStatus);
 
         return NextResponse.json({
-            message: "Successfully Sent",
-            status: 200
-        })
+            message: result.message,
+            status: result.data.verificationStatus
+        }, { status: 200 })
     } catch (error) {
         if (process.env.NODE_ENV === "development") console.log("Error upon senidng your id:", error)
         return NextResponse.json({

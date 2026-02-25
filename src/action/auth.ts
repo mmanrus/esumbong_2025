@@ -49,6 +49,7 @@ export async function login(prevState: any, formData: FormData) {
   await setSession({
     userId: user.user?.id,
     type: user.user?.type,
+    isVerified: user.user?.isVerified
   });
 
   return { message: "Login successful.", success: true, user: user.user };

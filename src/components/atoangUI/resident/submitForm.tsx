@@ -149,7 +149,7 @@ export default function SubmitConcernForm() {
               name: file.name,
               size: file.size,
               type: file.type,
-              isAi: matchedValidation?.isAI ?? false,
+              isAI: matchedValidation?.isAI ?? false,
             }}) ?? [];
 
           formData.append("metaData", JSON.stringify(mediaData));

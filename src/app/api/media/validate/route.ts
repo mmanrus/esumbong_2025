@@ -17,13 +17,11 @@ export async function POST(req: NextRequest) {
     let isAI = false;
 
     if (file.type.startsWith("image/")) {
-      const allowed = await detectImage(file);
-      isAI = !allowed;
+      isAI = await detectImage(file);
     }
 
     if (file.type.startsWith("video/")) {
-      const allowed = await detectVideo(file);
-      isAI = !allowed;
+      isAI = await detectVideo(file);
     }
 
     results.push({
@@ -43,33 +41,48 @@ export async function POST(req: NextRequest) {
 }
 
 async function detectImage(file: File): Promise<boolean> {
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const base64 = buffer.toString("base64");
-  const mime = file.type;
-
-  const res = await fetch(
-    "https://api.bitmind.ai/oracle/v1/34/detect-image",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${BITMIND_KEY}`,
-        "Content-Type": "application/json",
-        "x-bitmind-application": "oracle-api",
-      },
-      body: JSON.stringify({
-        image: `data:${mime};base64,${base64}`,
-        rich: false,
-      }),
+  try {
+    if (file.size > 5 * 1024 * 1024) {
+      console.warn("Image too large for AI detection");
+      return true; // treat as AI (fail-safe)
     }
-  );
 
-  if (!res.ok) {
-    console.error("BitMind image error:", await res.text());
-    return true; // fail-safe: treat as AI
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64 = buffer.toString("base64");
+    const mime = file.type;
+
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
+    const res = await fetch(
+      "https://api.bitmind.ai/oracle/v1/34/detect-image",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${BITMIND_KEY}`,
+          "Content-Type": "application/json",
+          "x-bitmind-application": "oracle-api",
+        },
+        body: JSON.stringify({
+          image: `data:${mime};base64,${base64}`,
+          rich: false,
+        }),
+      })
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      console.error("BitMind image error:", await res.text());
+      return true;
+    }
+
+    const data = await res.json();
+    return data?.isAI === true;
+  } catch (error) {
+
+    console.error("Image detection failed:", error);
+    return true; // fail-safe
   }
-
-  const data = await res.json();
-  return data.isAI === true; // return directly
 }
 
 

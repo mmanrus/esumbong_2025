@@ -31,6 +31,7 @@ export default function RegisterPage() {
       confirmPassword: "",
       contactNumber: "",
       type: "resident",
+      age: "",
     },
     resolver: zodResolver(SignupFormSchema),
   });
@@ -232,6 +233,31 @@ export default function RegisterPage() {
                       <input
                         type="text"
                         placeholder="Enter your address"
+                        {...field}
+                        className={`flex h-11 w-full rounded-md border ${
+                          fieldState.error
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        } bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400
+            focus:outline-none focus:ring-2 focus:ring-teal-500
+            focus:border-transparent transition-all`}
+                      />
+                      <FormMessage className="text-xs text-red-500" />
+                    </div>
+                  )}
+                />
+                {/* Age */}
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field, fieldState }) => (
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-gray-700">
+                        Age
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Enter your Age"
                         {...field}
                         className={`flex h-11 w-full rounded-md border ${
                           fieldState.error

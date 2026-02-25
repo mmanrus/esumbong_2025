@@ -21,7 +21,7 @@ export default async function middleware(req: NextRequest) {
 
   // ----- 1. Redirect not logged-in users to login page if they hit protected routes
   if (!session) {
-    if (Object.values(dashboardRoutes).some((route) => path.startsWith(route))) {
+    if (Object.values(dashboardRoutes).some((route) => path.startsWith(route)) || path.startsWith("/verify")) {
       return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
     return NextResponse.next(); // allow public pages
@@ -43,18 +43,32 @@ export default async function middleware(req: NextRequest) {
   // ----- 3. Prevent users from accessing other dashboards
   if (session.type) {
     const userType = session.type;
-    const isVerified = session.isVerified;
-    if (userType === "admin" && (path.startsWith("/resident") || path.startsWith("/officials"))) {
+    if (userType === "admin" && (path.startsWith("/resident") || path.startsWith("/officials") || path.startsWith("/verify"))) {
       return NextResponse.redirect(new URL("/admin", req.nextUrl));
     }
 
-    if (userType === "resident" && !isVerified) {
-      return NextResponse.redirect(new URL("/verified", req.nextUrl));
+    if (session.type === "resident") {
+      const isVerified = session.isVerified;
+      console.log("isVerified?", isVerified)
+      // Only unverified residents can access /verify
+      if (!isVerified) {
+        if (!path.startsWith("/verify")) {
+          return NextResponse.redirect(new URL("/verify", req.nextUrl));
+        }
+        // allow /verify routes for unverified resident
+        return NextResponse.next();
+      } else {
+        // Verified residents cannot access /verify
+        if (path.startsWith("/verify")) {
+          return NextResponse.redirect(new URL("/resident", req.nextUrl));
+        }
+      }
+      // Prevent resident from accessing other dashboards
+      if (path.startsWith("/admin") || path.startsWith("/officials")) {
+        return NextResponse.redirect(new URL("/resident", req.nextUrl));
+      }
     }
-    if (userType === "resident" && (path.startsWith("/admin") || path.startsWith("/officials"))) {
-      return NextResponse.redirect(new URL("/resident", req.nextUrl));
-    }
-    if (userType === "barangay_official" && (path.startsWith("/admin") || path.startsWith("/resident"))) {
+    if (userType === "barangay_official" && (path.startsWith("/admin") || path.startsWith("/resident") || path.startsWith("/verify"))) {
       return NextResponse.redirect(new URL("/officials", req.nextUrl));
     }
   }

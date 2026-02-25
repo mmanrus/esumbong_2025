@@ -274,7 +274,7 @@ export default function HomePage() {
                     >
                       About
                     </Link>
-                  </li>
+                  </li>{/**
                   <li>
                     <Link
                       href="/contact"
@@ -282,7 +282,7 @@ export default function HomePage() {
                     >
                       Contact
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
               <div>

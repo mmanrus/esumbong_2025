@@ -159,7 +159,7 @@ function LoginPage() {
                         )}
                       />
 
-                      {/* Forgot Password */}
+                      {/* Forgot Password 
                       <div className="flex items-center justify-end">
                         <Link
                           href="/forgot-password"
@@ -168,6 +168,7 @@ function LoginPage() {
                           Forgot Password?
                         </Link>
                       </div>
+                      */}
 
                       {/* Submit Button */}
                       <button

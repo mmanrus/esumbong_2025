@@ -12,6 +12,7 @@ import { useConcern } from "@/contexts/concernContext";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge as AIbadge } from "../ui/badge";
 import { fetcher } from "@/lib/swrFetcher";
 
 import ConcernMediaGrid from "@/components/atoangUI/ConcernMediaGrid";
@@ -95,8 +96,10 @@ export default function ConcernIdPage() {
     notFound();
   }
   const MAX_VISIBLE = 5;
-  const config = concern ? statusConfig[concern.validation as Status] : undefined;
-
+  const config = concern
+    ? statusConfig[concern.validation as Status]
+    : undefined;
+  const isAI = concern?.media?.some((m: any) => m.isAI) ?? false;
   const StatusIcon = config?.icon;
   const handleDelete = async (id: string) => {
     try {
@@ -127,6 +130,7 @@ export default function ConcernIdPage() {
             <Badge className={cn(config?.bgColor, config?.color, "border-0")}>
               {concern?.validation}
             </Badge>
+            {isAI && <AIbadge variant={"destructive"}>AI Generated</AIbadge>}
             <Button
               disabled={user?.type !== "barangay_official"}
               className={cn(
@@ -305,7 +309,11 @@ export default function ConcernIdPage() {
           )}
         </CardContent>
       </Card>
-      <ValidationModal open={openValidation} mutate={mutate} setOpen={setOpenValidation} />
+      <ValidationModal
+        open={openValidation}
+        mutate={mutate}
+        setOpen={setOpenValidation}
+      />
       {/**<TakeActionModal open={openAction} setOpen={setOpenAction} />*/}
     </>
   );

@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import UserDetailsDialog from "./userDetails";
-import { toast } from "sonner";
 import clsx from "clsx";
 
 export type User = {

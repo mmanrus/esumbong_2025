@@ -30,7 +30,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
+    //{ name: "Contact", path: "/contact" },
   ];
 
   const isActive = (linkPath: string) => path === linkPath; // ✅ fix
@@ -100,17 +100,6 @@ export default function Navbar() {
                   <LayoutDashboard size={18} />
                   <span>Dashboard</span>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 border ${
-                    isScrolled
-                      ? "border-red-200 text-red-600 hover:bg-red-50"
-                      : "border-white/30 text-white hover:bg-white/10"
-                  }`}
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </button>
               </div>
             ) : (
               <Link
