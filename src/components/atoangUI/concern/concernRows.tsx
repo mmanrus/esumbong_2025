@@ -79,7 +79,7 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
           className="border-t hover:bg-muted/30 transition-colors"
         >
           <td className="px-5 py-4 text-sm font-medium text-foreground">
-            C-{concern.id}
+            {concern.id}
           </td>
 
           <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">

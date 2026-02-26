@@ -1,7 +1,7 @@
+import { DashboardAdmin } from "@/components/atoangUI/adminDashboard";
 
-import { redirect } from "next/navigation";
-export default function ResidentPage() {
+export default function AdminDashboard() {
   return (
-    redirect('/admin/dashboard')
+    <DashboardAdmin/>
   );
 }

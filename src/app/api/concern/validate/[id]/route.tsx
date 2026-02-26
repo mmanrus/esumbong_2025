@@ -14,9 +14,11 @@ export async function PATCH(
     const { validation } = body;
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
-
+    
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get("type") || ""
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/validate/${id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/validate/${id}?type=${encodeURIComponent(type)}`,
       {
         method: "PATCH",
         credentials: "include",

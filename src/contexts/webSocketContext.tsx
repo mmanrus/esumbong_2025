@@ -16,14 +16,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log("WS connected");
+      if (process.env.NODE_ENV === "development") console.log("WS connected");
 
       ws.send(
         JSON.stringify({
           type: "AUTH",
           userId: user.id,
           role: user.type,
-        })
+        }),
       );
     };
 

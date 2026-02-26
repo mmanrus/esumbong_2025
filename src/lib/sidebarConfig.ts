@@ -35,9 +35,9 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   ],
 
   admin: [
-    { id: "/admin/dashboard", url: "/admin/dashboard", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/admin", url: "/admin", title: "Dashboard", icon: LayoutDashboard },
     { id: "/admin/category", url: "/admin/category", title: "Categories", icon: Tag },
-    { id: "/admin/users", url: "/admin/users", title: "Users", icon: Users },
+    { id: "/admin/users", url: "/admin/users", title: "User Management", icon: Users },
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
   ],

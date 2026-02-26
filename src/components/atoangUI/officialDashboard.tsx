@@ -1,7 +1,8 @@
 "use client";
+
 import { fetcher } from "@/lib/swrFetcher";
 import { FileText, Clock, CheckCircle, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import useSWR from "swr";
 import { Concern } from "./concern/concernRows";
 import { formatDate } from "@/lib/formatDate";
@@ -12,53 +13,71 @@ import { ConcernStats } from "./dashboardResident";
 import { toast } from "sonner";
 
 export function OfficialDashboard() {
-  const [recentConcerns, setRecentConcerns] = useState<any>(null);
+  const [recentConcerns, setRecentConcerns] = useState<Concern[]>([]);
   const [stats, setStats] = useState<ConcernStats | null>(null);
-
   const [loading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const socket = useWebSocket();
+  const router = useRouter();
+
+  // Fetch stats
   useEffect(() => {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-      if (process.env.NODE_ENV === "development") {
-        console.log("Websocket response", data);
-      }
-      if (data.type === "NEW_STAT") {
-        setStats(data.stats);
-      }
-    };
-  }, [socket]);
   const fetchStats = async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/concern/getStats?official=true`);
-      if (!res.ok) {
-        setIsLoading(false);
-        return;
-      }
+      if (!res.ok) return;
       const data = await res.json();
       setStats(data.stats);
-      setIsLoading(false);
-      return;
     } catch (error) {
-      if (process.env.NODE_ENV === "development")
-        console.error("error retrieving history:", error);
+      console.error("error retrieving stats:", error);
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // WebSocket updates
+  useEffect(() => {
+    if (!socket) return;
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "NEW_STAT") {
+        setStats(data.stats);
+      }
+    };
+  }, [socket]);
+
+  // Fetch recent concerns via SWR
+  const {
+    data,
+    error,
+    isLoading: swrLoading,
+  } = useSWR(`/api/concern/getAll?recent=true&archived=false`, fetcher);
+
+  useEffect(() => {
+    if (!data) return;
+    setRecentConcerns(data.data);
+  }, [data]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(recentConcerns.length / itemsPerPage);
+
+  const paginatedConcerns = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = currentPage * itemsPerPage;
+    return recentConcerns.slice(start, end);
+  }, [recentConcerns, currentPage]);
+
   const statsCard = [
     {
       label: "Total Concerns",
-      value: stats
-        ? Object.values(stats).reduce((a: number, b: number) => a + b, 0)
-        : 0,
+      value: stats ? Object.values(stats).reduce((a, b) => a + b, 0) : 0,
       icon: FileText,
       colorClass: "stat-card-total",
       textColor: "text-status-ongoing",
@@ -72,7 +91,6 @@ export function OfficialDashboard() {
     },
     {
       label: "Resolved",
-
       value: stats?.inProgress ?? 0,
       icon: CheckCircle,
       colorClass: "stat-card-resolved",
@@ -88,15 +106,7 @@ export function OfficialDashboard() {
       textColor: "text-status-unresolved",
     },
   ];
-  const { data, error, isLoading, mutate } = useSWR(
-    `/api/concern/getAll?recent=true&archived=false`,
-    fetcher,
-  );
-  useEffect(() => {
-    if (!data) return;
-    setRecentConcerns(data.data);
-  }, [data]);
-  const router = useRouter();
+
   return (
     <div className="space-y-8">
       {/* Page Title */}
@@ -110,7 +120,7 @@ export function OfficialDashboard() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 align-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {statsCard.map((stat) => (
           <div key={stat.label} className={`stat-card ${stat.colorClass}`}>
             <div className="flex items-start bg-gray-50 hover:bg-gray-100 transition-colors p-2 rounded justify-between">
@@ -122,7 +132,7 @@ export function OfficialDashboard() {
                   {stat.value}
                 </p>
               </div>
-              <div className={`p-2 rounded-lg bg-muted/50`}>
+              <div className="p-2 rounded-lg bg-muted/50">
                 <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
               </div>
             </div>
@@ -151,7 +161,7 @@ export function OfficialDashboard() {
                   Complainant
                 </th>
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Cagegory
+                  Category
                 </th>
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Date
@@ -162,27 +172,15 @@ export function OfficialDashboard() {
               </tr>
             </thead>
             <tbody>
-              {isLoading ? (
+              {swrLoading ? (
                 Array.from({ length: 6 }).map((_, index) => (
                   <tr key={index}>
-                    <td colSpan={1} className="px-5 py-6 ">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                    </td>
-                    <td colSpan={1} className="px-5 py-6 ">
-                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-5 py-6 ">
-                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-5 py-6 ">
-                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-5 py-6 ">
-                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1 " />
+                    <td colSpan={5} className="px-5 py-6">
+                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1" />
                     </td>
                   </tr>
                 ))
-              ) : recentConcerns?.length === 0 || !recentConcerns ? (
+              ) : paginatedConcerns.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
@@ -192,7 +190,7 @@ export function OfficialDashboard() {
                   </td>
                 </tr>
               ) : (
-                recentConcerns?.map((concern: Concern) => (
+                paginatedConcerns.map((concern) => (
                   <tr
                     key={concern.id}
                     className="border-t hover:bg-muted/30 transition-colors cursor-pointer"
@@ -202,17 +200,17 @@ export function OfficialDashboard() {
                       {concern.id}
                     </td>
                     <td className="px-5 py-4 text-sm text-foreground">
-                      {concern?.user?.fullname}
+                      {concern.user?.fullname}
                     </td>
                     <td className="px-5 py-4 text-sm text-muted-foreground">
-                      {concern?.category?.name ?? concern?.other ?? "N/A"}
+                      {concern.category?.name ?? concern.other ?? "N/A"}
                     </td>
                     <td className="px-5 py-4 text-sm text-muted-foreground">
-                      {formatDate(new Date(concern?.issuedAt))}
+                      {formatDate(new Date(concern.issuedAt))}
                     </td>
                     <td className="px-5 py-4">
                       <span
-                        className={`status-badge status-${concern?.validation}`}
+                        className={`status-badge status-${concern.validation}`}
                       >
                         {concern.status.charAt(0).toUpperCase() +
                           concern.status.slice(1)}
@@ -223,6 +221,29 @@ export function OfficialDashboard() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-center gap-2 mt-4 p-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span className="px-2 text-sm">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            disabled={
+              currentPage === totalPages || paginatedConcerns.length === 0
+            }
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

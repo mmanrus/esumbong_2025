@@ -122,17 +122,7 @@ export default function Page() {
           </div>
         </form>
         <hr className="my-6" />
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">
-          Current Announcements
-        </h3>
-        <ul id="announcementList" className="space-y-3 text-gray-800">
-          <li className="bg-blue-50 border-l-4 border-blue-600 p-3 rounded">
-            📢 Barangay Council Meeting at 9 AM on October 12.
-          </li>
-          <li className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
-            ⚠️ Submit all pending reports before Friday.
-          </li>
-        </ul>
+        
       </div>
     </>
   );

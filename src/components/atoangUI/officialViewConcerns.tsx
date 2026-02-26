@@ -4,12 +4,11 @@ import { StatusFilter } from "@/components/atoangUI/archivesPage";
 import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/swrFetcher";
 import { Filter, Search } from "lucide-react";
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 
@@ -17,38 +16,59 @@ export default function OfficialViewConcerns() {
   const [status, setStatus] = useState("all");
   const [input, setInput] = useState("");
   const [concerns, setConcerns] = useState<any>(null);
-  const [query, setQuery] = useState({
-    search: "",
-    status: "",
-  });
+  const [query, setQuery] = useState({ search: "", status: "" });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of concerns per page
+
   const { data, error, isLoading, mutate } = useSWR(
     `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false`,
     fetcher,
   );
+
   useEffect(() => {
     if (!data) return;
     setConcerns(data.data);
   }, [data]);
+
   if (error) {
     toast.error("Failed to load concern data.");
     notFound();
   }
-  const filteredConcern = concerns?.filter((c: any) => {
-    const search = input.toLowerCase();
-    if (status !== "all" && c.validation !== status && c.status !== status) {
-      return false;
-    }
 
-    // SEARCH FILTER (optional)
-    if (!search) return true;
-    return (
-      c.id.toString().includes(search) ||
-      c.user?.fullname.toLowerCase().includes(search) ||
-      c.category?.name.toLowerCase().includes(search) ||
-      c.details.toLowerCase().includes(search) ||
-      c.title.toLowerCase().includes(search)
-    );
-  });
+  // Filtered concerns based on search & status
+  const filteredConcern = useMemo(() => {
+    if (!concerns) return [];
+    const search = input.toLowerCase();
+
+    return concerns.filter((c: any) => {
+      if (status !== "all" && c.validation !== status && c.status !== status) {
+        return false;
+      }
+      if (!search) return true;
+      return (
+        c.id.toString().includes(search) ||
+        c.user?.fullname.toLowerCase().includes(search) ||
+        c.category?.name.toLowerCase().includes(search) ||
+        c.details.toLowerCase().includes(search) ||
+        c.title.toLowerCase().includes(search)
+      );
+    });
+  }, [concerns, input, status]);
+
+  // Pagination: slice filtered concerns
+  const totalPages = Math.ceil(filteredConcern.length / itemsPerPage);
+  const paginatedConcerns = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = currentPage * itemsPerPage;
+    return filteredConcern.slice(start, end);
+  }, [filteredConcern, currentPage]);
+
+  // Reset page to 1 whenever filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [status, input]);
+
   const filterButtons: { label: string; value: StatusFilter; count: number }[] =
     [
       { label: "All", value: "all", count: concerns?.length || 0 },
@@ -85,10 +105,11 @@ export default function OfficialViewConcerns() {
           ).length || 0,
       },
     ];
+
   return (
     <div className="space-y-6">
+      {/* Header & Filters */}
       <div className="flex flex-col md:items-center md:flex-row justify-between mb-6">
-        {/* Page Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1F4251]">
             View Concerns
@@ -97,7 +118,6 @@ export default function OfficialViewConcerns() {
             Browse and manage all submitted concerns
           </p>
         </div>
-        {/* Search and Filters */}
         <div className="bg-card rounded-xl shadow-sm border p-4 sm:p-5 space-y-4">
           {/* Search Bar */}
           <div className="relative">
@@ -112,13 +132,10 @@ export default function OfficialViewConcerns() {
               size="sm"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-sm"
               onClick={() =>
-                setQuery({
-                  search: input,
-                  status: status === "all" ? "" : status,
-                })
+                setQuery({ search: input, status: status === "all" ? "" : status })
               }
             >
-              <Search className="w-4 h-4 inline  text-muted-foreground" />
+              <Search className="w-4 h-4 inline text-muted-foreground" />
               Search
             </Button>
           </div>
@@ -144,6 +161,7 @@ export default function OfficialViewConcerns() {
         </div>
       </div>
 
+      {/* Concerns Table */}
       <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto h-full">
           <table className="min-w-full h-full table-fixed">
@@ -173,39 +191,43 @@ export default function OfficialViewConcerns() {
               {isLoading ? (
                 Array.from({ length: 4 }).map((_, index) => (
                   <tr key={index}>
-                    <td colSpan={1} className="px-4 py-5 ">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                    </td>
-                    <td colSpan={1} className="px-4 py-5 ">
-                      <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-4 py-5">
-                      <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-4 py-5 ">
-                      <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-4 py-5 ">
-                      <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
-                    </td>
-                    <td colSpan={1} className="px-4 py-5 ">
-                      <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
+                    <td colSpan={6} className="px-4 py-5">
+                      <Skeleton className="h-6 w-full" />
                     </td>
                   </tr>
                 ))
               ) : (
                 <ViewConcernRows
-                  concerns={filteredConcern}
+                  concerns={paginatedConcerns}
                   onDelete={(id: number) =>
-                    setConcerns((prev: any) =>
-                      prev.filter((c: any) => c.id !== id),
-                    )
+                    setConcerns((prev: any) => prev.filter((c: any) => c.id !== id))
                   }
                 />
               )}
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center gap-2 mt-4">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((p) => p - 1)}
+          size="sm"
+        >
+          Prev
+        </Button>
+        <span className="px-2 text-sm">
+          Page {currentPage} of {totalPages || 1}
+        </span>
+        <Button
+          disabled={currentPage === totalPages || paginatedConcerns.length === 0}
+          onClick={() => setCurrentPage((p) => p + 1)}
+          size="sm"
+        >
+          Next
+        </Button>
       </div>
     </div>
   );

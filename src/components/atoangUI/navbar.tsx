@@ -51,7 +51,7 @@ export default function Navbar() {
             <Image
               width={180}
               height={60}
-              src="/esumbong-logo.png"
+              src="/esumbongLogo.png"
               alt="e-Sumbong Logo"
               className="h-[45px]  md:h-[50px] lg:h-[60px] w-auto transition-transform duration-300 group-hover:scale-105"
             />

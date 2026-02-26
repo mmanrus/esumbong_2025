@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/formatDate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { ResolveConcern } from "./resolveConcern";
 
 type Status = "pending" | "approved" | "rejected"; //| "resolved";
 
@@ -69,6 +70,7 @@ const statusConfig: Record<
 export default function ConcernIdPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const [openResolve, setOpenResolve] = useState(false);
   const [openValidation, setOpenValidation] = useState(false);
   const {
     setConcern,
@@ -154,10 +156,11 @@ export default function ConcernIdPage() {
                   ? "Pending"
                   : "Rejected"}
             </Button>
-            {user?.type === "barangay_official" ? (
-              <span className="text-sm md:text-md">
-                👈 Click this button to validate
-              </span>
+            {user?.type === "barangay_official" &&
+            concern?.validation === "approved" ? (
+              <Button onClick={() => setOpenResolve(true)}>
+                Resolve Concern
+              </Button>
             ) : null}
           </div>
           <div className="flex flex-row gap-1 items-center">
@@ -301,7 +304,11 @@ export default function ConcernIdPage() {
         mutate={mutate}
         setOpen={setOpenValidation}
       />
-      {/**<TakeActionModal open={openAction} setOpen={setOpenAction} />*/}
+      <ResolveConcern
+        mutate={mutate}
+        open={openResolve}
+        setOpen={setOpenResolve}
+      />
     </>
   );
 }

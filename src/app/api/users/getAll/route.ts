@@ -29,13 +29,13 @@ export const GET = async (request: NextRequest) => {
         const data = await res.json()
 
         if (!res.ok) {
-            console.error("Error data", data)
+           if(process.env.NODE_ENV === "development")  console.error("Error data", data)
             return NextResponse.json({ error: data.error })
         }
 
         return NextResponse.json(data)
     } catch (error) {
-        console.error("Error submitting concern:", error);
+        if(process.env.NODE_ENV === "development")  console.error("Error submitting concern:", error);
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

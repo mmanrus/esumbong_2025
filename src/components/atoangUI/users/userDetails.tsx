@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -42,12 +43,14 @@ export default function UserDetailsDialog({
   user,
   onDelete,
   onUpdate,
+  children
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete: (userId: any) => void;
   onUpdate: (updatedUser: any) => void;
   user: any;
+  children: React.ReactNode
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -211,6 +214,7 @@ export default function UserDetailsDialog({
     <>
       {/* ── Main Dialog ── */}
       <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogTrigger>{children}</DialogTrigger>
         <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-stone-200 shadow-xl gap-0 ">
           {/* ── ID Document Overlay (inside dialog to stay above it) ── */}
           {showMediaOverlay && (
