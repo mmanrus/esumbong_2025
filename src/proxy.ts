@@ -88,6 +88,7 @@ export const config = {
     "/admin/:path*",
     "/resident/:path*",
     "/officials/:path*",
+    "/verify",
     "/verify/:path"
   ],
 };

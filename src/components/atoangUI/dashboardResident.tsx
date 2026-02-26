@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWebSocket } from "@/contexts/webSocketContext";
-type ConcernStats = {
+export type ConcernStats = {
   pending: number;
   inProgress: number;
   verified: number;

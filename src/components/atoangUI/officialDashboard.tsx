@@ -1,47 +1,88 @@
 "use client";
 import { fetcher } from "@/lib/swrFetcher";
-import {
-  FileText,
-  Clock,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import { FileText, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Concern } from "./concern/concernRows";
 import { formatDate } from "@/lib/formatDate";
 import { Skeleton } from "../ui/skeleton";
 import { useRouter } from "next/navigation";
+import { useWebSocket } from "@/contexts/webSocketContext";
+import { ConcernStats } from "./dashboardResident";
+import { toast } from "sonner";
 
 export function OfficialDashboard() {
   const [recentConcerns, setRecentConcerns] = useState<any>(null);
+  const [stats, setStats] = useState<ConcernStats | null>(null);
 
-  const stats = [
+  const [loading, setIsLoading] = useState(false);
+  const socket = useWebSocket();
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (process.env.NODE_ENV === "development") {
+        console.log("Websocket response", data);
+      }
+      if (data.type === "NEW_STAT") {
+        setStats(data.stats);
+      }
+    };
+  }, [socket]);
+  const fetchStats = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/concern/getStats?official=true`);
+      if (!res.ok) {
+        setIsLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setStats(data.stats);
+      setIsLoading(false);
+      return;
+    } catch (error) {
+      if (process.env.NODE_ENV === "development")
+        console.error("error retrieving history:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const statsCard = [
     {
       label: "Total Concerns",
-      value: recentConcerns?.length || 0,
+      value: stats
+        ? Object.values(stats).reduce((a: number, b: number) => a + b, 0)
+        : 0,
       icon: FileText,
       colorClass: "stat-card-total",
       textColor: "text-status-ongoing",
     },
     {
       label: "Pending",
-      value: recentConcerns?.filter((c: any) => c.status === "pending").length || 0,
+      value: stats?.pending ?? 0,
       icon: Clock,
       colorClass: "stat-card-pending",
       textColor: "text-status-pending",
     },
     {
       label: "Resolved",
-      value: recentConcerns?.filter((c: any) => c.status === "resolved").length || 0,
+
+      value: stats?.inProgress ?? 0,
       icon: CheckCircle,
       colorClass: "stat-card-resolved",
       textColor: "text-status-resolved",
     },
     {
       label: "Unresolved",
-      value: recentConcerns?.filter((c: any) => c.status === "unresolved")
-        .length || 0,
+      value:
+        recentConcerns?.filter((c: any) => c.status === "unresolved").length ||
+        0,
       icon: XCircle,
       colorClass: "stat-card-unresolved",
       textColor: "text-status-unresolved",
@@ -70,7 +111,7 @@ export function OfficialDashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 align-items-center">
-        {stats.map((stat) => (
+        {statsCard.map((stat) => (
           <div key={stat.label} className={`stat-card ${stat.colorClass}`}>
             <div className="flex items-start bg-gray-50 hover:bg-gray-100 transition-colors p-2 rounded justify-between">
               <div>

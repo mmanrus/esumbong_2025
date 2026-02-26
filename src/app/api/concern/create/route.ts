@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
             details: body.get("details") as string,
             categoryId: (body.get("categoryId") as string) || undefined,
             other: (body.get("other") as string) || "",
+            location: body.get("location") as string,
             needsBarangayAssistance,
             media: media, // ✅ metadata only
         };

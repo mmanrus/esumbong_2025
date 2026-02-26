@@ -222,6 +222,17 @@ export default function UserDetailsDialog({
                   <span className="text-sm font-medium text-stone-700">
                     Verification Document
                   </span>
+                  {isAI && (
+                  <div className="absolute top-3 left-3 z-10">
+                    <Badge
+                      variant="destructive"
+                      className="flex items-center gap-1 text-xs shadow-md"
+                    >
+                      <Bot className="w-3 h-3" />
+                      AI Generated
+                    </Badge>
+                  </div>
+                )}
                 </div>
                 <button
                   onClick={() => setShowMediaOverlay(false)}
@@ -263,17 +274,7 @@ export default function UserDetailsDialog({
               </div>
               {/* Image — fills available space */}
               <div className="relative flex-1 bg-stone-100 min-h-0">
-                {isAI && (
-                  <div className="absolute top-3 left-3 z-10">
-                    <Badge
-                      variant="destructive"
-                      className="flex items-center gap-1 text-xs shadow-md"
-                    >
-                      <Bot className="w-3 h-3" />
-                      AI Generated
-                    </Badge>
-                  </div>
-                )}
+                
                 <img
                   src={mediaUrl}
                   alt="Verification document"

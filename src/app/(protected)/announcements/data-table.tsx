@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   isLoading: boolean;
@@ -23,7 +24,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { id: number | string }, TValue>({
   isLoading,
   columns,
   data,
@@ -33,28 +34,29 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  const router = useRouter();
   return (
     <div className="overflow rounded-md border">
       <Table>
-        <TableHeader>
+        <TableHeader >
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {isLoading ? (
-                headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    <Skeleton className="h-8 bg-gray-200 animate-pulse"/>
-                  </TableHead>
-                ))
-              ) :headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
+              {isLoading
+                ? headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      <Skeleton className="h-8 bg-gray-200 animate-pulse" />
+                    </TableHead>
+                  ))
+                : headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
             </TableRow>
           ))}
         </TableHeader>
@@ -73,6 +75,8 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                onClick={() => router.push(`/announcements/${row.original.id}`)}
+                className="cursor-pointer"
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (

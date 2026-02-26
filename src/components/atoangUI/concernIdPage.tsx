@@ -34,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/formatDate";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 type Status = "pending" | "approved" | "rejected"; //| "resolved";
 
@@ -130,7 +131,13 @@ export default function ConcernIdPage() {
             <Badge className={cn(config?.bgColor, config?.color, "border-0")}>
               {concern?.validation}
             </Badge>
-            {isAI && <AIbadge variant={"destructive"}>AI Generated</AIbadge>}
+            {isAI ? (
+              <AIbadge variant={"destructive"}>
+                AI Images Found Generated
+              </AIbadge>
+            ) : (
+              <AIbadge variant="link">Images Not AI Generated</AIbadge>
+            )}
             <Button
               disabled={user?.type !== "barangay_official"}
               className={cn(
@@ -147,14 +154,21 @@ export default function ConcernIdPage() {
                   ? "Pending"
                   : "Rejected"}
             </Button>
+            {user?.type === "barangay_official" ? (
+              <span className="text-sm md:text-md">
+                👈 Click this button to validate
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-row gap-1 items-center">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+              {concern?.title}
+            </h2>
             <Badge className="flex items-center gap-1">
               <Lightbulb className="h-3 w-3" />
               {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
             </Badge>
           </div>
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
-            {concern?.title}
-          </h2>
         </div>
         {/* Details Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -257,47 +271,20 @@ export default function ConcernIdPage() {
           </div>
         </>
       )}
-      {/**
+      {/**<Tabs
+        defaultValue="concern-updates"
+        className="w-full flex flex-1 justify-center mt-5"
+      >
+        <TabsList className="mx-auto w-fit">
+          <TabsTrigger value="concern-updates">Concern Updates</TabsTrigger>
+          <TabsTrigger value="concern-messages">Concern Messages</TabsTrigger>
+        </TabsList>
+        <TabsContent value="concern-messages">
+          Make changes to your account here.
+        </TabsContent>
+        <TabsContent value="concern-updates"></TabsContent>
+      </Tabs>*/}
       <Card>
-        <CardHeader>
-          <CardTitle>{concern?.title}</CardTitle>
-
-          <CardAction></CardAction>
-          <CardDescription className="flex flex-col gap-1">
-            <span>Submitted by: {concern?.user?.fullname}</span>
-            <span>Email: {concern?.user?.email}</span>
-            <span>Contact Number: {concern?.user?.contactNumber}</span>
-            <span>
-              Needs barangay assistance:{" "}
-              {concern?.needsBarangayAssistance ? "Yes" : "No"}
-            </span>
-            <span>
-              date issued:{" "}
-              {concern?.issuedAt
-                ? new Date(concern?.issuedAt).toLocaleString()
-                : "N/A"}
-            </span>
-          </CardDescription>
-          <CardContent>
-            <span>{concern?.details}</span>
-            <div className="flex flex-row gap-3">
-              {user?.type === "barangay_official" && (
-                <Button onClick={() => setOpenAction(true)}>Take Action</Button>
-              )}
-              {user?.type === "resident" && user?.id === concern?.userId && (
-                <>
-                  <Button onClick={() => handleDelete(id)}>
-                    Delete Concern
-                  </Button>
-                  <Button>Update Concern</Button>
-                </>
-              )}
-            </div>
-            <ConcernMediaGrid media={concern?.media} />
-          </CardContent>
-        </CardHeader>
-      </Card>  */}
-      <Card className="mt-6">
         <CardHeader>
           <CardTitle>Concern updates:</CardTitle>
         </CardHeader>

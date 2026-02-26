@@ -50,7 +50,7 @@ export default function Timeline({ updates }: TimelineProps) {
             </div>
           ))
         ) : (
-          <p>No updates available.</p>
+          <p className="ml-5">No updates available.</p>
         )}
       </div>
     </div>

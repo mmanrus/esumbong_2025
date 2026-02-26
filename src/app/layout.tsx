@@ -24,6 +24,7 @@ import { ConcernProvider } from "@/contexts/concernContext";
 import { cookies } from "next/headers";
 import { COOKIE_NAME } from "@/lib/constants";
 import { WebSocketProvider } from "@/contexts/webSocketContext";
+import { UpdateProvider } from "@/contexts/popOverContext";
 
 export default async function RootLayout({
   children,
@@ -48,7 +49,9 @@ export default async function RootLayout({
         <ConcernProvider>
           <AuthProvider initialUser={user as User}>
             <WebSocketProvider>
-              <Providers>{children}</Providers>
+              <Providers>
+                <UpdateProvider>{children}</UpdateProvider>
+              </Providers>
             </WebSocketProvider>
           </AuthProvider>
         </ConcernProvider>

@@ -28,6 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CategoryInput } from "@/defs/category";
 import { uploadFiles } from "@/lib/uploadthing";
 import { useDropzone } from "@uploadthing/react";
+import { Trash2 } from "lucide-react";
 
 const getCategories = async () => {
   try {
@@ -62,6 +63,7 @@ export default function SubmitConcernForm() {
     categoryId: "",
     details: "",
     other: "",
+    location: "",
     needsBarangayAssistance: null,
   });
   const [previews, setPreviews] = useState<string[]>([]);
@@ -142,15 +144,16 @@ export default function SubmitConcernForm() {
           const mediaData =
             uploaded?.map((file) => {
               const matchedValidation = aiResults.find((v: any) => {
-                v.name === file.name
-              })
+                v.name === file.name;
+              });
               return {
-              url: file.ufsUrl.toString(),
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              isAI: matchedValidation?.isAI ?? false,
-            }}) ?? [];
+                url: file.ufsUrl.toString(),
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                isAI: matchedValidation?.isAI ?? false,
+              };
+            }) ?? [];
 
           formData.append("metaData", JSON.stringify(mediaData));
 
@@ -167,6 +170,7 @@ export default function SubmitConcernForm() {
       console.log(formData.get("metaData"));
       formData.append("title", form.title);
       formData.append("details", form.details);
+      formData.append("location", form.location);
       formData.append(
         "needsBarangayAssistance",
         String(form.needsBarangayAssistance),
@@ -195,6 +199,7 @@ export default function SubmitConcernForm() {
         categoryId: "",
         details: "",
         other: "",
+        location: "",
         needsBarangayAssistance: null,
       });
     } catch (err) {
@@ -277,7 +282,17 @@ export default function SubmitConcernForm() {
                   )}
                 </AnimatePresence>
               </div>
-
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-lg font-medium">
+                  Location *
+                </Label>
+                <Input
+                  id="location"
+                  placeholder="e.g., Cogon pardo street."
+                  value={form.location}
+                  onChange={(e) => handleChange("location", e.target.value)}
+                />
+              </div>
               <div>
                 <Label htmlFor="details" className="text-lg font-medium">
                   Description
@@ -293,13 +308,26 @@ export default function SubmitConcernForm() {
               </div>
               <div
                 {...getRootProps()}
-                className={`cursor-pointer border-2 border-dashed 
+                className={`cursor-pointer relative border-2 border-dashed 
               rounded-lg p-12 text-center transition ${
                 isDragActive
                   ? "border-blue-500 bg-blue-50"
                   : "boder-gray-300 bg-white"
               }`}
               >
+                {previews.length > 0 && (
+                  <Button
+                    className="absolute top-[2] right-[2] z-10"
+                    variant={"destructive"}
+                    onClick={()=> {
+                      setPreviews([])
+                      setFiles([])
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
+
                 <input {...getInputProps()} />
                 {previews.length === 0 ? (
                   <p>Drop the files here ...</p>

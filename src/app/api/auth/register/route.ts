@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         })
         if (!res.ok) {
             const errorData = await res.json()
-            return NextResponse.json({ message: errorData.message || "Failded to register user"}, { status: res.status})
+            return NextResponse.json({ error: errorData.error || "Failded to register user"}, { status: res.status})
         }
         const result = await res.json()
         return NextResponse.json({message: "Registered successfully", data: result}, { status: 201})

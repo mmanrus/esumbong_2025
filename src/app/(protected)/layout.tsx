@@ -1,7 +1,7 @@
 // OfficialLayout.jsx
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 import { useAuth } from "@/contexts/authContext";
 import { SIDEBAR_CONFIG, UserRole } from "@/lib/sidebarConfig";
@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUpdateNotification } from "@/contexts/popOverContext";
+import { useWebSocket } from "@/contexts/webSocketContext";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
@@ -33,9 +35,34 @@ export default function Layout({ children }: { children: ReactNode }) {
   const sidebarPages = SIDEBAR_CONFIG[user.type as UserRole] ?? [];
   const router = useRouter(); // call hook at top level
   const activePage = sidebarPages.find((p) => pathname.startsWith(p.id))?.id;
+  const {showUpdate} = useUpdateNotification()
+  const socket = useWebSocket();
+  useEffect(() => {
+    if (!socket) return;
+    socket.onmessage = async (event) => {
+      const res = JSON.parse(event.data);
+      if (process.env.NODE_ENV) console.log("Websocket response", res);
+       if (res.type === "USER_VERIFICATION") {
+        await fetch("/api/update-verification", {
+          method: "POST",
+          body: JSON.stringify({
+            isVerified: res.notification.isVerified,
+          }),
+        });
 
+        window.location.reload();
+      }
+      if (res.type === "UPDATES") {
+        showUpdate(
+          res.update.id,
+          res.update.message,
+          res.update.type
+        )
+      }
+    
+    };
+  }, [socket]);
   return (
-    <>
       <SidebarProvider>
         <AppSidebar
           user={user}
@@ -111,6 +138,5 @@ export default function Layout({ children }: { children: ReactNode }) {
           </main>
         </SidebarInset>
       </SidebarProvider>
-    </>
   );
 }

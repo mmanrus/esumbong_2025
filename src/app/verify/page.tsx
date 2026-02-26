@@ -14,20 +14,43 @@ import { useDropzone } from "@uploadthing/react";
 import { Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { tr } from "zod/v4/locales";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
-import useSWR from "swr";
-import { fetcher } from "@/lib/swrFetcher";
-import { redirect, useRouter } from "next/navigation";
-import PendingPage from "@/components/pending";
+import {  useRouter } from "next/navigation";
+import { useWebSocket } from "@/contexts/webSocketContext";
 
 export default function Page() {
   const { user } = useAuth();
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const router = useRouter();
+  const socket = useWebSocket();
 
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development")
+      console.log("Test Verification");
+
+    if (!socket) return;
+
+    if (process.env.NODE_ENV === "development")
+      console.log("Verification Socket not Null");
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (process.env.NODE_ENV === "development") {
+        console.log("Websocket response", data);
+      }
+      if (data.type === "USER_VERIFICATION") {
+        await fetch("/api/update-verification", {
+          method: "POST",
+          body: JSON.stringify({
+            isVerified: data.notification.isVerified,
+          }),
+        });
+
+        window.location.reload();
+      }
+    };
+  }, [socket]);
   const [progress, setProgress] = useState(0);
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0]; // only take first file
@@ -79,7 +102,7 @@ export default function Page() {
         });
 
         if (!uploaded?.length) throw new Error("Upload failed");
-
+        console.log(validationData.files[0].isAI)
         metaData = {
           url: uploaded[0].ufsUrl.toString(),
           name: uploaded[0].name,

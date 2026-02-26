@@ -19,7 +19,6 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
     { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
     { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
-    { id: "/officials/reports", url: "/officials/reports", title: "Reports & Analytics", icon: ChartBar },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
     { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },

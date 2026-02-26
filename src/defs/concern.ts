@@ -6,7 +6,8 @@ export const ConcernFormSchema = z
       .max(100, "Title must be at most 100 characters long"),
     categoryId: z.string().optional().default(""),
     other: z.string().optional().default(""),
-    details: z.string().min(1, "Details are required"),
+    details: z.string().min(1, "Details are required."),
+    location: z.string().min(2, "location is required."),
     needsBarangayAssistance: z.boolean().nullable().optional(),
   })
   .refine(

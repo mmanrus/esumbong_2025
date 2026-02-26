@@ -63,7 +63,7 @@ export default function RegisterPage() {
       if (!res.ok) {
         const errorData = await res.json();
         toast.error("Registration failed", {
-          description: errorData?.message || "Unknown error",
+          description: errorData?.error || "Unknown error",
         });
         return;
       }
