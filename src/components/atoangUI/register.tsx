@@ -29,14 +29,14 @@ export default function RegisterPage() {
   const router = useRouter();
   const form = useForm<SignUpFormInput, any, SignUpFormType>({
     defaultValues: {
-      fullname: "",
-      email: "",
-      password: "",
-      address: "",
-      confirmPassword: "",
-      contactNumber: "",
+      fullname: "Emmanuel Rusiana",
+      email: "emanrusiana@yahoo.com",
+      password: "Pi3.1415",
+      address: "Sitio La Pursima, Cogon Pardo",
+      confirmPassword: "Pi3.1415",
+      contactNumber: "0999655788",
       type: "resident",
-      age: undefined,
+      age: 23,
     },
     resolver: zodResolver(SignupFormSchema),
   });

@@ -43,6 +43,7 @@ export default async function middleware(req: NextRequest) {
   // ----- 3. Prevent users from accessing other dashboards
   if (session.type) {
     const userType = session.type;
+    const isActive = session.isActive
     if (userType === "admin" && (path.startsWith("/resident") || path.startsWith("/officials") || path.startsWith("/verify"))) {
       return NextResponse.redirect(new URL("/admin", req.nextUrl));
     }
@@ -63,6 +64,7 @@ export default async function middleware(req: NextRequest) {
           return NextResponse.redirect(new URL("/resident", req.nextUrl));
         }
       }
+
       // Prevent resident from accessing other dashboards
       if (path.startsWith("/admin") || path.startsWith("/officials")) {
         return NextResponse.redirect(new URL("/resident", req.nextUrl));
