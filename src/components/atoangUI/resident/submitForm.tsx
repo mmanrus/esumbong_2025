@@ -106,12 +106,15 @@ export default function SubmitConcernForm() {
       if (!res.ok) {
         toast.error(data.error);
         isAllowed = data.isAllowed ?? false;
+        
+      setLoading(false)
         return;
       }
       isAllowed = data.isAllowed;
       isSpam = data.isSpam;
     } catch (error) {
       toast.error("Something went wrong");
+      setLoading(false)
       return;
     }
     if (!isAllowed) return;

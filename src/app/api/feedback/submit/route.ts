@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
     const raw = {
         title: body.get("title") as string,
-        feedback: body.get("feedback") as string
+        feedback: body.get("feedback") as string,
+        isSpam: body.get("isSpam") as string
     }
     console.log("raw", raw)
     if (!accessToken) {

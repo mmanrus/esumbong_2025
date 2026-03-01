@@ -42,25 +42,29 @@ export default function SubmitFeedbackPage() {
       if (!res.ok) {
         toast.error(data.error);
         isAllowed = data.isAllowed ?? false;
+        setLoading(false)
         return;
       }
       isAllowed = data.isAllowed;
       isSpam = data.isSpam;
     } catch (error) {
       toast.error("Something went wrong");
+      setLoading(false)
       return;
-    }
-    
+    } 
+
     if (!isAllowed) return;
     const isValid = await form.trigger();
     if (!isValid) {
       toast.error("Please fix the errors in the form before submitting.");
+      setLoading(false)
       return;
     }
     setLoading(true);
     const formData = new FormData();
     formData.append("title", form.getValues("title"));
     formData.append("feedback", form.getValues("feedback"));
+    formData.append("isSpam", String(isSpam));
     try {
       const res = await fetch("/api/feedback/submit", {
         method: "POST",
@@ -77,6 +81,7 @@ export default function SubmitFeedbackPage() {
       return;
     } catch (error) {
       toast.error("Failed to submit feedback. Please try again.");
+      form.reset()
       return;
     } finally {
       setLoading(false);
