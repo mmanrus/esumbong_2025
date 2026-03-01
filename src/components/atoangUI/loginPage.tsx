@@ -43,7 +43,7 @@ function LoginPage() {
 
       // Call your server action
       const result = await login(null, formData);
-      console.log(result.isLocked)
+      console.log(result.isLocked);
       if (result.isLocked) {
         router.push("/locked"); // ✅ explicitly redirect to /locked
         return;
@@ -156,6 +156,20 @@ function LoginPage() {
             focus:outline-none focus:ring-2 focus:ring-teal-500
             focus:border-transparent transition-all pl-10`}
                                 />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShowPassword((prev) => !prev)
+                                  }
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-600 transition-colors"
+                                  tabIndex={-1}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="w-5 h-5" />
+                                  ) : (
+                                    <Eye className="w-5 h-5" />
+                                  )}
+                                </button>
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -243,7 +257,7 @@ function LoginPage() {
             >
               <div className="relative w-full h-full min-h-[600px] rounded-2xl overflow-hidden shadow-2xl group">
                 <Image
-                  src="/login.webp"
+                  src="/login.jpg"
                   alt="Community collaboration"
                   sizes="w-full"
                   fill

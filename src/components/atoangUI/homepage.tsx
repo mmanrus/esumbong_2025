@@ -99,7 +99,7 @@ export default function HomePage() {
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/homePage.webp"
+              src="/home.jpg"
               alt="Community gathering"
               fill
             />
