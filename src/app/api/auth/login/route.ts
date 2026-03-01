@@ -1,5 +1,4 @@
 
-export const dynamic = "force-dynamic";
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 if (!url) {
     throw new Error("Backend Url is not defined in environment variables.")
@@ -26,8 +25,20 @@ export async function POST(request: NextRequest) {
         })
         if (!res.ok) {
             const errorData = await res.json()
+            console.log("error data", errorData, res.status)
+            if (res.status === 423) {
+
+                return NextResponse.json({
+                    message: "Account locked",
+                    isLocked: true,
+                    email: errorData.email,
+                    unlockTime: errorData.unlockTime,
+                    secondsRemaining: errorData.secondsRemaining,
+                }, { status: 423 });
+
+            }
             return NextResponse.json({ message: errorData.message || "Failed to login" },
-                { status: res.status }
+                { status: errorData.status }
             )
         }
 

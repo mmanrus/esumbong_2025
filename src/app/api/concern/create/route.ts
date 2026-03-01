@@ -42,11 +42,12 @@ export async function POST(request: NextRequest) {
             details: body.get("details") as string,
             categoryId: (body.get("categoryId") as string) || undefined,
             other: (body.get("other") as string) || "",
+            isSpam: (body.get("isSpam") as string) || "",
             location: body.get("location") as string,
             needsBarangayAssistance,
             media: media, // ✅ metadata only
         };
-     
+
         const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/concern`, {
             method: "POST",
             credentials: "include",

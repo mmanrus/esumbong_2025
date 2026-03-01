@@ -33,7 +33,7 @@ function LoginPage() {
     resolver: zodResolver(LoginFormSchema),
   });
 
-  const { refreshUser, loading } = useAuth();
+  const { refreshUser } = useAuth();
   const onSubmit = async (values: { email: string; password: string }) => {
     try {
       setIsSubmitting(true);
@@ -43,7 +43,11 @@ function LoginPage() {
 
       // Call your server action
       const result = await login(null, formData);
-
+      console.log(result.isLocked)
+      if (result.isLocked) {
+        router.push("/locked"); // ✅ explicitly redirect to /locked
+        return;
+      }
       if (!result.success) {
         // Handle errors
         toast.error("Login failed: " + result.message);
@@ -52,9 +56,9 @@ function LoginPage() {
 
       // Refresh AuthProvider to get updated user
       await refreshUser();
-      if (result.user.type === "admin") router.push("/admin");
-      else if (result.user.type === "resident") router.push("/resident");
-      else if (result.user.type === "barangay_official")
+      if (result.user?.type === "admin") router.push("/admin");
+      else if (result.user?.type === "resident") router.push("/resident");
+      else if (result.user?.type === "barangay_official")
         router.push("/officials");
     } catch (err) {
       console.error(err);

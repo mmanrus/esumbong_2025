@@ -30,10 +30,28 @@ export default function SubmitFeedbackPage() {
   });
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log({
-      title: form.getValues("title"),
-      feedback: form.getValues("feedback"),
-    });
+
+    let isAllowed;
+    let isSpam;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/checkPostCount`, {
+        method: "GET",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error);
+        isAllowed = data.isAllowed ?? false;
+        return;
+      }
+      isAllowed = data.isAllowed;
+      isSpam = data.isSpam;
+    } catch (error) {
+      toast.error("Something went wrong");
+      return;
+    }
+    
+    if (!isAllowed) return;
     const isValid = await form.trigger();
     if (!isValid) {
       toast.error("Please fix the errors in the form before submitting.");
@@ -58,7 +76,6 @@ export default function SubmitFeedbackPage() {
       toast.success("Feedback submitted successfully!");
       return;
     } catch (error) {
-      console.error("Error submitting feedback:", error);
       toast.error("Failed to submit feedback. Please try again.");
       return;
     } finally {

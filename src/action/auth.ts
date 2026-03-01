@@ -33,13 +33,22 @@ export async function login(prevState: any, formData: FormData) {
     ...(process.env.NODE_ENV === "production" ? { credentials: "include" } : {}),
     body: JSON.stringify({ email, password }),
   });
-
-  if (!res.ok) {
-    console.log("Login request failed:", res.statusText);
-    return { message: "Invalid email or password", success: false };
-  }
   const result = await res.json()
   const { user, access, refresh } = result;
+  if (res.status === 423) {
+    await setSession({
+      isLocked: true,
+      email: result.email,
+      unlockTime: result.unlockTime,
+      secondsRemaining: result.secondsRemaining,
+    });
+    return { isLocked: true, message: "Your account has been locked.", success: false };
+  }
+  if (!res.ok) {
+    return { message: result.message || "Invalid email or password", success: false };
+  }
+
+
   // store access/refresh separately
   const cookieStore = await cookies();
   cookieStore.set("access_token", access, { httpOnly: true, secure: true });
@@ -49,7 +58,8 @@ export async function login(prevState: any, formData: FormData) {
   await setSession({
     userId: user.user?.id,
     type: user.user?.type,
-    isVerified: user.user?.isVerified
+    dailyPostCount: user.user?.dailyPostCount,
+    isVerified: user.user?.isVerified,
   });
 
   return { message: "Login successful.", success: true, user: user.user };

@@ -65,6 +65,7 @@ export default function SubmitConcernForm() {
     other: "",
     location: "",
     needsBarangayAssistance: null,
+    isSpam: false,
   });
   const [previews, setPreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -94,7 +95,26 @@ export default function SubmitConcernForm() {
   };
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
+    let isAllowed;
+    let isSpam;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/checkPostCount`, {
+        method: "GET",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error);
+        isAllowed = data.isAllowed ?? false;
+        return;
+      }
+      isAllowed = data.isAllowed;
+      isSpam = data.isSpam;
+    } catch (error) {
+      toast.error("Something went wrong");
+      return;
+    }
+    if (!isAllowed) return;
     const validation = ConcernFormSchema.safeParse(form);
     if (!validation.success) {
       toast.error("Validation failed", {
@@ -104,14 +124,12 @@ export default function SubmitConcernForm() {
       });
       return;
     }
-
     if (form.needsBarangayAssistance === null) {
       toast.warning("Please specify if barangay assistance is needed.");
       return;
     }
 
     try {
-      setLoading(true);
       const validationRes = await fetch("/api/media/validate", {
         method: "POST",
         body: (() => {
@@ -143,9 +161,9 @@ export default function SubmitConcernForm() {
 
           const mediaData =
             uploaded?.map((file) => {
-              const matchedValidation = aiResults.find((v: any) => {
-                v.name === file.name;
-              });
+              const matchedValidation = aiResults.find(
+                (v: any) => v.name === file.name,
+              );
               return {
                 url: file.ufsUrl.toString(),
                 name: file.name,
@@ -171,6 +189,7 @@ export default function SubmitConcernForm() {
       formData.append("title", form.title);
       formData.append("details", form.details);
       formData.append("location", form.location);
+      formData.append("isSpam", String(isSpam));
       formData.append(
         "needsBarangayAssistance",
         String(form.needsBarangayAssistance),
@@ -201,6 +220,7 @@ export default function SubmitConcernForm() {
         other: "",
         location: "",
         needsBarangayAssistance: null,
+        isSpam: false,
       });
     } catch (err) {
       toast.error("Something went wrong.");
@@ -319,9 +339,9 @@ export default function SubmitConcernForm() {
                   <Button
                     className="absolute top-[2] right-[2] z-10"
                     variant={"destructive"}
-                    onClick={()=> {
-                      setPreviews([])
-                      setFiles([])
+                    onClick={() => {
+                      setPreviews([]);
+                      setFiles([]);
                     }}
                   >
                     <Trash2 />

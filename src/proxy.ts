@@ -21,15 +21,15 @@ export default async function middleware(req: NextRequest) {
 
   // ----- 1. Redirect not logged-in users to login page if they hit protected routes
   if (!session) {
-    if (Object.values(dashboardRoutes).some((route) => path.startsWith(route)) || path.startsWith("/verify")) {
+    if (Object.values(dashboardRoutes).some((route) => path.startsWith(route)) || path.startsWith("/verify") || path.startsWith("/locked")) {
       return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
     return NextResponse.next(); // allow public pages
   }
 
   // ----- 2. Prevent logged-in users from accessing login page
+  // ----- 2. Prevent logged-in users from accessing login page
   if (publicPages.includes(path)) {
-    // redirect based on session type
     switch (session.type) {
       case "admin":
         return NextResponse.redirect(new URL("/admin", req.nextUrl));
@@ -37,9 +37,25 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/resident", req.nextUrl));
       case "barangay_official":
         return NextResponse.redirect(new URL("/officials", req.nextUrl));
+      default:
+        // Locked users have no type — redirect them to /locked
+        if (session.isLocked) {
+          return NextResponse.redirect(new URL("/locked", req.nextUrl));
+        }
     }
   }
+  // check if locked
 
+  if (session.isLocked && !path.startsWith("/locked")) {
+    return NextResponse.redirect(new URL("/locked", req.nextUrl))
+  }
+  if (!session.isLocked && path.startsWith("/locked")) {
+    switch (session.type) {
+      case "admin": return NextResponse.redirect(new URL("/admin", req.nextUrl));
+      case "resident": return NextResponse.redirect(new URL("/resident", req.nextUrl));
+      case "barangay_official": return NextResponse.redirect(new URL("/officials", req.nextUrl));
+    }
+  }
   // ----- 3. Prevent users from accessing other dashboards
   if (session.type) {
     const userType = session.type;
@@ -50,7 +66,7 @@ export default async function middleware(req: NextRequest) {
 
     if (session.type === "resident") {
       const isVerified = session.isVerified;
-      console.log("isVerified?", isVerified)
+      if (process.env.NODE_ENV === "development") console.log("isVerified?", isVerified)
       // Only unverified residents can access /verify
       if (!isVerified) {
         if (!path.startsWith("/verify")) {
@@ -91,6 +107,8 @@ export const config = {
     "/resident/:path*",
     "/officials/:path*",
     "/verify",
-    "/verify/:path"
+    "/verify/:path",
+    "/locked",
+    "/locked/:path"
   ],
 };

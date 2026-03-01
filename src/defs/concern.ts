@@ -9,6 +9,7 @@ export const ConcernFormSchema = z
     details: z.string().min(1, "Details are required."),
     location: z.string().min(2, "location is required."),
     needsBarangayAssistance: z.boolean().nullable().optional(),
+    isSpam: z.boolean(),
   })
   .refine(
     (data) => {
