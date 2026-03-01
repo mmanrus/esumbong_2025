@@ -12,9 +12,9 @@ import {
   Clock,
   Tag,
   MessageSquare,
+  FolderX
 } from "lucide-react";
 export type UserRole = "admin" | "resident" | "barangay_official";
-
 export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
     { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
@@ -22,6 +22,8 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
     { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
+    { id: "/officials/spamConcern", url: "/officials/spamConcern", title: "Spam Conern", icon: FolderX },
+    { id: "/officials/spamFeedback", url: "/officials/spamFeedback", title: "Spam Feedback", icon: FolderX },
   ],
 
   resident: [

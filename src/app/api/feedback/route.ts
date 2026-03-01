@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const me = searchParams.get("me") || ""
-
+    const spam = searchParams.get("spam") || ""
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
         })
     }
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/feedback?me=${me ? encodeURIComponent(me) : "false"}`,
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/feedback?me=${me ? encodeURIComponent(me) : "false"}&spam=${encodeURIComponent(spam)}`,
             {
                 method: "GET",
                 credentials: "include",
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
             const errorData = await res.json()
             return NextResponse.json({
                 error: errorData.error || "Failed to fetch feedback"
-            }, { status: res.status})
+            }, { status: res.status })
         }
         const data = await res.json()
         if (process.env.NODE_ENV === "development") {

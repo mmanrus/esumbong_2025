@@ -11,7 +11,6 @@ import {
   CheckCircle,
   ChevronRight,
   Clock,
-  Shield,
   XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
