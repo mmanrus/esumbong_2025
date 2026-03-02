@@ -34,6 +34,7 @@ import { fetcher } from "@/lib/swrFetcher";
 import useSWR from "swr";
 import { formatDate } from "@/lib/formatDate";
 import DialogAlert from "../alertDialog";
+import Loading from "@/app/(protected)/feedback/[id]/loading";
 
 type Feedback = {
   id: string;
@@ -53,7 +54,6 @@ export default function FeedbackById() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   //const [editedFeedback, setEditedFeedback] = useState(feedback);
   const { id } = useParams<{ id: string }>();
-
   const [loading, setLoading] = useState(false);
   const { data, error, isLoading, mutate } = useSWR(
     `/api/feedback/${id}`,
@@ -101,7 +101,9 @@ export default function FeedbackById() {
   }, [data]);
 
   const { watch, formState, register, trigger, getValues, reset } = form;
-
+  if (isLoading) {
+    return <Loading/>
+  }
   const watchedTitle = watch("title");
   const watchedFeedback = watch("feedback");
 
@@ -270,15 +272,16 @@ export default function FeedbackById() {
                   <div className="grid grid-cols-2 gap-1">
                     <span className="text-sm font-medium">
                       <User className="h-3 w-3 inline mr-1" />
-                      {feedback?.user?.fullname}
+                      {feedback?.user?.fullname.charAt(0) + "***** ******"}
                     </span>
                     <span className="text-sm font-medium">
                       <Mail className="h-3 w-3 inline mr-1" />
-                      {feedback?.user?.email}
+                      {feedback?.user?.email.charAt(0) + "*****@****.com"}
+
                     </span>
                     <span className="text-sm font-medium">
                       <Phone className="h-3 w-3 inline mr-1" />
-                      {feedback?.user?.contactNumber}
+                      {feedback?.user?.contactNumber.charAt(0) + "********"}
                     </span>
                   </div>
                 </div>

@@ -35,10 +35,10 @@ export default function ViewConcernArchivesRows({ concerns, onDelete }: Props) {
           <td className="px-5 py-4 text-sm font-medium text-foreground">
             {concern.id}
           </td>
-
+          {/**
           <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
             {concern.user?.fullname ?? "Unknown"}
-          </td>
+          </td> */}
 
           <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
             {concern.category?.name ?? concern.other ?? "N/A"}

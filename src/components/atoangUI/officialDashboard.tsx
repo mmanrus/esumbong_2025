@@ -157,9 +157,10 @@ export function OfficialDashboard() {
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Ticket #
                 </th>
+                {/**
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Complainant
-                </th>
+                </th> */}
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Category
                 </th>

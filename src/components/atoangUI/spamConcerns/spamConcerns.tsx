@@ -132,7 +132,10 @@ export default function OfficialViewSpamConcerns() {
               size="sm"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-sm"
               onClick={() =>
-                setQuery({ search: input, status: status === "all" ? "" : status })
+                setQuery({
+                  search: input,
+                  status: status === "all" ? "" : status,
+                })
               }
             >
               <Search className="w-4 h-4 inline text-muted-foreground" />
@@ -170,9 +173,10 @@ export default function OfficialViewSpamConcerns() {
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Case #
                 </th>
+                {/**
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Complainant
-                </th>
+                </th> */}
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Concern Type
                 </th>
@@ -200,7 +204,9 @@ export default function OfficialViewSpamConcerns() {
                 <ViewConcernRows
                   concerns={paginatedConcerns}
                   onDelete={(id: number) =>
-                    setConcerns((prev: any) => prev.filter((c: any) => c.id !== id))
+                    setConcerns((prev: any) =>
+                      prev.filter((c: any) => c.id !== id),
+                    )
                   }
                 />
               )}
@@ -222,7 +228,9 @@ export default function OfficialViewSpamConcerns() {
           Page {currentPage} of {totalPages || 1}
         </span>
         <Button
-          disabled={currentPage === totalPages || paginatedConcerns.length === 0}
+          disabled={
+            currentPage === totalPages || paginatedConcerns.length === 0
+          }
           onClick={() => setCurrentPage((p) => p + 1)}
           size="sm"
         >

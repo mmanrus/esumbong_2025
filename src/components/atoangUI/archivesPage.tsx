@@ -10,7 +10,12 @@ import { Filter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 
-export type StatusFilter = "all" | "pending" | "resolved" | "approved" | "rejected";
+export type StatusFilter =
+  | "all"
+  | "pending"
+  | "resolved"
+  | "approved"
+  | "rejected";
 
 export default function ArchivesPage() {
   const [query, setQuery] = useState({
@@ -115,7 +120,7 @@ export default function ArchivesPage() {
                 })
               }
             >
-              <Search className="w-4 h-4 inline  text-muted-foreground"/>
+              <Search className="w-4 h-4 inline  text-muted-foreground" />
               Search
             </Button>
           </div>
@@ -149,9 +154,10 @@ export default function ArchivesPage() {
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Case #
                 </th>
+                {/**
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Complainant
-                </th>
+                </th> */}
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Category
                 </th>
@@ -173,9 +179,10 @@ export default function ArchivesPage() {
                     <td colSpan={1} className="px-4 py-5 ">
                       <Skeleton className="h-10 w-10 rounded-full" />
                     </td>
+                    {/**
                     <td colSpan={1} className="px-4 py-5 ">
                       <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
-                    </td>
+                    </td> */}
                     <td colSpan={1} className="px-4 py-5">
                       <Skeleton className="h-3 md:h-4 lg:h-6 flex-1 " />
                     </td>

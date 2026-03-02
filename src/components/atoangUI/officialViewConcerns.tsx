@@ -169,10 +169,10 @@ export default function OfficialViewConcerns() {
               <tr>
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
                   Case #
-                </th>
+                </th>{/**
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Complainant
-                </th>
+                </th> */}
                 <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
                   Concern Type
                 </th>

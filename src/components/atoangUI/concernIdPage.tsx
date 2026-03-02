@@ -191,15 +191,15 @@ export default function ConcernIdPage() {
               <div className="grid grid-cols-2 gap-1">
                 <span className="text-sm font-medium">
                   <User className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.fullname}
+                  {concern?.user?.fullname?.charAt(0) + "****** ********"}
                 </span>
                 <span className="text-sm font-medium">
                   <Mail className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.email}
+                  {concern?.user?.email?.charAt(0) + "*******@****.com"}
                 </span>
                 <span className="text-sm font-medium">
                   <Phone className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.contactNumber}
+                  {concern?.user?.contactNumber?.charAt(0) + "*******"}
                 </span>
                 <span className="text-sm font-medium">
                   Needs barangay assistance:{" "}
