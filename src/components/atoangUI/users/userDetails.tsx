@@ -215,7 +215,7 @@ export default function UserDetailsDialog({
       {/* ── Main Dialog ── */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger>{children}</DialogTrigger>
-        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-stone-200 shadow-xl gap-0 ">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border border-stone-200 shadow-xl gap-0 max-h-[90vh]">
           {/* ── ID Document Overlay (inside dialog to stay above it) ── */}
           {showMediaOverlay && (
             <div className="absolute inset-0 z-50 flex flex-col rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm">
@@ -277,13 +277,14 @@ export default function UserDetailsDialog({
                 </Button>
               </div>
               {/* Image — fills available space */}
-              <div className="relative flex-1 bg-stone-100 min-h-0">
-                
-                <img
-                  src={mediaUrl}
-                  alt="Verification document"
-                  className="object-contain p-3"
-                />
+              <div className="relative flex-1 bg-stone-50 min-h-0 flex items-center justify-center overflow-auto">
+                <div className="flex items-center justify-center w-full h-full p-4">
+                  <img
+                    src={mediaUrl}
+                    alt="Verification document"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -315,7 +316,7 @@ export default function UserDetailsDialog({
           </DialogHeader>
 
           {/* Body */}
-          <div className="px-6 py-5 flex flex-col gap-4">
+          <div className="px-6 py-5 flex flex-col gap-4 overflow-y-auto">
             {/* Email */}
             <FieldRow
               label="Email"
