@@ -58,6 +58,7 @@ export default function SubmitConcernForm() {
     staleTime: 1000 * 60 * 20,
   });
   const [loading, setLoading] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
   const [form, setForm] = useState<ConcernForm>({
     title: "",
     categoryId: "",
@@ -70,6 +71,11 @@ export default function SubmitConcernForm() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState(0);
+  
+  // Filter categories based on search
+  const filteredCategories = categories?.categories?.filter((cat: CategoryInput) =>
+    cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+  ) ?? [];
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
 
@@ -266,17 +272,39 @@ export default function SubmitConcernForm() {
                 </Label>
                 <Select
                   value={form.categoryId}
-                  onValueChange={(value) => handleChange("categoryId", value)}
+                  onValueChange={(value) => {
+                    handleChange("categoryId", value);
+                    setCategorySearch("");
+                  }}
                 >
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {categories?.categories?.map((cat: CategoryInput) => (
-                      <SelectItem key={cat.id} value={String(cat.id)}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="w-full">
+                    {/* Search Input */}
+                    <div className="px-2 py-2 border-b">
+                      <Input
+                        placeholder="Search categories..."
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        className="h-8 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    
+                    {/* Filtered Categories */}
+                    {filteredCategories.length > 0 ? (
+                      filteredCategories.map((cat: CategoryInput) => (
+                        <SelectItem key={cat.id} value={String(cat.id)}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
+                        No categories found
+                      </div>
+                    )}
+                    
                     <SelectItem key={"other"} value={"other"}>
                       Other
                     </SelectItem>

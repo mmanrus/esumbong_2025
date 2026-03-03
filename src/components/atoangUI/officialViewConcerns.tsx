@@ -5,8 +5,9 @@ import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/skeletons/tableSkeleton";
 import { fetcher } from "@/lib/swrFetcher";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
@@ -162,73 +163,77 @@ export default function OfficialViewConcerns() {
       </div>
 
       {/* Concerns Table */}
-      <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto h-full">
-          <table className="min-w-full h-full table-fixed">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Case #
-                </th>{/**
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
-                  Complainant
-                </th> */}
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
-                  Concern Type
-                </th>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Date
-                </th>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Status
-                </th>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                Array.from({ length: 4 }).map((_, index) => (
-                  <tr key={index}>
-                    <td colSpan={6} className="px-4 py-5">
-                      <Skeleton className="h-6 w-full" />
-                    </td>
-                  </tr>
-                ))
-              ) : (
+      {isLoading ? (
+        <TableSkeleton rows={5} columns={5} />
+      ) : (
+        <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                    Case #
+                  </th>
+                  <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground hidden md:table-cell">
+                    Concern Type
+                  </th>
+                  <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                    Date
+                  </th>
+                  <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
                 <ViewConcernRows
                   concerns={paginatedConcerns}
                   onDelete={(id: number) =>
                     setConcerns((prev: any) => prev.filter((c: any) => c.id !== id))
                   }
                 />
-              )}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-4">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => p - 1)}
-          size="sm"
-        >
-          Prev
-        </Button>
-        <span className="px-2 text-sm">
-          Page {currentPage} of {totalPages || 1}
-        </span>
-        <Button
-          disabled={currentPage === totalPages || paginatedConcerns.length === 0}
-          onClick={() => setCurrentPage((p) => p + 1)}
-          size="sm"
-        >
-          Next
-        </Button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages || 1} • Showing {paginatedConcerns.length} of {filteredConcern.length} concerns
+          </div>
+          <div className="flex gap-2">
+            <Button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
+            <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
+              {currentPage} / {totalPages || 1}
+            </div>
+            <Button
+              disabled={currentPage === totalPages || paginatedConcerns.length === 0}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -76,33 +76,31 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
       {concerns.map((concern: Concern, index: number) => (
         <tr
           key={concern.id ?? index}
-          className="border-t hover:bg-muted/30 transition-colors"
+          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
         >
-          <td className="px-5 py-4 text-sm font-medium text-foreground">
-            {concern.id}
+          <td className="px-3 sm:px-5 py-3 sm:py-4 text-sm font-medium text-foreground">
+            <span className="inline-block bg-gray-100 px-2 py-1 rounded text-xs font-mono">
+              #{concern.id}
+            </span>
           </td>
-          {/**
-          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
-            {concern.user?.fullname ?? "Unknown"}
-          </td> */}
 
-          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
+          <td className="px-3 sm:px-5 py-3 sm:py-4 text-sm text-muted-foreground hidden md:table-cell">
             {concern.category?.name ?? concern.other ?? "N/A"}
           </td>
 
-          <td className="px-5 py-4 text-sm text-muted-foreground hidden md:table-cell">
+          <td className="px-3 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-muted-foreground hidden md:table-cell">
             {formatDate(new Date(concern.issuedAt))}
           </td>
 
-          <td className="px-5 py-4">
+          <td className="px-3 sm:px-5 py-3 sm:py-4">
             <span
               className={clsx(
                 concern.validation === "approved"
-                  ? "bg-green-500 text-white"
+                  ? "bg-emerald-100 text-emerald-700"
                   : concern.validation === "pending"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-destructive text-white",
-                "inline-block px-2 py-1 rounded   text-sm",
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-red-100 text-red-700",
+                "inline-block px-2 py-1 rounded text-xs font-semibold",
               )}
             >
               {concern.validation.charAt(0).toUpperCase() +
@@ -110,18 +108,19 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
             </span>
           </td>
 
-          <td className="px-5 py-4 flex gap-1">
+          <td className="px-2 sm:px-5 py-3 sm:py-4 flex gap-1 flex-wrap">
             <Button
               onClick={() => setSelectedConcern(concern)}
-              className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+              className="px-2 sm:px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs sm:text-sm h-8 sm:h-auto"
             >
-              <Eye className="w-4 h-4 mr-1 inline" />
-              View
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
+              <span className="hidden sm:inline">View</span>
             </Button>
             <DialogAlert
               trigger={
-                <Button className="px-3 py-1 bg-amber-500 text-white rounded text-sm">
-                  Validate
+                <Button className="px-2 sm:px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs sm:text-sm h-8 sm:h-auto">
+                  <span className="hidden sm:inline">Validate</span>
+                  <span className="sm:hidden">Val</span>
                 </Button>
               }
               Icon={Info}

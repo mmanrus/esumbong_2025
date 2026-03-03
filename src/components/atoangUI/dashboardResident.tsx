@@ -7,14 +7,19 @@ import {
   Users,
   Bell,
   Shield,
+  Megaphone,
+  Calendar,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/authContext";
-
+import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWebSocket } from "@/contexts/webSocketContext";
+import { formatDate } from "@/lib/formatDate";
+import useSWR from "swr";
+import { fetcher } from "@/lib/swrFetcher";
 export type ConcernStats = {
   pending: number;
   inProgress: number;
@@ -48,6 +53,7 @@ export function DashboardOverview() {
   const socket = useWebSocket();
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<ConcernStats | null>(null);
+  const { data: announcementsData } = useSWR('/api/announcement/getAll', fetcher);
 
   useEffect(() => {
     fetchStats();
@@ -178,6 +184,41 @@ export function DashboardOverview() {
           </Card>
         ))}
       </div>
+
+      {/* Announcements Section */}
+      {announcementsData?.data && announcementsData.data.length > 0 && (
+        <div className="relative z-10">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Megaphone className="h-6 w-6 text-primary" />
+              Latest Announcements
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {announcementsData.data.slice(0, 2).map((announcement: any) => (
+              <Card key={announcement.id} className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group" onClick={() => router.push(`/announcement/${announcement.id}`)}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors flex-1">
+                      {announcement.title}
+                    </h3>
+                    <Badge variant="secondary" className="shrink-0 text-xs">
+                      New
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+                    {announcement.content}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(new Date(announcement.createdAt))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Illustrated Card with Animation */}
       <Card className="border-2 border-dashed border-muted-foreground/20 min-h-[300px] flex items-center justify-center relative z-10 overflow-hidden">

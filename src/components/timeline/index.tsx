@@ -1,5 +1,5 @@
 "use client";
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, Zap } from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
 
 export interface TimelineUpdate {
@@ -24,38 +24,62 @@ export default function Timeline({ updates }: TimelineProps) {
   }
 
   const getIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
+    const normalizedType = type?.toLowerCase().replace(/[_\s]/g, "");
+    switch (normalizedType) {
       case "approved":
       case "resolved":
       case "completed":
-        return <CheckCircle className="h-5 w-5 text-emerald-600" />;
+        return <CheckCircle className="h-5 w-5 text-white" />;
+      case "inprogress":
+        return <Zap className="h-5 w-5 text-white" />;
       case "pending":
-      case "in_progress":
-        return <Clock className="h-5 w-5 text-amber-600" />;
+        return <Clock className="h-5 w-5 text-white" />;
       case "rejected":
       case "denied":
       case "error":
-        return <AlertCircle className="h-5 w-5 text-red-600" />;
+        return <AlertCircle className="h-5 w-5 text-white" />;
       default:
-        return <Clock className="h-5 w-5 text-gray-600" />;
+        return <Clock className="h-5 w-5 text-white" />;
     }
   };
 
   const getIconBg = (type: string) => {
-    switch (type?.toLowerCase()) {
+    const normalizedType = type?.toLowerCase().replace(/[_\s]/g, "");
+    switch (normalizedType) {
       case "approved":
       case "resolved":
       case "completed":
-        return "bg-emerald-50";
+        return "bg-emerald-600";
+      case "inprogress":
+        return "bg-blue-600";
       case "pending":
-      case "in_progress":
-        return "bg-amber-50";
+        return "bg-amber-600";
       case "rejected":
       case "denied":
       case "error":
-        return "bg-red-50";
+        return "bg-red-600";
       default:
-        return "bg-gray-50";
+        return "bg-gray-600";
+    }
+  };
+
+  const getStatusColor = (type: string) => {
+    const normalizedType = type?.toLowerCase().replace(/[_\s]/g, "");
+    switch (normalizedType) {
+      case "approved":
+      case "resolved":
+      case "completed":
+        return "bg-emerald-100 text-emerald-700";
+      case "inprogress":
+        return "bg-blue-100 text-blue-700";
+      case "pending":
+        return "bg-amber-100 text-amber-700";
+      case "rejected":
+      case "denied":
+      case "error":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -82,13 +106,7 @@ export default function Timeline({ updates }: TimelineProps) {
                   {formatDate(new Date(update.createdAt))}
                 </p>
               </div>
-              <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                update.type?.toLowerCase() === "approved" || update.type?.toLowerCase() === "resolved"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : update.type?.toLowerCase() === "pending" || update.type?.toLowerCase() === "in_progress"
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-red-100 text-red-700"
-              }`}>
+              <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(update.type)}`}>
                 {update.type}
               </span>
             </div>
