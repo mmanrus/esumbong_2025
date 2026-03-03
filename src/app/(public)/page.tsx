@@ -1,4 +1,8 @@
-import HomePage from "@/components/atoangUI/homepage";
+import CitizenFeedback from "@/components/atoangUI/citizen-feedback";
+import CommunityImpact from "@/components/atoangUI/community-impact";
+import CTA from "@/components/atoangUI/cta";
+import Header from "@/components/atoangUI/headers";
+import TransparencyDashboard from "@/components/atoangUI/transparency-dashboard";
 
 export const metadata = {
   title: "E-Sumbong - Your Voice, Our Action",
@@ -7,11 +11,13 @@ export const metadata = {
 };
 
 export default function Page() {
-  
-
   return (
-    <>
-      <HomePage />
-    </>
+    <main>
+      <Header />
+      <TransparencyDashboard />
+      <CommunityImpact />
+      <CitizenFeedback />
+      <CTA />
+    </main>
   );
 }

@@ -1,4 +1,4 @@
-import AboutPage from "@/components/atoangUI/aboutPage";
+import About from "@/components/atoangUI/aboutPage";
 
 export const metadata = {
   title: "About - e-Sumbong",
@@ -7,5 +7,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <AboutPage />;
+  return <About />;
 }
