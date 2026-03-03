@@ -10,12 +10,16 @@ import { formatDate } from "@/lib/formatDate";
 import {
   CheckCircle,
   ChevronRight,
+  ChevronLeft,
   Clock,
   XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const ITEMS_PER_PAGE = 5;
 
 type Status = "pending" | "approved" | "rejected";
 const statusConfig: Record<
@@ -49,10 +53,19 @@ export function UserConcernRows() {
     fetcher,
   );
   const [userConcerns, setUserConcerns] = useState<Concern[] | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  
   useEffect(() => {
     if (!data) return;
     setUserConcerns(data.data);
+    setCurrentPage(1);
   }, [data]);
+  
+  // Calculate pagination
+  const totalItems = userConcerns?.length ?? 0;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedConcerns = userConcerns?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
   if (isLoading)
     return (
       <div className="flex justify-center items-center py-12">
@@ -78,7 +91,8 @@ export function UserConcernRows() {
 
   return (
     <>
-      {userConcerns?.map((c: Concern, index: any) => {
+      <div className="space-y-4">
+      {paginatedConcerns?.map((c: Concern, index: any) => {
         const config = c
           ? statusConfig[c.status as Status]
           : undefined;
@@ -130,6 +144,41 @@ export function UserConcernRows() {
           </Card>
         );
       })}
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} • Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, totalItems)} of {totalItems} concerns
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
+            <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
+              {currentPage} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

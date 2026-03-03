@@ -215,7 +215,7 @@ export default function UserDetailsDialog({
       {/* ── Main Dialog ── */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger>{children}</DialogTrigger>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border border-stone-200 shadow-xl gap-0 max-h-[90vh]">
+        <DialogContent className="max-w-5xl w-[90vw] p-0 overflow-hidden rounded-2xl border border-stone-200 shadow-xl gap-0 max-h-[90vh]">
           {/* ── ID Document Overlay (inside dialog to stay above it) ── */}
           {showMediaOverlay && (
             <div className="absolute inset-0 z-50 flex flex-col rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm">
