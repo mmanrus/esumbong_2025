@@ -4,6 +4,8 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useConcern } from "@/contexts/concernContext";
 import { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
 export function ResolveConcern({
   open,
@@ -39,21 +41,25 @@ export function ResolveConcern({
       <DialogContent>
         <DialogTitle>Validate Concern as</DialogTitle>
         <form className="flex flex-row gap-3 justify-center">
-          <Button
-            disabled={concern?.validation === "resolved" || isLoading}
-            type="submit"
-            onClick={() => handleValidation("resolved")}
-          >
-            Resolve
-          </Button>
-          <Button
-            variant="destructive"
-            type="submit"
-            disabled={concern?.validation === "unresolved" || isLoading}
-            onClick={() => handleValidation("unresolved")}
-          >
-            Unresolve
-          </Button>
+          <Label>Message:</Label>
+          <Input placeholder="Message the resident." />
+          <div className="flex flex-row gap-3 justify-center">
+            <Button
+              disabled={concern?.validation === "resolved" || isLoading}
+              type="submit"
+              onClick={() => handleValidation("resolved")}
+            >
+              Resolve
+            </Button>
+            <Button
+              variant="destructive"
+              type="submit"
+              disabled={concern?.validation === "unresolved" || isLoading}
+              onClick={() => handleValidation("unresolved")}
+            >
+              Unresolve
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

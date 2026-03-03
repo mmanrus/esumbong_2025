@@ -14,8 +14,7 @@ export default function Header() {
           Your Voice, Our Action
         </h2>
         <p className="text-lg text-teal-100 max-w-2xl mx-auto">
-          Empowering citizens to report issues, track solutions, and build
-          stronger communities together.
+          Where Every Concern in Cogon Pardo Matters, Every Report is Heard, and Every Issue Leads to Action.
         </p>
       </div>
     </header>
