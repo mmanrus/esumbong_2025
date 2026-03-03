@@ -32,28 +32,36 @@ export default function ConcernMediaGrid({
   };
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pl-6">
         {visibleMedia.map((item, index) => {
           const isLast = index === MAX_VISIBLE - 1 && extraCount > 0;
 
           return (
             <div
               key={item.id}
-              className="relative aspect-square rounded overflow-hidden
-              cursor-pointer hover:opacity-80 transition-opacity
-              bg-muted border"
+              className="relative aspect-square rounded-lg overflow-hidden
+              cursor-pointer hover:shadow-lg transition-all duration-200 transform hover:scale-105
+              bg-gray-100 border border-gray-200"
               onClick={() => openDialog(index)}
             >
               <img
-                key={item.id}
                 src={item.url}
                 alt="Concern media"
-                className="object-cover rounded shadow-md"
+                className="object-cover w-full h-full"
               />
+
+              {/* AI badge if applicable */}
+              {item.isAI && (
+                <div className="absolute top-1 right-1">
+                  <Badge variant="destructive" className="text-xs">
+                    🤖 AI
+                  </Badge>
+                </div>
+              )}
 
               {/* +N overlay */}
               {isLast && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xl font-semibold">
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-white text-2xl font-bold hover:bg-black/80 transition-colors">
                   +{extraCount}
                 </div>
               )}
@@ -64,46 +72,52 @@ export default function ConcernMediaGrid({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           showCloseButton={false}
-          className="p-0 bg-transparent flex justify-center items-center border-0 w-[90vw] max-w-5xl h-[60vh]"
+          className="p-0 bg-black/90 flex justify-center items-center border-0 w-[95vw] max-w-6xl h-[80vh] max-h-screen"
         >
           <VisuallyHidden>
             <DialogTitle>Images Concern</DialogTitle>
           </VisuallyHidden>
           <DialogClose asChild>
-            <Button className="absolute z-100 top-[-110] right-4 text-white hover:opacity-70 transition">
-              <X className="w-6 h-6 opacity-100" />
+            <Button className="absolute z-50 top-4 right-4 bg-white/20 hover:bg-white/30 text-white border-0 rounded-full p-2">
+              <X className="w-6 h-6" />
             </Button>
           </DialogClose>
           <Carousel
             key={selectedIndex}
             opts={{ loop: true, startIndex: selectedIndex }}
-            className="w-full h-full flex justify-center items-center"
+            className="w-full h-full flex justify-center items-center relative"
           >
             <CarouselContent className="h-full">
               {media.map((item, index) => (
                 <CarouselItem
                   key={item.id}
-                  className="flex items-center justify-center h-full"
+                  className="flex flex-col items-center justify-center h-full"
                 >
-                  <img
-                    src={item.url}
-                    alt={`Concern media ${index + 1}`}
-                    className="max-h-full max-w-full object-contain"
-                  />
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <img
+                      src={item.url}
+                      alt={`Concern media ${index + 1}`}
+                      className="max-h-full max-w-full object-contain"
+                    />
 
-                  {item.isAI ?? (
-                    <Badge
-                      className="relative top-5 left-5"
-                      variant={"destructive"}
-                    >
-                      AI Generated
-                    </Badge>
-                  )}
+                    {item.isAI && (
+                      <Badge
+                        className="absolute bottom-4 left-4 text-xs font-semibold"
+                        variant={"destructive"}
+                      >
+                        🤖 AI Generated
+                      </Badge>
+                    )}
+
+                    <span className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded text-xs font-medium">
+                      {index + 1} / {media.length}
+                    </span>
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
+            <CarouselPrevious className="left-4 bg-white/20 hover:bg-white/40 border-0 text-white" />
+            <CarouselNext className="right-4 bg-white/20 hover:bg-white/40 border-0 text-white" />
           </Carousel>
         </DialogContent>
       </Dialog>

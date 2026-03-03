@@ -125,27 +125,29 @@ export default function ConcernIdPage() {
     <>
       <div className="space-y-6">
         {/* Header Info */}
-        <div className="space-y-3">
+        <div className="space-y-4 pb-4 border-b border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-mono text-muted-foreground">
+            <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded text-gray-700">
               #{concern?.id}
             </span>
-            <Badge className={cn(config?.bgColor, config?.color, "border-0")}>
-              {concern?.validation}
+            <Badge className={cn(config?.bgColor, config?.color, "border-0 text-xs font-semibold")}>
+              {concern?.validation?.charAt(0).toUpperCase() + concern?.validation?.slice(1)}
             </Badge>
             {isAI ? (
-              <AIbadge variant={"destructive"}>
-                AI Images Found Generated
+              <AIbadge variant={"destructive"} className="text-xs">
+                🤖 AI Images Detected
               </AIbadge>
             ) : (
-              <AIbadge variant="link">Images Not AI Generated</AIbadge>
+              <AIbadge variant="secondary" className="text-xs">
+                ✓ Authentic Images
+              </AIbadge>
             )}
             <Button
               disabled={user?.type !== "barangay_official"}
               className={cn(
                 config?.bgColor,
                 config?.color,
-                "border-0 disabled:opacity-100 disabled:pointer-events-none",
+                "border-0 disabled:opacity-100 disabled:pointer-events-none text-xs",
               )}
               onClick={() => setOpenValidation(true)}
             >
@@ -158,16 +160,16 @@ export default function ConcernIdPage() {
             </Button>
             {user?.type === "barangay_official" &&
             concern?.validation === "approved" ? (
-              <Button onClick={() => setOpenResolve(true)}>
+              <Button onClick={() => setOpenResolve(true)} className="ml-auto">
                 Resolve Concern
               </Button>
             ) : null}
           </div>
-          <div className="flex flex-row gap-1 items-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <div className="flex flex-row gap-2 items-start flex-wrap">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground flex-1">
               {concern?.title}
             </h2>
-            <Badge className="flex items-center gap-1">
+            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 border-0">
               <Lightbulb className="h-3 w-3" />
               {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
             </Badge>

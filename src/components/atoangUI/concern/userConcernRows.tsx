@@ -55,8 +55,11 @@ export function UserConcernRows() {
   }, [data]);
   if (isLoading)
     return (
-      <div className="flex justify-center items-center">
-        <span>Loading</span>
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="h-8 w-8 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin mx-auto mb-2"></div>
+          <span className="text-muted-foreground">Loading your concerns...</span>
+        </div>
       </div>
     );
   if (error) {
@@ -64,11 +67,13 @@ export function UserConcernRows() {
     notFound();
   }
   if (!Array.isArray(userConcerns) || userConcerns.length === 0) {
-    <Card className="p-8">
-      <p className="text-center  text-muted-foreground">
-        No concerns found with the selected filter.
-      </p>
-    </Card>;
+    return (
+      <Card className="p-12 border border-dashed border-gray-300">
+        <p className="text-center text-muted-foreground">
+          No concerns found. Submit your first concern to get started.
+        </p>
+      </Card>
+    );
   }
 
   return (
@@ -83,14 +88,15 @@ export function UserConcernRows() {
         return (
           <Card
             key={c.id}
-            className="hover:shadow-md transition-shadow cursor-pointer group"
+            className="hover:shadow-lg transition-all cursor-pointer group border-l-4 hover:border-l-primary overflow-hidden"
+            style={{ borderLeftColor: config?.color }}
             onClick={() => router.push(`/concern/${c.id}`)}
           >
-            <CardContent className="p-5">
+            <CardContent className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-muted-foreground">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">
                       #{c.id}
                     </span>
                     <Badge
@@ -98,25 +104,27 @@ export function UserConcernRows() {
                       className={cn(config?.bgColor, config?.color, "border-0")}
                     >
                      {StatusIcon && <StatusIcon className="h-3 w-3 mr-1" />}
-                      {c.status}
+                      {c.status?.charAt(0).toUpperCase() + c.status?.slice(1)}
                     </Badge>
                   </div>
-                  <h3 className="font-semibold text-foreground truncate">
+                  <h3 className="font-semibold text-foreground truncate text-lg">
                     {c.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {c.category?.name ?? c.other ?? "Uncategorized"}
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                      {c.category?.name ?? c.other ?? "Uncategorized"}
+                    </span>
                   </p>
 
                   <StatusProgress currentStatus={c.status} />
 
-                  <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-                    <span>Submitted: {formatDate(new Date(c.issuedAt))}</span>
-                    <span>Updated: {formatDate(new Date(c.updatedAt))}</span>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4 text-xs text-muted-foreground">
+                    <span>📅 Submitted: {formatDate(new Date(c.issuedAt))}</span>
+                    <span>🔄 Updated: {formatDate(new Date(c.updatedAt))}</span>
                   </div>
                 </div>
 
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
               </div>
             </CardContent>
           </Card>
