@@ -24,6 +24,7 @@ export async function getRemainingTime(): Promise<
     const res = await fetch("/api/getRemainingTime", { method: "GET" });
 
     if (res.status === 404) {
+      await logout();
       toast.error("No lock data found.");
       return;
     }
@@ -97,7 +98,7 @@ export default function AccountLockedPage() {
         setTimeLeft(Math.max(0, result.secondsRemaining));
         setHasExpired(result.secondsRemaining <= 0);
       } finally {
-        setIsLoading(false); // ✅ always runs
+        setIsLoading(false);
       }
     };
 
