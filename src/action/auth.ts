@@ -39,7 +39,7 @@ export async function login(prevState: any, formData: FormData) {
     await setSession({
       isLocked: true,
       email: result.email,
-      unlockTime: result.unlockTime,
+      unlockTime: result.unlockTime || new Date(Date.now() + result.secondsRemaining * 1000).toISOString(),
       secondsRemaining: result.secondsRemaining,
     });
     return { isLocked: true, message: "Your account has been locked.", success: false };
