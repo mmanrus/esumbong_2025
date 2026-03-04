@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
                         }`}
                       >
                         {/* Header */}
-                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-32 flex-shrink-0">
+                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-32 shrink-0">
                           {headerLabel}
                         </span>
 

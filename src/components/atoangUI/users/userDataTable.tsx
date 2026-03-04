@@ -156,7 +156,7 @@ export function UserDataTable<TData>({
                         }`}
                       >
                         {/* Header Label */}
-                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-24 flex-shrink-0">
+                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-24 shrink-0">
                           {headerLabel}
                         </span>
 

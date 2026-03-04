@@ -11,10 +11,42 @@ import { toast } from "sonner";
 import { logout } from "@/action/auth";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface AccountLockedPageProps {
-  secondsRemaining: number; // seconds from backend
-  unlockTime: string; // ISO string from backend
+export interface AccountLockedPageProps {
+  secondsRemaining: number;
+  unlockTime: string;
   email?: string;
+}
+
+export async function getRemainingTime(): Promise<
+  AccountLockedPageProps | undefined
+> {
+  try {
+    const res = await fetch("/api/getRemainingTime", { method: "GET" });
+
+    if (res.status === 404) {
+      toast.error("No lock data found.");
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.alreadyExpired) {
+      toast.info("Lock expired — redirecting to login...");
+      await logout(); // clears session & redirects
+      return;
+    }
+
+    if (!data.secondsRemaining || !data.unlockTime) {
+      toast.error("Invalid lock data.");
+      return;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch remaining time:", err);
+    toast.error("Failed to fetch remaining time.");
+    return;
+  }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -37,24 +69,6 @@ function formatUnlockTime(isoString: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-async function getRemainingTime(): Promise<AccountLockedPageProps | undefined> {
-  try {
-    const res = await fetch("/api/getRemainingTime", { method: "GET" });
-    if (!res.ok) {
-      toast.error("Failed to fetch remaining time");
-      return;
-    }
-    const data = await res.json();
-    if (data.alreadyExpired) {
-      await logout();
-      toast.info("Lock Expired.")
-      return;
-    }
-    return data
-  } catch {
-    return;
-  }
 }
 // ─── Component ────────────────────────────────────────────────────────────────
 
