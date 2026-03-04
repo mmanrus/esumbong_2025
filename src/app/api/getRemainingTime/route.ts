@@ -1,4 +1,4 @@
-"use server"
+
 import { getSession } from "@/lib/sessions";
 import { NextRequest, NextResponse } from "next/server";
 

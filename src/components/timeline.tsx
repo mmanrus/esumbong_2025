@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, X, Activity, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConcernUpdates, useConcern } from "@/contexts/concernContext";
 type TimelineProps = {
@@ -9,6 +9,14 @@ export default function Timeline({ updates }: TimelineProps) {
   const renderIcon = (status: string, index: number) => {
     if (status === "approved" || status === "resolved")
       return <Check className="h-4 w-4 text-white bg-green-600 rounded-full" />;
+    if (status === "pending")
+      return (
+        <Clock className="h-4 w-4 text-white bg-yellow-600 rounded-full" />
+      );
+    if (status === "inProgress")
+      return (
+        <Activity className="h-4 w-4 text-white bg-blue-600 rounded-full" />
+      );
     if (status === "rejected")
       return <X className="h-4 w-4 text-white bg-destructive rounded-full" />;
     return index + 1;
@@ -28,11 +36,13 @@ export default function Timeline({ updates }: TimelineProps) {
                     "bg-green-600 border-primary text-primary-foreground":
                       _update.status === "approved",
                     "bg-destructive border-primary text-destructive-foreground":
+                      _update.status === "inProgress",
+                    "bg-blue-600 border-primary text-destructive-foreground":
                       _update.status === "rejected",
                     "bg-accent border-muted-foreground text-muted-foreground":
                       _update.status !== "approved" &&
                       _update.status !== "rejected",
-                  }
+                  },
                 )}
               >
                 {renderIcon(_update.status, index)}

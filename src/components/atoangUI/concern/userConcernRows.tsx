@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Clock,
+  Activity,
   XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import { Button } from "@/components/ui/button";
 
 const ITEMS_PER_PAGE = 5;
 
-type Status = "pending" | "approved" | "rejected";
+type Status = "pending" | "approved" | "rejected" | "inProgress";
 const statusConfig: Record<
   Status,
   { icon: typeof Clock; color: string; bgColor: string }
@@ -30,6 +31,11 @@ const statusConfig: Record<
     icon: Clock,
     bgColor: "bg-yellow-500/10",
     color: "text-yellow-600",
+  },
+  inProgress: {
+    bgColor: "bg-blue-500/10",
+    color: "text-blue-600",
+    icon: Activity,
   },
   approved: {
     icon: CheckCircle,
@@ -43,10 +49,10 @@ const statusConfig: Record<
   },
 };
 
-const statusSteps: Status[] = ["pending", "approved", "rejected"];
+const statusSteps: Status[] = ["pending", "inProgress", "approved", "rejected"];
 
 export function UserConcernRows() {
-  const router = useRouter()
+  const router = useRouter();
   const { user } = useAuth();
   const { data, error, isLoading, mutate } = useSWR(
     `/api/concern/getByUserId/${user?.id}`,
@@ -54,24 +60,27 @@ export function UserConcernRows() {
   );
   const [userConcerns, setUserConcerns] = useState<Concern[] | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   useEffect(() => {
     if (!data) return;
     setUserConcerns(data.data);
     setCurrentPage(1);
   }, [data]);
-  
+
   // Calculate pagination
   const totalItems = userConcerns?.length ?? 0;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedConcerns = userConcerns?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
+  const paginatedConcerns =
+    userConcerns?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
   if (isLoading)
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="h-8 w-8 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin mx-auto mb-2"></div>
-          <span className="text-muted-foreground">Loading your concerns...</span>
+          <span className="text-muted-foreground">
+            Loading your concerns...
+          </span>
         </div>
       </div>
     );
@@ -92,71 +101,81 @@ export function UserConcernRows() {
   return (
     <>
       <div className="space-y-4">
-      {paginatedConcerns?.map((c: Concern, index: any) => {
-        const config = c
-          ? statusConfig[c.status as Status]
-          : undefined;
+        {paginatedConcerns?.map((c: Concern, index: any) => {
+          const config = c ? statusConfig[c.status as Status] : undefined;
 
-        const StatusIcon = config?.icon;
+          const StatusIcon = config?.icon;
 
-        return (
-          <Card
-            key={c.id}
-            className="hover:shadow-lg transition-all cursor-pointer group border-l-4 hover:border-l-primary overflow-hidden"
-            style={{ borderLeftColor: config?.color }}
-            onClick={() => router.push(`/concern/${c.id}`)}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">
-                      #{c.id}
-                    </span>
-                    <Badge
-                      variant="secondary"
-                      className={cn(config?.bgColor, config?.color, "border-0")}
-                    >
-                     {StatusIcon && <StatusIcon className="h-3 w-3 mr-1" />}
-                      {c.status?.charAt(0).toUpperCase() + c.status?.slice(1)}
-                    </Badge>
+          return (
+            <Card
+              key={c.id}
+              className="hover:shadow-lg transition-all cursor-pointer group border-l-4 hover:border-l-primary overflow-hidden"
+              style={{ borderLeftColor: config?.color }}
+              onClick={() => router.push(`/concern/${c.id}`)}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">
+                        #{c.id}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          config?.bgColor,
+                          config?.color,
+                          "border-0",
+                        )}
+                      >
+                        {StatusIcon && <StatusIcon className="h-3 w-3 mr-1" />}
+                        {c.status
+                          ?.replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                      </Badge>
+                    </div>
+                    <h3 className="font-semibold text-foreground truncate text-lg">
+                      {c.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                        {c.category?.name ?? c.other ?? "Uncategorized"}
+                      </span>
+                    </p>
+
+                    <StatusProgress currentStatus={c.status} />
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4 text-xs text-muted-foreground">
+                      <span>
+                        📅 Submitted: {formatDate(new Date(c.issuedAt))}
+                      </span>
+                      <span>
+                        🔄 Updated: {formatDate(new Date(c.updatedAt))}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground truncate text-lg">
-                    {c.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
-                      {c.category?.name ?? c.other ?? "Uncategorized"}
-                    </span>
-                  </p>
 
-                  <StatusProgress currentStatus={c.status} />
-
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4 text-xs text-muted-foreground">
-                    <span>📅 Submitted: {formatDate(new Date(c.issuedAt))}</span>
-                    <span>🔄 Updated: {formatDate(new Date(c.updatedAt))}</span>
-                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
                 </div>
-
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-4 mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages} • Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, totalItems)} of {totalItems} concerns
+            Page {currentPage} of {totalPages} • Showing {startIndex + 1}-
+            {Math.min(startIndex + ITEMS_PER_PAGE, totalItems)} of {totalItems}{" "}
+            concerns
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
               className="flex items-center gap-1"
             >
@@ -169,7 +188,9 @@ export function UserConcernRows() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
               disabled={currentPage === totalPages}
               className="flex items-center gap-1"
             >

@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
             categoryId: (body.get("categoryId") as string) || undefined,
             other: (body.get("other") as string) || "",
             isSpam: (body.get("isSpam") as string) || "",
+            isAnonymous: (body.get("isAnonymous") as string) || "",
             location: body.get("location") as string,
             needsBarangayAssistance,
             media: media, // ✅ metadata only

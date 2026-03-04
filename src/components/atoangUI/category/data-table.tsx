@@ -101,7 +101,10 @@ export function CategoryDataTable<TData, TValue>({
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="px-4 py-3 text-sm text-gray-700">
+                      <TableCell
+                        key={cell.id}
+                        className="px-4 py-3 text-sm text-gray-700"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -142,37 +145,36 @@ export function CategoryDataTable<TData, TValue>({
                   key={row.id}
                   className="border border-gray-200 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors"
                 >
-                  {row.getVisibleCells().map((cell, idx) => {
-                    const header =
-                      table.getHeaderGroups()[0]?.headers[cell.columnIndex];
-                    return (
-                      <div
-                        key={cell.id}
-                        className={`flex justify-between items-start gap-2 ${
-                          idx !== row.getVisibleCells().length - 1
-                            ? "mb-2 pb-2 border-b border-gray-100"
-                            : ""
-                        }`}
-                      >
-                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-32 flex-shrink-0">
-                          {header?.column.columnDef.header}
-                        </span>
-                        <span className="text-sm text-gray-700 flex-1 text-right">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </span>
-                      </div>
-                    );
-                  })}
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <div
+                      key={cell.id}
+                      className={`flex justify-between items-start gap-2 ${
+                        idx !== row.getVisibleCells().length - 1
+                          ? "mb-2 pb-2 border-b border-gray-100"
+                          : ""
+                      }`}
+                    >
+                      {/* Header */}
+                      <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-32 shrink-0">
+                        {typeof cell.column.columnDef.header === "string"
+                          ? cell.column.columnDef.header
+                          : cell.column.id}
+                      </span>
+
+                      {/* Value */}
+                      <span className="text-sm text-gray-700 flex-1 text-right">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500 p-4">
-              No Results
-            </div>
+            <div className="text-center py-8 text-gray-500 p-4">No Results</div>
           )}
         </div>
       </div>

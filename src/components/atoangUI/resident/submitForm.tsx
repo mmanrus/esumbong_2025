@@ -67,15 +67,17 @@ export default function SubmitConcernForm() {
     location: "",
     needsBarangayAssistance: null,
     isSpam: false,
+    isAnonymous: false,
   });
   const [previews, setPreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState(0);
-  
+
   // Filter categories based on search
-  const filteredCategories = categories?.categories?.filter((cat: CategoryInput) =>
-    cat.name.toLowerCase().includes(categorySearch.toLowerCase())
-  ) ?? [];
+  const filteredCategories =
+    categories?.categories?.filter((cat: CategoryInput) =>
+      cat.name.toLowerCase().includes(categorySearch.toLowerCase()),
+    ) ?? [];
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
 
@@ -112,15 +114,15 @@ export default function SubmitConcernForm() {
       if (!res.ok) {
         toast.error(data.error);
         isAllowed = data.isAllowed ?? false;
-        
-      setLoading(false)
+
+        setLoading(false);
         return;
       }
       isAllowed = data.isAllowed;
       isSpam = data.isSpam;
     } catch (error) {
       toast.error("Something went wrong");
-      setLoading(false)
+      setLoading(false);
       return;
     }
     if (!isAllowed) return;
@@ -203,6 +205,7 @@ export default function SubmitConcernForm() {
         "needsBarangayAssistance",
         String(form.needsBarangayAssistance),
       );
+      formData.append("isAnonymous", String(form.needsBarangayAssistance));
       if (form.categoryId === "other") {
         formData.append("categoryId", "");
         formData.append("other", form.other);
@@ -230,6 +233,7 @@ export default function SubmitConcernForm() {
         location: "",
         needsBarangayAssistance: null,
         isSpam: false,
+        isAnonymous: false,
       });
     } catch (err) {
       toast.error("Something went wrong.");
@@ -291,7 +295,7 @@ export default function SubmitConcernForm() {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
-                    
+
                     {/* Filtered Categories */}
                     {filteredCategories.length > 0 ? (
                       filteredCategories.map((cat: CategoryInput) => (
@@ -304,7 +308,7 @@ export default function SubmitConcernForm() {
                         No categories found
                       </div>
                     )}
-                    
+
                     <SelectItem key={"other"} value={"other"}>
                       Other
                     </SelectItem>
@@ -447,6 +451,33 @@ export default function SubmitConcernForm() {
                       onChange={() =>
                         handleChange("needsBarangayAssistance", false)
                       }
+                    />
+                    <span>No</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <Label className="text-lg font-medium">
+                  Do you want to submit this concern anonymously?
+                </Label>
+
+                <div className="flex gap-6 mt-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isAnonymous"
+                      checked={form.isAnonymous === true}
+                      onChange={() => handleChange("isAnonymous", true)}
+                    />
+                    <span>Yes</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isAnonymous"
+                      checked={form.isAnonymous === false}
+                      onChange={() => handleChange("isAnonymous", false)}
                     />
                     <span>No</span>
                   </label>

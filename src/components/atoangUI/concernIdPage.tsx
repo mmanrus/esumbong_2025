@@ -30,6 +30,7 @@ import {
   Tag,
   User,
   XCircle,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -37,7 +38,7 @@ import { formatDate } from "@/lib/formatDate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ResolveConcern } from "./resolveConcern";
 
-type Status = "pending" | "approved" | "rejected"; //| "resolved";
+type Status = "pending" | "approved" | "rejected" | "inProgress"; //| "resolved";
 
 const statusConfig: Record<
   Status,
@@ -47,6 +48,11 @@ const statusConfig: Record<
     icon: Clock,
     bgColor: "bg-yellow-500/10 hover:bg-yellow-500/20",
     color: "text-yellow-600",
+  },
+  inProgress: {
+    icon: Activity,
+    bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
+    color: "text-blue-600",
   },
   approved: {
     icon: CheckCircle,
@@ -130,8 +136,15 @@ export default function ConcernIdPage() {
             <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded text-gray-700">
               #{concern?.id}
             </span>
-            <Badge className={cn(config?.bgColor, config?.color, "border-0 text-xs font-semibold")}>
-              {concern?.validation?.charAt(0).toUpperCase() + concern?.validation?.slice(1)}
+            <Badge
+              className={cn(
+                config?.bgColor,
+                config?.color,
+                "border-0 text-xs font-semibold rounded-full",
+              )}
+            >
+              {concern?.validation?.charAt(0).toUpperCase() +
+                concern?.validation?.slice(1)}
             </Badge>
             {isAI ? (
               <AIbadge variant={"destructive"} className="text-xs">
@@ -169,10 +182,8 @@ export default function ConcernIdPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground flex-1">
               {concern?.title}
             </h2>
-            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 border-0">
-              <Lightbulb className="h-3 w-3" />
-              {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
-            </Badge>
+            {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
+            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 border-0 rounded-full"/>
           </div>
         </div>
         {/* Details Grid */}

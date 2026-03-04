@@ -70,7 +70,7 @@ export function UserDataTable<TData>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -102,7 +102,7 @@ export function UserDataTable<TData>({
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -141,8 +141,11 @@ export function UserDataTable<TData>({
                   className="border border-gray-200 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell, idx) => {
-                    const header =
-                      table.getHeaderGroups()[0]?.headers[cell.columnIndex];
+                    const headerLabel =
+                      typeof cell.column.columnDef.header === "string"
+                        ? cell.column.columnDef.header
+                        : cell.column.id;
+
                     return (
                       <div
                         key={cell.id}
@@ -152,13 +155,16 @@ export function UserDataTable<TData>({
                             : ""
                         }`}
                       >
+                        {/* Header Label */}
                         <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-24 flex-shrink-0">
-                          {header?.column.columnDef.header}
+                          {headerLabel}
                         </span>
+
+                        {/* Cell Value */}
                         <span className="text-sm text-gray-700 flex-1 text-right">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </span>
                       </div>

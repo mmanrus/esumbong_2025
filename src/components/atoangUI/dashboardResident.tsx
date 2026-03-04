@@ -219,45 +219,6 @@ export function DashboardOverview() {
           </div>
         </div>
       )}
-
-      {/* Illustrated Card with Animation */}
-      <Card className="border-2 border-dashed border-muted-foreground/20 min-h-[300px] flex items-center justify-center relative z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-secondary/5" />
-
-        {/* Animated illustration circles */}
-        <div
-          className="absolute top-8 left-8 w-20 h-20 rounded-full bg-primary/10 animate-float"
-          style={{ animationDelay: "0s" }}
-        />
-        <div
-          className="absolute top-16 left-20 w-12 h-12 rounded-full bg-secondary/20 animate-float"
-          style={{ animationDelay: "0.3s" }}
-        />
-        <div
-          className="absolute bottom-12 right-12 w-24 h-24 rounded-full bg-info/10 animate-float"
-          style={{ animationDelay: "0.6s" }}
-        />
-        <div
-          className="absolute bottom-20 right-28 w-10 h-10 rounded-full bg-success/15 animate-float"
-          style={{ animationDelay: "0.9s" }}
-        />
-        <div
-          className="absolute top-1/2 left-1/4 w-8 h-8 rounded-full bg-warning/10 animate-float"
-          style={{ animationDelay: "1.2s" }}
-        />
-
-        <CardContent className="text-center py-12 relative z-10">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center animate-float">
-            <MessageSquare className="h-10 w-10 text-primary" />
-          </div>
-          <p className="text-muted-foreground text-lg">
-            Select an option from the sidebar to view details
-          </p>
-          <p className="text-muted-foreground/60 text-sm mt-2">
-            Submit concerns, track status, or view your history
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }
