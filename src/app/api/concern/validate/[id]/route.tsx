@@ -11,10 +11,10 @@ export async function PATCH(
   const { id } = await context.params; // destructure inside body
   try {
     const body = await request.json();
-    const { validation } = body;
+    const { validation, media, updateMessage } = body;
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
-    
+    console.log(media)
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || ""
     const res = await fetch(
@@ -26,7 +26,7 @@ export async function PATCH(
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ validation }),
+        body: JSON.stringify({ validation, media, updateMessage }),
       }
     );
     if (!res.ok) {

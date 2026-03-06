@@ -22,8 +22,8 @@ import { Button } from "@/components/ui/button";
 
 const ITEMS_PER_PAGE = 5;
 
-type Status = "pending" | "approved" | "rejected" | "inProgress";
-const statusConfig: Record<
+export type Status = "pending" | "approved" | "rejected" | "inProgress";
+export const statusConfig: Record<
   Status,
   { icon: typeof Clock; color: string; bgColor: string }
 > = {

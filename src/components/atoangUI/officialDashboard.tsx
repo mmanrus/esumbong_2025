@@ -11,6 +11,9 @@ import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/contexts/webSocketContext";
 import { ConcernStats } from "./dashboardResident";
 import { toast } from "sonner";
+import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
+import { Status, statusConfig } from "./concern/userConcernRows";
 
 export function OfficialDashboard() {
   const [recentConcerns, setRecentConcerns] = useState<Concern[]>([]);
@@ -191,34 +194,47 @@ export function OfficialDashboard() {
                   </td>
                 </tr>
               ) : (
-                paginatedConcerns.map((concern) => (
-                  <tr
-                    key={concern.id}
-                    className="border-t hover:bg-muted/30 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/concern/${concern.id}`)}
-                  >
-                    <td className="px-5 py-4 text-sm font-medium text-foreground">
-                      {concern.id}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-foreground">
-                      {concern.user?.fullname}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-muted-foreground">
-                      {concern.category?.name ?? concern.other ?? "N/A"}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-muted-foreground">
-                      {formatDate(new Date(concern.issuedAt))}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`status-badge status-${concern.validation}`}
-                      >
-                        {concern.status.charAt(0).toUpperCase() +
-                          concern.status.slice(1)}
-                      </span>
-                    </td>
-                  </tr>
-                ))
+                paginatedConcerns.map((concern) => {
+                  const config = concern
+                    ? statusConfig[concern.status as Status]
+                    : undefined;
+
+                  const StatusIcon = config?.icon;
+                  return (
+                    <tr
+                      key={concern.id}
+                      className="border-t hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/concern/${concern.id}`)}
+                    >
+                      <td className="px-5 py-4 text-sm font-medium text-foreground">
+                        {concern.id}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-muted-foreground">
+                        {concern.category?.name ?? concern.other ?? "N/A"}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-muted-foreground">
+                        {formatDate(new Date(concern.issuedAt))}
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            config?.bgColor,
+                            config?.color,
+                            "border-0 text-sm",
+                          )}
+                        >
+                          {StatusIcon && (
+                            <StatusIcon className="h-4 w-4 mr-1" />
+                          )}
+                          {concern.status
+                            ?.replace(/([A-Z])/g, " $1")
+                            .replace(/^./, (str) => str.toUpperCase())}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

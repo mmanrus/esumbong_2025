@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUpdateNotification } from "@/contexts/popOverContext";
 import { useWebSocket } from "@/contexts/webSocketContext";
+import HotlinePanel from "@/components/hotlinePanel";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
@@ -108,33 +109,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </header>
           <main className="flex flex-1">
             <div className="flex-1 p-3 overflow-y-auto">{children}</div>
-            <aside className="hidden lg:block w-85 bg-white border-l shadow-md p-5 overflow-y-auto">
-              <h3 className="text-xl font-bold mb-4 text-[#1F4251]">
-                Emergency Hotlines
-              </h3>
-              <ul className="space-y-3 text-gray-700">
-                <li>
-                  <strong>Barangay Hotline:</strong> 123-4567
-                </li>
-                <li>
-                  <strong>Police:</strong> 166
-                </li>
-                <li>
-                  <strong>Fire Station:</strong> 160
-                </li>
-                <li>
-                  <strong>Ambulance:</strong> 911
-                </li>
-              </ul>
-              <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4 text-[#1F4251]">
-                  Announcements
-                </h3>
-                <ul id="sidebarAnnouncements" className="space-y-4">
-                  <AnnouncementList sidebar={"true"} />
-                </ul>
-              </div>
-            </aside>
+            <HotlinePanel/>
           </main>
         </SidebarInset>
       </SidebarProvider>

@@ -24,6 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Calendar, Filter, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import LoadingPageTSX from "./loading";
 
 const statusColors: Record<Status, { bg: string; text: string }> = {
   pending: { bg: "bg-yellow-500/10", text: "text-yellow-600" },
@@ -36,7 +37,7 @@ export function HistoryPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export function HistoryPage() {
 
   const fetchHistory = async (): Promise<HistoryItem[]> => {
     try {
+      setIsLoading(true);
       const res = await fetch("/api/concern/history");
       if (!res.ok) return [];
 
@@ -72,9 +74,12 @@ export function HistoryPage() {
       setHistory(normalized);
       return normalized;
     } catch (error) {
-      if(process.env.NODE_ENV ==="development") console.error("error retrieving history:", error);
+      if (process.env.NODE_ENV === "development")
+        console.error("error retrieving history:", error);
       toast.error("Something went wrong");
       return [];
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -95,7 +100,9 @@ export function HistoryPage() {
     const end = currentPage * itemsPerPage;
     return filteredHistory.slice(start, end);
   }, [filteredHistory, currentPage]);
-
+  if (isLoading) {
+    return <LoadingPageTSX />;
+  }
   return (
     <div className="space-y-6 flex flex-1 flex-col h-full">
       {/* Header */}

@@ -33,7 +33,6 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/resident/trackStatus", url: "/resident/trackStatus", title: "Track Status", icon: ChartBar },
     { id: "/resident/history", url: "/resident/history", title: "History", icon: Clock },
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
-    { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
   ],
 
   admin: [

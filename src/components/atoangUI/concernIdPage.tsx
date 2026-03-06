@@ -1,5 +1,4 @@
 "use client";
-//import TakeActionModal from "@/components/atoangUI/action";
 import ValidationModal from "@/components/atoangUI/validationModal";
 import Timeline from "@/components/timeline";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ import {
   Clock,
   FileText,
   ImageIcon,
-  Lightbulb,
   MapPin,
   Phone,
   Tag,
@@ -35,10 +33,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/formatDate";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ResolveConcern } from "./resolveConcern";
+import { LoadingConcernId } from "./concernIdLoading";
 
-type Status = "pending" | "approved" | "rejected" | "inProgress"; //| "resolved";
+type Status = "pending" | "approved" | "rejected" | "inProgress";
 
 const statusConfig: Record<
   Status,
@@ -65,13 +63,6 @@ const statusConfig: Record<
     color: "text-red-600",
   },
 };
-{
-  /** resolved: {
-    icon: CheckCircle,
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-  },  */
-}
 
 export default function ConcernIdPage() {
   const { id } = useParams<{ id: string }>();
@@ -85,7 +76,6 @@ export default function ConcernIdPage() {
     setConcernUpdates,
     concernUpdates,
   } = useConcern();
-  //const [openAction, setOpenAction] = useState(false);
 
   const { data, error, isLoading, mutate } = useSWR(
     id ? `/api/concern/${id}` : null,
@@ -99,219 +89,228 @@ export default function ConcernIdPage() {
     setConcernId(id);
   }, [data, id]);
 
-  if (isLoading) return <p>Loading...</p>;
   if (error) {
     toast.error("Failed to load concern data.");
     notFound();
   }
-  const MAX_VISIBLE = 5;
+
   const config = concern
     ? statusConfig[concern.validation as Status]
     : undefined;
   const isAI = concern?.media?.some((m: any) => m.isAI) ?? false;
   const StatusIcon = config?.icon;
-  const handleDelete = async (id: string) => {
-    try {
-      const res = await fetch(`/api/concern/delete/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const { error } = await res.json();
-        toast.error(error);
-      }
-      const { message } = await res.json();
-      toast.success(message);
-    } catch (error) {
-      toast.error("Something went wrong");
-      return;
-    }
-  };
+  if (isLoading) {
+    return <LoadingConcernId />;
+  }
   return (
     <>
-      <div className="space-y-6">
-        {/* Header Info */}
-        <div className="space-y-4 pb-4 border-b border-gray-200">
+      <div className="space-y-5 px-0">
+        {/* ── Header ── */}
+        <div className="space-y-3 pb-4 border-b border-border">
+          {/* Top badge row – scrollable on very small screens */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded text-gray-700">
+            <span className="text-xs font-mono bg-muted px-2.5 py-1 rounded text-muted-foreground shrink-0">
               #{concern?.id}
             </span>
+
             <Badge
               className={cn(
                 config?.bgColor,
                 config?.color,
-                "border-0 text-xs font-semibold rounded-full",
+                "border-0 text-xs font-semibold rounded-full shrink-0",
               )}
             >
               {concern?.validation?.charAt(0).toUpperCase() +
                 concern?.validation?.slice(1)}
             </Badge>
+
             {isAI ? (
-              <AIbadge variant={"destructive"} className="text-xs">
+              <AIbadge variant="destructive" className="text-xs shrink-0">
                 🤖 AI Images Detected
               </AIbadge>
             ) : (
-              <AIbadge variant="secondary" className="text-xs">
+              <AIbadge variant="secondary" className="text-xs shrink-0">
                 ✓ Authentic Images
               </AIbadge>
             )}
-            <Button
-              disabled={user?.type !== "barangay_official"}
-              className={cn(
-                config?.bgColor,
-                config?.color,
-                "border-0 disabled:opacity-100 disabled:pointer-events-none text-xs",
-              )}
-              onClick={() => setOpenValidation(true)}
-            >
-              {StatusIcon && <StatusIcon className="inline h-3 w-3 mr-1" />}
-              {concern?.validation === "approved"
-                ? "Approved"
-                : concern?.validation === "pending"
-                  ? "Pending"
-                  : "Rejected"}
-            </Button>
-            {user?.type === "barangay_official" &&
-            concern?.validation === "approved" ? (
-              <Button onClick={() => setOpenResolve(true)} className="ml-auto">
-                Resolve Concern
-              </Button>
-            ) : null}
           </div>
-          <div className="flex flex-row gap-2 items-start flex-wrap">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground flex-1">
-              {concern?.title}
-            </h2>
-            {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
-            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 border-0 rounded-full"/>
+
+          {/* Title */}
+          <h2 className="text-xl sm:text-3xl font-bold text-foreground leading-tight">
+            {concern?.title}
+          </h2>
+
+          {/* Category + action buttons row */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700 border-0 rounded-full text-xs">
+              {concern?.category?.name ?? concern?.other ?? "Uncategorized"}
+            </Badge>
+
+            <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
+              <Button
+                disabled={user?.type !== "barangay_official"}
+                size="sm"
+                className={cn(
+                  config?.bgColor,
+                  config?.color,
+                  "border-0 disabled:opacity-100 disabled:pointer-events-none text-xs h-8",
+                )}
+                onClick={() => setOpenValidation(true)}
+              >
+                {StatusIcon && <StatusIcon className="h-3 w-3 mr-1" />}
+                {concern?.validation === "approved"
+                  ? "Approved"
+                  : concern?.validation === "pending"
+                    ? "Pending"
+                    : "Rejected"}
+              </Button>
+
+              {user?.type === "barangay_official" &&
+              concern?.validation === "approved" ? (
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => setOpenResolve(true)}
+                >
+                  Resolve Concern
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
-        {/* Details Grid */}
+
+        {/* ── Details Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Location */}
           <div className="flex items-start gap-3">
             <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Location</p>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium truncate">
                 {concern?.location ?? "N/A"}
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
+
+          {/* Submitted By */}
+          <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-1">
             <User className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">Submitted By:</p>
-              <div className="grid grid-cols-2 gap-1">
-                <span className="text-sm font-medium">
-                  <User className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.fullname?.charAt(0) + "****** ********"}
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-muted-foreground mb-1">Submitted By</p>
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-y-1 gap-x-3">
+                <span className="text-sm font-medium flex items-center gap-1 truncate">
+                  <User className="h-3 w-3 shrink-0" />
+                  {concern?.isAnonymous === true
+                    ? "Anonymous User"
+                    : concern?.user?.fullname}
+                </span>
+                <span className="text-sm font-medium flex items-center gap-1 truncate">
+                  <Mail className="h-3 w-3 shrink-0" />
+                  {concern?.isAnonymous === true
+                    ? "Anonymous User"
+                    : concern?.user?.email}
+                </span>
+                <span className="text-sm font-medium flex items-center gap-1 truncate">
+                  <Phone className="h-3 w-3 shrink-0" />
+                  {concern?.isAnonymous === true
+                    ? "Anonymous User"
+                    : concern?.user?.contactNumber?.charAt(0)}
                 </span>
                 <span className="text-sm font-medium">
-                  <Mail className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.email?.charAt(0) + "*******@****.com"}
-                </span>
-                <span className="text-sm font-medium">
-                  <Phone className="h-3 w-3 inline mr-1" />
-                  {concern?.user?.contactNumber?.charAt(0) + "*******"}
-                </span>
-                <span className="text-sm font-medium">
-                  Needs barangay assistance:{" "}
-                  {concern?.needsBarangayAssistance ? "Yes" : "No"}
+                  Barangay assistance:{" "}
+                  <strong>
+                    {concern?.needsBarangayAssistance ? "Yes" : "No"}
+                  </strong>
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Date Submitted */}
           <div className="flex items-start gap-3">
             <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <div>
               <p className="text-xs text-muted-foreground">Date Submitted</p>
               <p className="text-sm font-medium">
                 {concern?.issuedAt
-                  ? formatDate(new Date(concern?.issuedAt))
+                  ? formatDate(new Date(concern.issuedAt))
                   : "N/A"}
               </p>
             </div>
           </div>
+
+          {/* Last Updated */}
           <div className="flex items-start gap-3">
             <Clock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <div>
               <p className="text-xs text-muted-foreground">Last Updated</p>
               <p className="text-sm font-medium">
                 {concern?.updatedAt
-                  ? formatDate(new Date(concern?.updatedAt))
+                  ? formatDate(new Date(concern.updatedAt))
                   : "N/A"}
               </p>
             </div>
           </div>
-          {concern?.assignedTo ? (
+
+          {/* Assigned To (conditional) */}
+          {concern?.assignedTo && (
             <div className="flex items-start gap-3 sm:col-span-2">
               <Tag className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Assigned To</p>
-                <p className="text-sm font-medium">
-                  {concern?.assignedTo ?? "Unassigned"}
-                </p>
+                <p className="text-sm font-medium">{concern.assignedTo}</p>
               </div>
             </div>
-          ) : (
-            ""
           )}
         </div>
 
         <Separator />
 
-        {/* Description */}
+        {/* ── Description ── */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            <h3 className="font-medium">Description</h3>
+            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+            <h3 className="font-medium text-sm">Description</h3>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed pl-6">
             {concern?.details ?? "No description available."}
           </p>
         </div>
+
+        {/* ── Media ── */}
+        {concern?.media && concern.media.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <h3 className="font-medium text-sm">
+                  Attached Images ({concern.media.length})
+                </h3>
+              </div>
+              <ConcernMediaGrid media={concern.media} />
+            </div>
+          </>
+        )}
+
+        {/* ── Timeline Card ── */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Concern Updates</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {concernUpdates ? (
+              <Timeline
+                updates={concernUpdates}
+                createdAt={concern?.issuedAt}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">No updates yet.</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <Separator className="mt-6" />
-      {concern?.media && concern?.media.length > 0 && (
-        <>
-          <Separator />
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-medium">
-                Attached Images ({concern?.media.length})
-              </h3>
-            </div>
-            <ConcernMediaGrid media={concern?.media} />
-          </div>
-        </>
-      )}
-      {/**<Tabs
-        defaultValue="concern-updates"
-        className="w-full flex flex-1 justify-center mt-5"
-      >
-        <TabsList className="mx-auto w-fit">
-          <TabsTrigger value="concern-updates">Concern Updates</TabsTrigger>
-          <TabsTrigger value="concern-messages">Concern Messages</TabsTrigger>
-        </TabsList>
-        <TabsContent value="concern-messages">
-          Make changes to your account here.
-        </TabsContent>
-        <TabsContent value="concern-updates"></TabsContent>
-      </Tabs>*/}
-      <Card>
-        <CardHeader>
-          <CardTitle>Concern updates:</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {concernUpdates ? (
-            <Timeline updates={concernUpdates} />
-          ) : (
-            <p>Loading updates...</p>
-          )}
-        </CardContent>
-      </Card>
       <ValidationModal
         open={openValidation}
         mutate={mutate}

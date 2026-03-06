@@ -82,7 +82,7 @@ export default async function middleware(req: NextRequest) {
       }
 
       // Prevent resident from accessing other dashboards
-      if (path.startsWith("/admin") || path.startsWith("/officials")) {
+      if (path.startsWith("/admin") || path.startsWith("/officials") || path.startsWith("/feedback")) {
         return NextResponse.redirect(new URL("/resident", req.nextUrl));
       }
     }
@@ -106,6 +106,8 @@ export const config = {
     "/admin/:path*",
     "/resident/:path*",
     "/officials/:path*",
+    "/feedback/:path",
+    "/feedback",
     "/verify",
     "/verify/:path",
     "/locked",

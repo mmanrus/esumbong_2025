@@ -1,29 +1,35 @@
-"use client"
+"use client";
 
-import { Concern } from "@/components/atoangUI/concern/concernRows"
-import React, { createContext, useContext, useState } from "react"
+import { Concern } from "@/components/atoangUI/concern/concernRows";
+import React, { createContext, useContext, useState } from "react";
 
 export type ConcernUpdates = {
-  status: string
-  updateMessage: string
-  createdAt: string
-}
-
+  status: string;
+  updateMessage: string;
+  createdAt: string;
+  media: Media[];
+};
+export type Media = {
+  id?: string;
+  name?: String;
+  url: String;
+  isAI: Boolean;
+};
 type ConcernContextType = {
-  concernId: string | null
-  setConcernId: React.Dispatch<React.SetStateAction<string | null>>
-  concern: any
-  setConcern: React.Dispatch<React.SetStateAction<any>>
-  concernUpdates: ConcernUpdates[]
-  setConcernUpdates: React.Dispatch<React.SetStateAction<ConcernUpdates[]>>
-}
+  concernId: string | null;
+  setConcernId: React.Dispatch<React.SetStateAction<string | null>>;
+  concern: any;
+  setConcern: React.Dispatch<React.SetStateAction<any>>;
+  concernUpdates: ConcernUpdates[];
+  setConcernUpdates: React.Dispatch<React.SetStateAction<ConcernUpdates[]>>;
+};
 
-const ConcernContext = createContext<ConcernContextType | undefined>(undefined)
+const ConcernContext = createContext<ConcernContextType | undefined>(undefined);
 
 export function ConcernProvider({ children }: { children: React.ReactNode }) {
-  const [concernId, setConcernId] = useState<string | null>(null)
-  const [concern, setConcern] = useState<Concern | null>(null)
-  const [concernUpdates, setConcernUpdates] = useState<ConcernUpdates[]>([])
+  const [concernId, setConcernId] = useState<string | null>(null);
+  const [concern, setConcern] = useState<Concern | null>(null);
+  const [concernUpdates, setConcernUpdates] = useState<ConcernUpdates[]>([]);
 
   return (
     <ConcernContext.Provider
@@ -38,15 +44,15 @@ export function ConcernProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </ConcernContext.Provider>
-  )
+  );
 }
 
 export function useConcern() {
-  const context = useContext(ConcernContext)
+  const context = useContext(ConcernContext);
 
   if (!context) {
-    throw new Error("useConcern must be used within a ConcernProvider")
+    throw new Error("useConcern must be used within a ConcernProvider");
   }
 
-  return context
+  return context;
 }
