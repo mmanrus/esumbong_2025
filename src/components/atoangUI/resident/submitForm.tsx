@@ -133,13 +133,21 @@ export default function SubmitConcernForm() {
           .flat()
           .join(", "),
       });
+      setLoading(false)
       return;
     }
     if (form.needsBarangayAssistance === null) {
       toast.warning("Please specify if barangay assistance is needed.");
+      setLoading(false)
       return;
     }
-
+    if (form.isAnonymous === null) {
+      toast.warning(
+        "Please select whether you want to submit this anonymously.",
+      );
+      setLoading(false)
+      return;
+    }
     try {
       const validationRes = await fetch("/api/media/validate", {
         method: "POST",
