@@ -53,7 +53,10 @@ export function DashboardOverview() {
   const socket = useWebSocket();
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<ConcernStats | null>(null);
-  const { data: announcementsData } = useSWR('/api/announcement/getAll', fetcher);
+  const { data: announcementsData } = useSWR(
+    "/api/announcement/getAll",
+    fetcher,
+  );
 
   useEffect(() => {
     fetchStats();
@@ -196,7 +199,11 @@ export function DashboardOverview() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {announcementsData.data.slice(0, 2).map((announcement: any) => (
-              <Card key={announcement.id} className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group" onClick={() => router.push(`/announcement/${announcement.id}`)}>
+              <Card
+                key={announcement.id}
+                className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group"
+                onClick={() => router.push(`/announcement/${announcement.id}`)}
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors flex-1">
@@ -206,9 +213,10 @@ export function DashboardOverview() {
                       New
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
-                    {announcement.content}
-                  </p>
+                  <div
+                    className="text-sm text-muted-foreground line-clamp-3 mb-3 *:inline"
+                    dangerouslySetInnerHTML={{ __html: announcement.content }}
+                  />
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
                     {formatDate(new Date(announcement.createdAt))}
