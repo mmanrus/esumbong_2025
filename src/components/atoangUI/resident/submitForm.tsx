@@ -201,6 +201,7 @@ export default function SubmitConcernForm() {
         } catch (err) {
           console.error(err);
           toast.error("Upload failed");
+          setLoading(false)
           return;
         }
       }
@@ -228,6 +229,7 @@ export default function SubmitConcernForm() {
 
       if (!res.ok) {
         toast.error("Error submitting your concern.");
+        setLoading(false)
         return;
       }
 
@@ -245,6 +247,7 @@ export default function SubmitConcernForm() {
       });
     } catch (err) {
       toast.error("Something went wrong.");
+      setLoading(false)
     } finally {
       setLoading(false);
     }
