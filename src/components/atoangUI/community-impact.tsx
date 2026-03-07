@@ -1,4 +1,4 @@
-
+"use client";
 
 export default function CommunityImpact() {
   return (
@@ -10,7 +10,8 @@ export default function CommunityImpact() {
             Community in Action
           </h2>
           <p className="text-xl text-gray-600">
-            Real citizens, real impact. See how E-Sumbong empowers communities to create meaningful change.
+            Real citizens, real impact. See how E-Sumbong empowers communities
+            to create meaningful change.
           </p>
         </div>
 
@@ -26,9 +27,13 @@ export default function CommunityImpact() {
               />
             </div>
             <div className="mt-4 bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold text-teal-700 mb-2">Barangay Assembly</h3>
+              <h3 className="text-2xl font-bold text-teal-700 mb-2">
+                Barangay Assembly
+              </h3>
               <p className="text-gray-700">
-                Community leaders and citizens come together to discuss local issues, share concerns, and collectively work toward solutions that benefit everyone.
+                Community leaders and citizens come together to discuss local
+                issues, share concerns, and collectively work toward solutions
+                that benefit everyone.
               </p>
             </div>
           </div>
@@ -43,9 +48,13 @@ export default function CommunityImpact() {
               />
             </div>
             <div className="mt-4 bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold text-teal-700 mb-2">Grassroots Action</h3>
+              <h3 className="text-2xl font-bold text-teal-700 mb-2">
+                Grassroots Action
+              </h3>
               <p className="text-gray-700">
-                From community cleanups to local initiatives, citizens take direct action to improve their neighborhoods and create lasting positive change.
+                From community cleanups to local initiatives, citizens take
+                direct action to improve their neighborhoods and create lasting
+                positive change.
               </p>
             </div>
           </div>
@@ -54,18 +63,20 @@ export default function CommunityImpact() {
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
           {[
-            { number: '5000+', label: 'Active Citizens' },
-            { number: '250+', label: 'Issues Resolved' },
-            { number: '40+', label: 'Communities' },
-            { number: '98%', label: 'Satisfaction' },
+            { number: "5000+", label: "Active Citizens" },
+            { number: "250+", label: "Issues Resolved" },
+            { number: "40+", label: "Communities" },
+            { number: "98%", label: "Satisfaction" },
           ].map((stat, index) => (
             <div key={index} className="text-center p-6 bg-teal-50 rounded-lg">
-              <p className="text-3xl md:text-4xl font-bold text-teal-700 mb-2">{stat.number}</p>
+              <p className="text-3xl md:text-4xl font-bold text-teal-700 mb-2">
+                {stat.number}
+              </p>
               <p className="text-gray-700 font-medium">{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }
