@@ -179,7 +179,7 @@ export default function SubmitFeedbackPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
+                  <SelectLabel>Category</SelectLabel>
                   <SelectItem value="apple">Concern Resolve</SelectItem>
                   <SelectItem value="banana">System Review</SelectItem>
                   <SelectItem value="blueberry">Barangay Issue</SelectItem>
