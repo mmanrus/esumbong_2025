@@ -67,7 +67,7 @@ export default function SubmitConcernForm() {
     location: "",
     needsBarangayAssistance: null,
     isSpam: false,
-    isAnonymous: false,
+    isAnonymous: null,
   });
   const [previews, setPreviews] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -233,7 +233,7 @@ export default function SubmitConcernForm() {
         location: "",
         needsBarangayAssistance: null,
         isSpam: false,
-        isAnonymous: false,
+        isAnonymous: null,
       });
     } catch (err) {
       toast.error("Something went wrong.");
