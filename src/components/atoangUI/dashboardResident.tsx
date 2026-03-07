@@ -202,7 +202,7 @@ export function DashboardOverview() {
               <Card
                 key={announcement.id}
                 className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group"
-                onClick={() => router.push(`/announcement/${announcement.id}`)}
+                onClick={() => router.push(`/announcements/${announcement.id}`)}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-3 mb-2">
