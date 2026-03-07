@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             needsBarangayAssistance,
             media: media, // ✅ metadata only
         };
-
+        console.log(raw)
         const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/concern`, {
             method: "POST",
             credentials: "include",

@@ -99,7 +99,7 @@ export default function HomePage() {
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/home.jpg"
+              src="/barangay-hall.jpg"
               alt="Community gathering"
               fill
             />
@@ -289,7 +289,7 @@ export default function HomePage() {
                 stronger communities together.
               </p>
               <Link
-                href="/login"
+                href="/register"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-400 text-teal-900 font-bold text-lg rounded-xl shadow-2xl hover:bg-yellow-300 hover:scale-105 transform transition-all duration-300"
               >
                 Get Started
@@ -379,7 +379,7 @@ export default function HomePage() {
               to improve their communities
             </p>
             <Link
-              href="/login"
+              href="/register"
               className="inline-flex items-center gap-2 px-10 py-5 bg-yellow-400 text-teal-900 font-bold text-lg rounded-xl shadow-2xl hover:bg-yellow-300 hover:scale-105 transform transition-all duration-300"
             >
               Get Started Now

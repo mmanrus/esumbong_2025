@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function CTA() {
+  const router = useRouter()
   return (
     <section className="bg-teal-700 text-white py-16 md:py-24">
       <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
@@ -15,7 +17,7 @@ export default function CTA() {
           improve their communities
         </p>
 
-        <Button className="bg-yellow-400 text-teal-900 hover:bg-yellow-500 px-8 py-6 text-lg font-semibold rounded-full inline-flex items-center gap-2 transition">
+        <Button onClick={()=> router.push("/register")} className="bg-yellow-400 text-teal-900 hover:bg-yellow-500 px-8 py-6 text-lg font-semibold rounded-full inline-flex items-center gap-2 transition">
           Get Started Now
           <ArrowRight size={20} />
         </Button>

@@ -1,50 +1,53 @@
-'use client'
+"use client";
 
-import ImageCarousel from '@/components/atoangUI/image-carousel'
-import { CheckCircle2, Users, Lightbulb, Award } from 'lucide-react'
+import ImageCarousel from "@/components/atoangUI/image-carousel";
+import { CheckCircle2, Users, Lightbulb, Award } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const values = [
   {
     icon: Users,
-    title: 'Community-Centered',
+    title: "Community-Centered",
     description:
-      'We prioritize the voices and needs of our citizens in every decision we make.',
+      "We prioritize the voices and needs of our citizens in every decision we make.",
   },
   {
     icon: Lightbulb,
-    title: 'Innovation',
+    title: "Innovation",
     description:
-      'We continuously improve our platform to better serve the community.',
+      "We continuously improve our platform to better serve the community.",
   },
   {
     icon: Award,
-    title: 'Accountability',
+    title: "Accountability",
     description:
-      'We ensure government officials remain transparent and responsive.',
+      "We ensure government officials remain transparent and responsive.",
   },
   {
     icon: CheckCircle2,
-    title: 'Efficiency',
-    description: 'We streamline concern resolution for faster community impact.',
+    title: "Efficiency",
+    description:
+      "We streamline concern resolution for faster community impact.",
   },
-]
+];
 
 const milestones = [
   {
-    number: '5000+',
-    label: 'Active Citizens',
+    number: "5000+",
+    label: "Active Citizens",
   },
   {
-    number: '250+',
-    label: 'Issues Resolved',
+    number: "250+",
+    label: "Issues Resolved",
   },
   {
-    number: '98%',
-    label: 'Resolution Rate',
+    number: "98%",
+    label: "Resolution Rate",
   },
-]
+];
 
 export default function About() {
+  const router = useRouter();
   return (
     <main className="min-h-screen bg-gradient-to-b from-background to-background">
       {/* Hero Section with Carousel */}
@@ -94,10 +97,10 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {[
-              'Provide an easy-to-use platform for reporting community issues',
-              'Enable real-time tracking of issue resolution progress',
-              'Foster community engagement and collective action',
-              'Promote transparency and accountability in local governance',
+              "Provide an easy-to-use platform for reporting community issues",
+              "Enable real-time tracking of issue resolution progress",
+              "Foster community engagement and collective action",
+              "Promote transparency and accountability in local governance",
             ].map((item, index) => (
               <div key={index} className="flex gap-4">
                 <div className="flex-shrink-0">
@@ -113,7 +116,7 @@ export default function About() {
           {/* Values Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {values.map((value, index) => {
-              const Icon = value.icon
+              const Icon = value.icon;
               return (
                 <div
                   key={index}
@@ -127,11 +130,13 @@ export default function About() {
                       <h3 className="font-semibold text-lg text-foreground mb-2">
                         {value.title}
                       </h3>
-                      <p className="text-muted-foreground">{value.description}</p>
+                      <p className="text-muted-foreground">
+                        {value.description}
+                      </p>
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -144,7 +149,7 @@ export default function About() {
             Our Impact
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 justify-items-center">
             {milestones.map((milestone, index) => (
               <div
                 key={index}
@@ -204,11 +209,14 @@ export default function About() {
             Be part of the movement to strengthen our barangay through
             transparency, accountability, and collective action.
           </p>
-          <button className="inline-block bg-yellow-400 text-teal-600 font-bold py-3 px-8 rounded-lg hover:bg-yellow-300 transition-colors duration-300 text-lg">
+          <button
+            onClick={() => router.push("/register")}
+            className="inline-block bg-yellow-400 text-teal-600 font-bold py-3 px-8 rounded-lg hover:bg-yellow-300 transition-colors duration-300 text-lg"
+          >
             Get Started Now
           </button>
         </div>
       </section>
     </main>
-  )
+  );
 }
