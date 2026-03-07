@@ -29,9 +29,17 @@ export async function POST(request: NextRequest) {
                 { status: 400 },
             );
         }
+        const needsValueIsAnonymous = body.get("isAnonymous");
+        if (needsValue === null) {
+            return NextResponse.json(
+                { error: "Missing isAnonymous field" },
+                { status: 400 },
+            );
+        }
 
         const needsBarangayAssistance = needsValue === "true";
 
+        const isAnonymous = needsValueIsAnonymous === "true";
         const mediaRaw = body.get("metaData");
         const media = mediaRaw
             ? JSON.parse(mediaRaw as string)
@@ -43,7 +51,7 @@ export async function POST(request: NextRequest) {
             categoryId: (body.get("categoryId") as string) || undefined,
             other: (body.get("other") as string) || "",
             isSpam: (body.get("isSpam") as string) || "",
-            isAnonymous: (body.get("isAnonymous") as string) || "",
+            isAnonymous: isAnonymous,
             location: body.get("location") as string,
             needsBarangayAssistance,
             media: media, // ✅ metadata only

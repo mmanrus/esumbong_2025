@@ -214,7 +214,7 @@ export default function SubmitConcernForm() {
         "needsBarangayAssistance",
         String(form.needsBarangayAssistance),
       );
-      formData.append("isAnonymous", String(form.needsBarangayAssistance));
+      formData.append("isAnonymous", String(form.isAnonymous));
       if (form.categoryId === "other") {
         formData.append("categoryId", "");
         formData.append("other", form.other);
