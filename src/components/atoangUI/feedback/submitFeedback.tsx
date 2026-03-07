@@ -18,8 +18,45 @@ import { FeedbackInput, FeedbackSchema } from "@/defs/feedback";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const getCategories = async () => {
+  try {
+    const res = await fetch("/api/feedback/category/getAll", {
+      credentials: "include",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch categories");
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return []; // fallback to empty array
+  }
+};
 
 export default function SubmitFeedbackPage() {
+  /**const { data: categories, isLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    staleTime: 1000 * 60 * 20,
+  });*/
+  const [categorySearch, setCategorySearch] = useState("");
   const [loading, setLoading] = useState(false);
   const form = useForm<FeedbackInput>({
     defaultValues: {
@@ -42,22 +79,22 @@ export default function SubmitFeedbackPage() {
       if (!res.ok) {
         toast.error(data.error);
         isAllowed = data.isAllowed ?? false;
-        setLoading(false)
+        setLoading(false);
         return;
       }
       isAllowed = data.isAllowed;
       isSpam = data.isSpam;
     } catch (error) {
       toast.error("Something went wrong");
-      setLoading(false)
+      setLoading(false);
       return;
-    } 
+    }
 
     if (!isAllowed) return;
     const isValid = await form.trigger();
     if (!isValid) {
       toast.error("Please fix the errors in the form before submitting.");
-      setLoading(false)
+      setLoading(false);
       return;
     }
     setLoading(true);
@@ -81,7 +118,7 @@ export default function SubmitFeedbackPage() {
       return;
     } catch (error) {
       toast.error("Failed to submit feedback. Please try again.");
-      form.reset()
+      form.reset();
       return;
     } finally {
       setLoading(false);
@@ -136,6 +173,20 @@ export default function SubmitFeedbackPage() {
                 placeholder="e.g., Suggestion for better service"
               />
             </div>
+            <Select>
+              <SelectTrigger className="w-full max-w-48">
+                <SelectValue placeholder="Select a Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Fruits</SelectLabel>
+                  <SelectItem value="apple">Concern Resolve</SelectItem>
+                  <SelectItem value="banana">System Review</SelectItem>
+                  <SelectItem value="blueberry">Barangay Issue</SelectItem>
+                  <SelectItem value="pineapple">Other</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
             <div className="space-y-2 flex flex-1 flex-col ">
               <div className="flex flex-row gap-2 items-center">
