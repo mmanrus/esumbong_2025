@@ -54,25 +54,49 @@ const statusSteps: Status[] = ["pending", "inProgress", "approved", "rejected"];
 export function UserConcernRows() {
   const router = useRouter();
   const { user } = useAuth();
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
   const { data, error, isLoading, mutate } = useSWR(
     `/api/concern/getByUserId/${user?.id}`,
     fetcher,
   );
-  const [userConcerns, setUserConcerns] = useState<Concern[] | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const [userConcerns, setUserConcerns] = useState<Concern[] | []>([]);
   const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => {
-    if (!data) return;
-    setUserConcerns(data.data);
-    setCurrentPage(1);
-  }, [data]);
-
   // Calculate pagination
   const totalItems = userConcerns?.length ?? 0;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedConcerns =
     userConcerns?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
+  // Mount at first reload.
+  useEffect(() => {
+    if (!data) return;
+    setUserConcerns(data.data);
+    setNextCursor(data.nextCursor ?? null);
+    setHasNextPage(data.hasNextPage ?? false);
+    setCurrentPage(1);
+  }, [data]);
+
+  const loadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(
+        `/api/concern/getByUserId/${user?.id}&cursor=${nextCursor}`,
+      );
+      const newData = await res.json();
+      setUserConcerns((prev) => [...prev, ...(newData.data ?? [])]);
+      setNextCursor(newData.nextCursor ?? null);
+      setHasNextPage(newData.hasNextPage ?? false);
+    } catch {
+      toast.error("Failed to load more concerns.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   if (isLoading)
     return (
       <div className="flex justify-center items-center py-12">
@@ -185,18 +209,31 @@ export function UserConcernRows() {
             <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
               {currentPage} / {totalPages}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="flex items-center gap-1"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            {currentPage < totalPages ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : hasNextPage ? (
+              <Button
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                variant="outline"
+                size="sm"
+              >
+                <span className="hidden sm:inline">
+                  {isLoadingMore ? "Loading..." : "Load More"}
+                </span>
+              </Button>
+            ) : null}
           </div>
         </div>
       )}

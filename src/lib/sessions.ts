@@ -30,7 +30,7 @@ export async function decrypt(token: string) {
 }
 
 export async function setSession(payload: JWTPayload) {
-  const cookie = await cookies(); // no await
+  const cookie = await cookies();
   const token = await encrypt(payload);
   cookie.set(COOKIE_NAME, token, {
     httpOnly: true,

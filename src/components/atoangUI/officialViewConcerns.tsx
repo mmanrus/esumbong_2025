@@ -4,7 +4,6 @@ import { StatusFilter } from "@/components/atoangUI/archivesPage";
 import ViewConcernRows from "@/components/atoangUI/concern/concernRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TableSkeleton } from "@/components/skeletons/tableSkeleton";
 import { fetcher } from "@/lib/swrFetcher";
 import { Filter, Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,94 +15,118 @@ import useSWR from "swr";
 export default function OfficialViewConcerns() {
   const [status, setStatus] = useState("all");
   const [input, setInput] = useState("");
-  const [concerns, setConcerns] = useState<any>(null);
+  const [concerns, setConcerns] = useState<any[]>([]); // ✅ default empty array, never null/undefined
   const [query, setQuery] = useState({ search: "", status: "" });
-
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Number of concerns per page
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { data, error, isLoading, mutate } = useSWR(
+  const itemsPerPage = 6;
+
+  const { data, error, isLoading } = useSWR(
     `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false`,
     fetcher,
   );
 
   useEffect(() => {
     if (!data) return;
-    setConcerns(data.data);
+    setConcerns(data.data ?? []); // ✅ fallback to [] if data.data is undefined
+    setNextCursor(data.nextCursor ?? null);
+    setHasNextPage(data.hasNextPage ?? false);
   }, [data]);
+
+  // Reset when filters/query change
+  useEffect(() => {
+    setConcerns([]);
+    setNextCursor(null);
+    setHasNextPage(false);
+    setCurrentPage(1);
+  }, [query, status]);
 
   if (error) {
     toast.error("Failed to load concern data.");
     notFound();
   }
 
-  // Filtered concerns based on search & status
-  const filteredConcern = useMemo(() => {
-    if (!concerns) return [];
-    const search = input.toLowerCase();
+  // Load more handler
+  const loadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(
+        `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false&cursor=${nextCursor}`,
+      );
+      const newData = await res.json();
+      setConcerns((prev) => [...prev, ...(newData.data ?? [])]);
+      setNextCursor(newData.nextCursor ?? null);
+      setHasNextPage(newData.hasNextPage ?? false);
+    } catch {
+      toast.error("Failed to load more concerns.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
+  // Filtered concerns based on local search & status
+  const filteredConcerns = useMemo(() => {
+    const search = input.toLowerCase();
     return concerns.filter((c: any) => {
-      if (status !== "all" && c.validation !== status && c.status !== status) {
+      if (status !== "all" && c.validation !== status && c.status !== status)
         return false;
-      }
       if (!search) return true;
       return (
         c.id.toString().includes(search) ||
         c.user?.fullname.toLowerCase().includes(search) ||
         c.category?.name.toLowerCase().includes(search) ||
-        c.details.toLowerCase().includes(search) ||
-        c.title.toLowerCase().includes(search)
+        c.details?.toLowerCase().includes(search) ||
+        c.title?.toLowerCase().includes(search)
       );
     });
   }, [concerns, input, status]);
 
-  // Pagination: slice filtered concerns
-  const totalPages = Math.ceil(filteredConcern.length / itemsPerPage);
+  // Pagination
+  const totalPages = Math.ceil(filteredConcerns.length / itemsPerPage); // ✅ safe, filteredConcerns is always an array
   const paginatedConcerns = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    const end = currentPage * itemsPerPage;
-    return filteredConcern.slice(start, end);
-  }, [filteredConcern, currentPage]);
+    return filteredConcerns.slice(start, start + itemsPerPage);
+  }, [filteredConcerns, currentPage]);
 
-  // Reset page to 1 whenever filter or search changes
+  // Reset to page 1 when local filter or search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [status, input]);
 
   const filterButtons: { label: string; value: StatusFilter; count: number }[] =
     [
-      { label: "All", value: "all", count: concerns?.length || 0 },
+      { label: "All", value: "all", count: concerns.length },
       {
         label: "Pending",
         value: "pending",
-        count:
-          concerns?.filter(
-            (c: any) => c.validation === "pending" || c.status === "pending",
-          ).length || 0,
+        count: concerns.filter(
+          (c: any) => c.validation === "pending" || c.status === "pending",
+        ).length,
       },
       {
         label: "Resolved",
         value: "resolved",
-        count:
-          concerns?.filter(
-            (c: any) => c.validation === "resolved" || c.status === "resolved",
-          ).length || 0,
+        count: concerns.filter(
+          (c: any) => c.validation === "resolved" || c.status === "resolved",
+        ).length,
       },
       {
         label: "Approved",
         value: "approved",
-        count:
-          concerns?.filter(
-            (c: any) => c.validation === "approved" || c.status === "approved",
-          ).length || 0,
+        count: concerns.filter(
+          (c: any) => c.validation === "approved" || c.status === "approved",
+        ).length,
       },
       {
         label: "Rejected",
         value: "rejected",
-        count:
-          concerns?.filter(
-            (c: any) => c.validation === "rejected" || c.status === "rejected",
-          ).length || 0,
+        count: concerns.filter(
+          (c: any) => c.validation === "rejected" || c.status === "rejected",
+        ).length,
       },
     ];
 
@@ -133,7 +156,10 @@ export default function OfficialViewConcerns() {
               size="sm"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-sm"
               onClick={() =>
-                setQuery({ search: input, status: status === "all" ? "" : status })
+                setQuery({
+                  search: input,
+                  status: status === "all" ? "" : status,
+                })
               }
             >
               <Search className="w-4 h-4 inline text-muted-foreground" />
@@ -192,7 +218,7 @@ export default function OfficialViewConcerns() {
                 <ViewConcernRows
                   concerns={paginatedConcerns}
                   onDelete={(id: number) =>
-                    setConcerns((prev: any) => prev.filter((c: any) => c.id !== id))
+                    setConcerns((prev) => prev.filter((c: any) => c.id !== id))
                   }
                 />
               </tbody>
@@ -203,9 +229,9 @@ export default function OfficialViewConcerns() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between gap-4 p-3 mt-[-14] bg-gray-50 rounded-lg border border-gray-200">
           <div className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1} • Showing {paginatedConcerns.length} of {filteredConcern.length} concerns
+            Page {currentPage} of {totalPages} •
           </div>
           <div className="flex gap-2">
             <Button
@@ -219,18 +245,32 @@ export default function OfficialViewConcerns() {
               <span className="hidden sm:inline">Previous</span>
             </Button>
             <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
-              {currentPage} / {totalPages || 1}
+              {currentPage} / {totalPages}
             </div>
-            <Button
-              disabled={currentPage === totalPages || paginatedConcerns.length === 0}
-              onClick={() => setCurrentPage((p) => p + 1)}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            {currentPage === totalPages ? (
+              hasNextPage && (
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  {isLoadingMore ? "Loading..." : "Load More"}
+                </Button>
+              )
+            ) : (
+              <Button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       )}

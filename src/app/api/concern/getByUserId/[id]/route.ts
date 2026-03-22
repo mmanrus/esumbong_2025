@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     const { id } = await context.params
 
+    const { searchParams } = new URL(request.url)
+    const cursor = searchParams.get('cursor') || ""
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
     if (!accessToken) {
@@ -13,7 +15,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/user/${id}`,
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/user/${id}&cursor=${encodeURIComponent(cursor)}`,
             {
                 method: "GET",
                 credentials: "include",
@@ -26,8 +28,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
             const { error } = await res.json()
             return NextResponse.json({ error }, { status: 404 })
         }
-        const { data } = await res.json()
-        return NextResponse.json({ data })
+        const data = await res.json()
+        return NextResponse.json({
+            data: data.data,
+            nextCursor: data.nextCursor,
+            hasNextPage: data.hasNextPage
+        },)
     } catch (error) {
         if (process.env.NODE_ENV === "development") {
             console.error("Error upon getting user concerns")

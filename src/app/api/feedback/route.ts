@@ -7,6 +7,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const me = searchParams.get("me") || ""
     const spam = searchParams.get("spam") || ""
+    
+    const cursor = searchParams.get("cursor") || ""
     const cookieStore = await cookies()
     const accessToken = cookieStore.get(COOKIE_NAME)?.value
 
@@ -18,7 +20,7 @@ export async function GET(req: NextRequest) {
         })
     }
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/feedback?me=${me ? encodeURIComponent(me) : "false"}&spam=${encodeURIComponent(spam)}`,
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/feedback?me=${me ? encodeURIComponent(me) : "false"}&spam=${encodeURIComponent(spam)}&cursor=${encodeURIComponent(cursor)}`,
             {
                 method: "GET",
                 credentials: "include",
@@ -37,7 +39,9 @@ export async function GET(req: NextRequest) {
             console.log("Fetched feedback data:", data)
         }
         return NextResponse.json({
-            data: data
+            data: data.feedbacks.data,
+            nextCursor: data.feedbacks.nextCursor,
+            hasNextPage: data.feedbacks.hasNextPage,
         })
     } catch (error) {
         if (process.env.NODE_ENV === "development") {

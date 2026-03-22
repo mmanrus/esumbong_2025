@@ -10,7 +10,6 @@ import {
   useReactTable,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -26,25 +25,47 @@ interface DataTableProps<TData, TValue> {
   isLoading: boolean;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  hasNextPage: boolean;
+  isLoadingMore: boolean;
+  loadMore: () => void;
+  shouldAdvancePage?: boolean;
+  onPageAdvanced?: () => void;
 }
 
 export function DataTable<TData, TValue>({
   isLoading,
   columns,
+  hasNextPage,
+  isLoadingMore,
   data,
+  loadMore,
+  shouldAdvancePage,
+  onPageAdvanced,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
+    state: { sorting, pagination },
   });
+
+  // ✅ Advance page AFTER data is updated and table re-renders
+  React.useEffect(() => {
+    if (shouldAdvancePage && table.getCanNextPage()) {
+      table.nextPage();
+      onPageAdvanced?.();
+    }
+  }, [shouldAdvancePage, data]);
 
   const { pageIndex, pageSize } = table.getState().pagination;
   const totalRows = table.getFilteredRowModel().rows.length;
@@ -88,7 +109,7 @@ export function DataTable<TData, TValue>({
                   <TableRow key={i} className="border-b border-gray-100">
                     {columns.map((col) => (
                       <TableCell key={col.id} className="px-4 py-3">
-                        <Skeleton className="h-8 bg-gray-200 rounded animate-pulse"></Skeleton>
+                        <Skeleton className="h-8 bg-gray-200 rounded animate-pulse" />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -127,7 +148,7 @@ export function DataTable<TData, TValue>({
           </Table>
         </div>
 
-        {/* Mobile View - Card Layout */}
+        {/* Mobile View */}
         <div className="md:hidden flex-1">
           {isLoading ? (
             <div className="space-y-3 p-4">
@@ -151,7 +172,6 @@ export function DataTable<TData, TValue>({
                       typeof cell.column.columnDef.header === "string"
                         ? cell.column.columnDef.header
                         : cell.column.id;
-
                     return (
                       <div
                         key={cell.id}
@@ -161,12 +181,9 @@ export function DataTable<TData, TValue>({
                             : ""
                         }`}
                       >
-                        {/* Header */}
                         <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide w-32 shrink-0">
                           {headerLabel}
                         </span>
-
-                        {/* Value */}
                         <span className="text-sm text-gray-700 flex-1 text-right">
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -187,10 +204,9 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       {!isLoading && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-gray-600">
-            Showing {totalRows > 0 ? startIndex : 0} to {endIndex} of{" "}
-            {totalRows} records
+        <div className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-muted-foreground">
+            Showing {endIndex} of {totalRows} records
           </div>
           <div className="flex gap-2">
             <Button
@@ -206,16 +222,28 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-gray-50 rounded border border-gray-200">
               Page {pageIndex + 1} of {table.getPageCount()}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="flex items-center gap-1"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            {/* ✅ Show Next if more local pages, Load More if at last local page but backend has more */}
+            {table.getCanNextPage() ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : hasNextPage ? (
+              <Button
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                {isLoadingMore ? "Loading..." : "Load More"}
+              </Button>
+            ) : null}
           </div>
         </div>
       )}

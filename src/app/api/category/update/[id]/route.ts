@@ -22,7 +22,8 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
             method: "PATCH",
             body: JSON.stringify({
                 name: body.name?.toString() || "",
-                description: body.description?.toString() || ""
+                description: body.description?.toString() || "",
+                type: body.type?.toString() || ""
             }),
             headers: {
                 "Content-Type" : "application/json",

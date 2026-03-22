@@ -10,6 +10,7 @@ export const GET = async (request: NextRequest) => {
     const archived = searchParams.get("archived") || ""
     const recent = searchParams.get("recent") || ""
     const spam = searchParams.get("spam") || ""
+    const cursor = searchParams.get("cursor") || ""
 
     const validation = searchParams.get("validation") || ""
     try {
@@ -22,7 +23,7 @@ export const GET = async (request: NextRequest) => {
             })
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation=${encodeURIComponent(validation)}&recent=${encodeURIComponent(recent)}&spam=${encodeURIComponent(spam)}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&archived=${encodeURIComponent(archived)}&validation=${encodeURIComponent(validation)}&recent=${encodeURIComponent(recent)}&spam=${encodeURIComponent(spam)}&cursor=${encodeURIComponent(cursor)}`, {
             method: "GET",
             credentials: "include",
             headers: {
@@ -39,6 +40,8 @@ export const GET = async (request: NextRequest) => {
 
         return NextResponse.json({
             data: data.data,
+            nextCursor: data.nextCursor,
+            hasNextPage: data.hasNextPage,
         })
     } catch (error) {
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/swrFetcher";
-import { Filter, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Search } from "lucide-react";
 import { notFound } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
@@ -20,15 +20,22 @@ export default function OfficialViewSpamConcerns() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // Number of concerns per page
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const { data, error, isLoading, mutate } = useSWR(
     `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false&spam=true`,
     fetcher,
   );
 
+
+
   useEffect(() => {
     if (!data) return;
     setConcerns(data.data);
+    setNextCursor(data.nextCursor ?? null);
+    setHasNextPage(data.hasNextPage ?? false);
   }, [data]);
 
   if (error) {
@@ -55,6 +62,32 @@ export default function OfficialViewSpamConcerns() {
       );
     });
   }, [concerns, input, status]);
+
+  // Load more handler
+  const loadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(
+        `/api/concern/getAll?search=${query.search}&status=${query.status}&archived=false&cursor=${nextCursor}&spam=true`,
+      );
+      const newData = await res.json();
+      setConcerns((prev: any) => [...prev, ...(newData.data ?? [])]);
+      setNextCursor(newData.nextCursor ?? null);
+      setHasNextPage(newData.hasNextPage ?? false);
+    } catch {
+      toast.error("Failed to load more concerns.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+  // Reset when filters/query change
+  useEffect(() => {
+    setConcerns([]);
+    setNextCursor(null);
+    setHasNextPage(false);
+    setCurrentPage(1);
+  }, [query, status]);
 
   // Pagination: slice filtered concerns
   const totalPages = Math.ceil(filteredConcern.length / itemsPerPage);
@@ -214,29 +247,53 @@ export default function OfficialViewSpamConcerns() {
           </table>
         </div>
       </div>
-
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-4">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => p - 1)}
-          size="sm"
-        >
-          Prev
-        </Button>
-        <span className="px-2 text-sm">
-          Page {currentPage} of {totalPages || 1}
-        </span>
-        <Button
-          disabled={
-            currentPage === totalPages || paginatedConcerns.length === 0
-          }
-          onClick={() => setCurrentPage((p) => p + 1)}
-          size="sm"
-        >
-          Next
-        </Button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 p-3 mt-[-14] bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} •
+          </div>
+          <div className="flex gap-2">
+            <Button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
+            <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
+              {currentPage} / {totalPages}
+            </div>
+            {currentPage === totalPages ? (
+              hasNextPage && (
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  {isLoadingMore ? "Loading..." : "Load More"}
+                </Button>
+              )
+            ) : (
+              <Button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

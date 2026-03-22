@@ -24,12 +24,12 @@ export default function CategoryPage() {
             Manage Categories
           </h2>
           <p className="text-sm text-gray-600">
-            View and manage all concern categories. Click <strong>View</strong>{" "}
+            View and manage all concern and feedback categories. Click <strong>View</strong>{" "}
             to see details or <strong>Edit</strong> to update a category.
           </p>
           <p className="text-xs text-gray-400 mt-1">
             Metadata: This page displays all categories used to classify user
-            concerns. Each category helps organize and filter reports
+            concerns and feedback. Each category helps organize and filter reports
             efficiently.
           </p>
         </div>

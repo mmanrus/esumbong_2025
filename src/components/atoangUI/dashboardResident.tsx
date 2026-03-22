@@ -54,7 +54,7 @@ export function DashboardOverview() {
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<ConcernStats | null>(null);
   const { data: announcementsData } = useSWR(
-    "/api/announcement/getAll",
+    "/api/announcement",
     fetcher,
   );
 

@@ -26,6 +26,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { CategorySchema } from "@/defs/category";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,10 +40,10 @@ export function CategoryDialog({ mutate }: { mutate: () => void }) {
     defaultValues: {
       name: "",
       description: "",
+      type: undefined,
     },
   });
 
-  // This receives VALIDATED form values
   const onSubmit = async (values: any) => {
     try {
       setLoading(true);
@@ -54,6 +55,7 @@ export function CategoryDialog({ mutate }: { mutate: () => void }) {
         body: JSON.stringify({
           name: values.name,
           description: values.description,
+          type: values.type,
         }),
       });
 
@@ -66,8 +68,8 @@ export function CategoryDialog({ mutate }: { mutate: () => void }) {
       }
 
       toast.success("Category created successfully");
-      setIsOpen(false)
-      mutate()
+      setIsOpen(false);
+      mutate();
       form.reset();
     } catch (err) {
       console.error(err);
@@ -93,9 +95,7 @@ export function CategoryDialog({ mutate }: { mutate: () => void }) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* SHADCN FORM CONTEXT WRAPPER */}
         <Form {...form}>
-          {/* HTML FORM FOR SUBMISSION */}
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
@@ -105,6 +105,44 @@ export function CategoryDialog({ mutate }: { mutate: () => void }) {
                   <FormLabel>Category Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Noise complaint" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Feedback Type Radio Buttons */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Feedback Type</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="concern" id="type-concern" />
+                        <FormLabel
+                          htmlFor="type-concern"
+                          className="font-normal cursor-pointer"
+                        >
+                          Concern
+                        </FormLabel>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="feedback" id="type-feedback" />
+                        <FormLabel
+                          htmlFor="type-feedback"
+                          className="font-normal cursor-pointer"
+                        >
+                          Feedback
+                        </FormLabel>
+                      </div>
+                    </RadioGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

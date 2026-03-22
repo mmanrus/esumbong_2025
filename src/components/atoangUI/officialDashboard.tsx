@@ -1,7 +1,14 @@
 "use client";
 
 import { fetcher } from "@/lib/swrFetcher";
-import { FileText, Clock, CheckCircle, XCircle } from "lucide-react";
+import {
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import useSWR from "swr";
 import { Concern } from "./concern/concernRows";
@@ -14,11 +21,15 @@ import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { Status, statusConfig } from "./concern/userConcernRows";
+import { Button } from "../ui/button";
 
 export function OfficialDashboard() {
   const [recentConcerns, setRecentConcerns] = useState<Concern[]>([]);
   const [stats, setStats] = useState<ConcernStats | null>(null);
   const [loading, setIsLoading] = useState(false);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -65,9 +76,28 @@ export function OfficialDashboard() {
 
   useEffect(() => {
     if (!data) return;
-    setRecentConcerns(data.data);
+    setRecentConcerns(data.data ?? []);
+    setNextCursor(data.nextCursor ?? null);
+    setHasNextPage(data.hasNextPage ?? false);
   }, [data]);
 
+  const loadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(
+        `/api/concern/getAll?&archived=false&cursor=${nextCursor}`,
+      );
+      const newData = await res.json();
+      setRecentConcerns((prev) => [...prev, ...(newData.data ?? [])]);
+      setNextCursor(newData.nextCursor ?? null);
+      setHasNextPage(newData.hasNextPage ?? false);
+    } catch {
+      toast.error("Failed to load more concerns.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
   // Pagination logic
   const totalPages = Math.ceil(recentConcerns.length / itemsPerPage);
 
@@ -241,27 +271,38 @@ export function OfficialDashboard() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center gap-2 mt-4 p-4">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="px-2 text-sm">
-            Page {currentPage} of {totalPages || 1}
-          </span>
-          <button
-            disabled={
-              currentPage === totalPages || paginatedConcerns.length === 0
-            }
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-4 p-3 mt-[-5] bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages} •
+            </div>
+            <div className="flex gap-2">
+              <Button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Previous</span>
+              </Button>
+              <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
+                {currentPage} / {totalPages}
+              </div>
+              <Button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

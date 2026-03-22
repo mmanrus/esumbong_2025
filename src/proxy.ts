@@ -45,7 +45,6 @@ export default async function middleware(req: NextRequest) {
     }
   }
   // check if locked
-
   if (session.isLocked && !path.startsWith("/locked")) {
     return NextResponse.redirect(new URL("/locked", req.nextUrl))
   }

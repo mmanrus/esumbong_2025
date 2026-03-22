@@ -7,7 +7,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'e-Sumbong - Your Voice, Our Action',
+  title: 'Sumbong - Your Voice, Our Action',
   description: 'Empowering citizens to report issues, track solutions, and build stronger communities together.',
   generator: 'v0.app',
   icons: {

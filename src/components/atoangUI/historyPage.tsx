@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Calendar, Filter, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LoadingPageTSX from "./loading";
+import { fetcher } from "@/lib/swrFetcher";
+import useSWR from "swr";
 
 const statusColors: Record<Status, { bg: string; text: string }> = {
   pending: { bg: "bg-yellow-500/10", text: "text-yellow-600" },
@@ -37,51 +39,43 @@ export function HistoryPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
+
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const itemsPerPage = 5;
+  const { data, error, isLoading, mutate } = useSWR(
+    "/api/concern/history",
+    fetcher,
+  );
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (!data) return;
+    const normalized: HistoryItem[] = Array.isArray(data.data)
+      ? data.data.map((item: any) => ({
+          id: String(item.concernId),
+          title: item.concern?.title ?? "Untitled concern",
+          category:
+            item.concern?.category?.name ??
+            item.concern?.other ??
+            "Uncategorized",
+          status: item.status,
+          createdAt: new Date(item.createdAt).toLocaleDateString(),
+        }))
+      : [];
+
+    setHistory(normalized);
+    setNextCursor(data.nextCursor ?? null);
+    setHasNextPage(data.hasNextPage ?? false);
+    setCurrentPage(1);
+  }, [data]);
 
   // Reset page to 1 whenever filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter]);
 
-  const fetchHistory = async (): Promise<HistoryItem[]> => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/concern/history");
-      if (!res.ok) return [];
-
-      const json = await res.json();
-      const raw = json?.data?.data;
-
-      const normalized: HistoryItem[] = Array.isArray(raw)
-        ? raw.map((item: any) => ({
-            id: String(item.concernId),
-            title: item.concern?.title ?? "Untitled concern",
-            category:
-              item.concern?.category?.name ??
-              item.concern?.other ??
-              "Uncategorized",
-            status: item.status,
-            createdAt: new Date(item.createdAt).toLocaleDateString(),
-          }))
-        : [];
-
-      setHistory(normalized);
-      return normalized;
-    } catch (error) {
-      if (process.env.NODE_ENV === "development")
-        console.error("error retrieving history:", error);
-      toast.error("Something went wrong");
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
@@ -91,7 +85,21 @@ export function HistoryPage() {
       ? history
       : history.filter((item) => item.status === statusFilter);
   }, [history, statusFilter]);
-
+  const loadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(`/api/concern/history?cursor=${nextCursor}`);
+      const newData = await res.json();
+      setHistory((prev) => [...prev, ...(newData.data ?? [])]);
+      setNextCursor(newData.nextCursor ?? null);
+      setHasNextPage(newData.hasNextPage ?? false);
+    } catch {
+      toast.error("Failed to load more concerns.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
 
   // ✅ Slice current page only
@@ -183,24 +191,35 @@ export function HistoryPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center items-center gap-2 mt-4">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((p) => p - 1)}
-          className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+          className="px-3 py-1 text-sm border rounded cursor-pointer disabled:opacity-50"
         >
           Prev
         </button>
         <span className="px-2 text-sm">
           Page {currentPage} of {totalPages || 1}
         </span>
-        <button
-          disabled={currentPage === totalPages || paginatedHistory.length === 0}
-          onClick={() => setCurrentPage((p) => p + 1)}
-          className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
+        {currentPage < totalPages ? (
+          <button
+            disabled={
+              currentPage === totalPages || paginatedHistory.length === 0
+            }
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-3 py-1 text-sm border rounded cursor-pointer disabled:opacity-50"
+          >
+            Next
+          </button>
+        ) : hasNextPage ? (
+          <button
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className="px-3 py-1 text-sm border rounded cursor-pointer disabled:opacity-50">
+            {isLoadingMore ? "Loading..." : "Load More"}
+          </button>
+        ) : null}
       </div>
     </div>
   );

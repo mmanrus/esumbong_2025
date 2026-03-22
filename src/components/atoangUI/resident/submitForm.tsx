@@ -32,7 +32,7 @@ import { Trash2 } from "lucide-react";
 
 const getCategories = async () => {
   try {
-    const res = await fetch("/api/category/getAll", {
+    const res = await fetch("/api/category/getAll?type=concern", {
       credentials: "include",
       method: "GET",
       headers: {

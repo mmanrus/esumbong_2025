@@ -10,6 +10,7 @@ export type Category = {
   id: number;
   name: string;
   description: string;
+  type: "concern" | "feedback";
 };
 
 export const columns = ({
@@ -28,6 +29,17 @@ export const columns = ({
       return (
         <p className="text-left truncate max-w-[125px] md:max-w-[275px]  font-medium">
           {row.getValue("name")}
+        </p>
+      );
+    },
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => {
+      return (
+        <p className="text-left truncate max-w-[125px] md:max-w-[275px]  font-medium">
+          {row.getValue("type")}
         </p>
       );
     },

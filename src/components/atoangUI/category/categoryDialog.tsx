@@ -22,6 +22,14 @@ import { CategoryInput, CategorySchema } from "@/defs/category";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Delete, Edit2, Save } from "lucide-react";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type CategoryDialogProps = {
   category: Category;
@@ -40,12 +48,14 @@ export function CategoryDialogView({
   const [originalValues, setOriginalValues] = useState<{
     name: string;
     description: string;
+    type: "concern" | "feedback" | undefined;
   } | null>(null);
 
   const form = useForm<CategoryInput>({
     defaultValues: {
       name: category.name,
       description: category.description,
+      type: category.type,
     },
     resolver: zodResolver(CategorySchema),
   });
@@ -54,19 +64,21 @@ export function CategoryDialogView({
       const vals = {
         name: category.name,
         description: category.description || "",
+        type: category.type || undefined,
       };
       form.reset(vals);
       setOriginalValues(vals);
       setIsEditing(false);
     }
   }, [category, isOpen, form]);
-  const { watch, formState, register, trigger, getValues, reset } = form;
+  const { watch } = form;
   const watchName = watch("name", originalValues?.name || "");
   const watchDescription = watch(
     "description",
     originalValues?.description || "",
   );
 
+  const watchType = watch("type", originalValues?.type ?? undefined);
   // after your watches
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +86,8 @@ export function CategoryDialogView({
     if (
       originalValues &&
       currentValues.name === originalValues.name &&
-      currentValues.description === originalValues.description
+      currentValues.description === originalValues.description &&
+      currentValues.type === originalValues.type
     ) {
       toast.info("No changes detected.");
       return;
@@ -89,6 +102,7 @@ export function CategoryDialogView({
     const formData = new FormData();
     formData.append("name", form.getValues("name"));
     formData.append("description", form.getValues("description") ?? "");
+    formData.append("type", form.getValues("type") ?? undefined);
     try {
       const res = await fetch(`/api/category/update/${category.id}`, {
         method: "PATCH",
@@ -96,6 +110,7 @@ export function CategoryDialogView({
         body: JSON.stringify({
           name: watchName,
           description: watchDescription,
+          type: watchType,
         }),
       });
       if (!res.ok) {
@@ -111,7 +126,12 @@ export function CategoryDialogView({
             ...currentData,
             categories: currentData.categories.map((c) =>
               c.id === category.id
-                ? { ...c, name: watchName, description: watchDescription || "" }
+                ? {
+                    ...c,
+                    name: watchName,
+                    description: watchDescription || "",
+                    type: watchType,
+                  }
                 : c,
             ),
           };
@@ -192,6 +212,46 @@ export function CategoryDialogView({
                 <p>{category.name}</p>
               )}
             </Field>
+
+            {/* Feedback Type Radio Buttons */}
+            {/* Replace the FormField block with this */}
+            <Field>
+              <Label>Feedback Type</Label>
+              <RadioGroup
+                value={watchType}
+                onValueChange={(val) =>
+                  form.setValue("type", val as "concern" | "feedback", {
+                    shouldValidate: true,
+                  })
+                }
+                disabled={!isEditing}
+                className="flex gap-6"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="concern" id="type-concern" />
+                  <Label
+                    htmlFor="type-concern"
+                    className="font-normal cursor-pointer"
+                  >
+                    Concern
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="feedback" id="type-feedback" />
+                  <Label
+                    htmlFor="type-feedback"
+                    className="font-normal cursor-pointer"
+                  >
+                    Feedback
+                  </Label>
+                </div>
+              </RadioGroup>
+              {form.formState.errors.type && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.type.message}
+                </p>
+              )}
+            </Field>
             <Field>
               <Label htmlFor="username-1">Category Description</Label>
               {isEditing ? (
@@ -211,6 +271,7 @@ export function CategoryDialogView({
                 <Button
                   variant="outline"
                   type="button"
+                  disabled={isLoading}
                   onClick={() => {
                     //form.setValue(originalValues.name)
                     setIsEditing(false);
@@ -220,7 +281,8 @@ export function CategoryDialogView({
                 </Button>
                 <Button
                   type="button"
-                  className="bg-destructive"
+                  className="bg-destructive disabled:bg-destructive/10"
+                  disabled={isLoading}
                   onClick={() => handleDelete()}
                 >
                   <Delete className="h-4 w-4" />

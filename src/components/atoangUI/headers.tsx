@@ -19,7 +19,7 @@ export default function Header() {
           <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center shadow-lg">
             <span className="text-teal-900 font-bold text-lg">E</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">e-Sumbong</h1>
+          <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">Sumbong</h1>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-yellow-400 mb-6 drop-shadow-lg">Your Voice, Our Action</h2>
         <p className="text-lg text-yellow-100 max-w-2xl mx-auto drop-shadow-md italic">

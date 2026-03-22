@@ -1,284 +1,379 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ThumbsUp, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
-const concerns = [
-  {
-    id: 1,
-    title: 'Basura sa Kalsada - Street Garbage Accumulation',
-    description: 'Excessive garbage piling up on the streets of Barangay Cogon Pardo near the market area. Foul odor and health hazard for residents.',
-    category: 'Environment',
-    status: 'resolved',
-    dateSubmitted: '2026-01-10',
-    actionTaken: 'Barangay cleanup drive conducted on January 20, 2026. Street sweepers assigned daily schedule starting January 25. Garbage bins installed at problem areas.',
-    feedback: 'Salamat sa mabilis na aksyon! Ang kalye ay napakaganda na ngayon. Very clean environment now!',
-    upvotes: 38,
-  },
-  {
-    id: 2,
-    title: 'Illegal Dumping at Barangay Waterway',
-    description: 'Residents dumping construction materials and household waste near the creek affecting water quality and marine life.',
-    category: 'Environment',
-    status: 'in-progress',
-    dateSubmitted: '2026-01-15',
-    actionTaken: 'Started cleanup operations on January 28, 2026. Environmental monitoring team collecting water samples. Warning signs posted. Enforcement team conducting spot checks weekly.',
-    feedback: '',
-    upvotes: 25,
-  },
-  {
-    id: 3,
-    title: 'Mga Basag na Siko at Kalsada - Damaged Sidewalks and Roads',
-    description: 'Multiple areas with broken sidewalks and potholes making it difficult for elderly residents and PWD individuals to move around safely.',
-    category: 'Infrastructure',
-    status: 'pending',
-    dateSubmitted: '2026-02-01',
-    actionTaken: '',
-    feedback: '',
-    upvotes: 42,
-  },
-  {
-    id: 4,
-    title: 'Putik at Baha sa Rainy Season - Flooding Issues',
-    description: 'Poor drainage system causing severe flooding and muddy roads during heavy rains affecting commuters and vehicle damage.',
-    category: 'Infrastructure',
-    status: 'in-progress',
-    dateSubmitted: '2026-01-20',
-    actionTaken: 'Drainage assessment completed on February 10, 2026. Cleaning of drainage pipes started February 15. Underground pipes being evaluated for improvement.',
-    feedback: '',
-    upvotes: 31,
-  },
-  {
-    id: 5,
-    title: 'Stray Dogs and Animal Control',
-    description: 'Increasing number of stray dogs in residential areas posing safety risks to children and spreading diseases.',
-    category: 'Safety',
-    status: 'pending',
-    dateSubmitted: '2026-02-03',
-    actionTaken: '',
-    feedback: '',
-    upvotes: 19,
-  },
-  {
-    id: 6,
-    title: 'Maayos na Ilaw sa Barangay - Streetlights Installation',
-    description: 'Dark streets at night in residential areas making residents unsafe. Request for more LED streetlights to improve visibility.',
-    category: 'Safety',
-    status: 'resolved',
-    dateSubmitted: '2025-12-15',
-    actionTaken: 'Electrical contractor hired and work started January 5, 2026. 35 new LED streetlights installed throughout barangay. Project completed January 30, 2026 with 24-hour maintenance hotline.',
-    feedback: 'Napakaganda! Ngayon ay mas ligtas mag-lakad sa gabi. The streets are so much brighter and safer now!',
-    upvotes: 51,
-  },
-]
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'resolved':
-      return 'bg-green-100 text-green-800'
-    case 'in-progress':
-      return 'bg-blue-100 text-blue-800'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800'
-    default:
-      return 'bg-gray-100 text-gray-800'
+type ConcernUpdate = {
+  updateMessage: string;
+  status: string;
+  createdAt: string;
+};
+
+type PublicConcern = {
+  id: number;
+  title: string | null;
+  details: string;
+  status: string;
+  issuedAt: string;
+  location: string | null;
+  needsBarangayAssistance: boolean;
+  category: { name: string } | null;
+  updates: ConcernUpdate[];
+};
+
+// ─── Fetcher ──────────────────────────────────────────────────────────────────
+
+async function fetchSampleConcerns(): Promise<PublicConcern[]> {
+  const res = await fetch("/api/concern/public");
+  if (!res.ok) throw new Error("Failed to fetch");
+  const data = await res.json();
+  // Normalise: backend may return array or { data: [] }
+  return Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<
+  string,
+  {
+    label: string;
+    badge: string;
+    leftBorder: string;
+    noticeBg: string;
+    noticeText: string;
+    noticeBorder: string;
   }
+> = {
+  pending: {
+    label: "Pending",
+    badge: "bg-yellow-100 text-yellow-800",
+    leftBorder: "border-l-yellow-500",
+    noticeBg: "bg-yellow-50",
+    noticeText: "text-yellow-800",
+    noticeBorder: "border-yellow-500",
+  },
+  inProgress: {
+    label: "In Progress",
+    badge: "bg-blue-100 text-blue-800",
+    leftBorder: "border-l-blue-500",
+    noticeBg: "bg-teal-50",
+    noticeText: "text-teal-800",
+    noticeBorder: "border-teal-700",
+  },
+  resolved: {
+    label: "Resolved",
+    badge: "bg-green-100 text-green-800",
+    leftBorder: "border-l-green-500",
+    noticeBg: "bg-green-50",
+    noticeText: "text-green-800",
+    noticeBorder: "border-green-500",
+  },
+  verified: {
+    label: "Verified",
+    badge: "bg-teal-100 text-teal-800",
+    leftBorder: "border-l-teal-500",
+    noticeBg: "bg-teal-50",
+    noticeText: "text-teal-800",
+    noticeBorder: "border-teal-400",
+  },
+};
+
+function getConfig(status: string) {
+  return STATUS_CONFIG[status] ?? STATUS_CONFIG["pending"];
 }
 
-const getStatusLabel = (status: string) => {
-  return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
-const getLeftBorderColor = (status: string) => {
-  switch (status) {
-    case 'resolved':
-      return 'border-l-green-500'
-    case 'in-progress':
-      return 'border-l-blue-500'
-    case 'pending':
-      return 'border-l-yellow-500'
-    default:
-      return 'border-l-gray-500'
-  }
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function CarouselSkeleton() {
+  return (
+    <div className="bg-white rounded-xl shadow-lg border-l-4 border-l-gray-200 overflow-hidden animate-pulse">
+      <div className="p-5 sm:p-6 space-y-4">
+        <div className="flex justify-between gap-4">
+          <div className="flex-1 space-y-2">
+            <div className="h-5 bg-gray-200 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 rounded w-full" />
+            <div className="h-4 bg-gray-200 rounded w-5/6" />
+          </div>
+          <div className="space-y-2">
+            <div className="h-5 bg-gray-200 rounded w-16" />
+          </div>
+        </div>
+        <div className="h-20 bg-gray-100 rounded-lg" />
+      </div>
+    </div>
+  );
 }
 
-export default function TransparencyDashboard() {
-  const [filter, setFilter] = useState('all')
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
+// ─── Filters ──────────────────────────────────────────────────────────────────
 
-  const filteredConcerns =
-    filter === 'all' ? concerns : concerns.filter((c) => c.status === filter)
+const FILTERS = ["all", "pending", "inProgress", "resolved"] as const;
+type Filter = (typeof FILTERS)[number];
 
-  // Auto scroll carousel
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function RecentConcernDashboard() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  const {
+    data: concerns = [],
+    isLoading,
+    isError,
+  } = useQuery<PublicConcern[], Error>({
+    queryKey: ["public-sample-concerns"],
+    queryFn: fetchSampleConcerns,
+    staleTime: 60_000,
+  });
+
+  const filtered =
+    filter === "all" ? concerns : concerns.filter((c) => c.status === filter);
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % Math.max(filteredConcerns.length, 1))
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [filteredConcerns.length])
+    setCurrentSlide(0);
+  }, [filter, concerns.length]);
 
-  const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + filteredConcerns.length) % Math.max(filteredConcerns.length, 1))
-  }
+  // Auto-advance
+  useEffect(() => {
+    if (filtered.length <= 1) return;
+    const t = setInterval(() => {
+      setCurrentSlide((p) => (p + 1) % filtered.length);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [filtered.length]);
 
-  const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % Math.max(filteredConcerns.length, 1))
-  }
+  const prev = () =>
+    setCurrentSlide((p) => (p - 1 + filtered.length) % filtered.length);
+  const next = () => setCurrentSlide((p) => (p + 1) % filtered.length);
 
-  const handleSwipe = (e: React.TouchEvent) => {
-    const touchStart = e.touches[0].clientX
-    const touchEnd = e.changedTouches[0].clientX
-    
-    if (touchStart - touchEnd > 50) {
-      handleNextSlide()
-    } else if (touchEnd - touchStart > 50) {
-      handlePrevSlide()
-    }
-  }
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    touchStartX.current = null;
+  };
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-teal-50 to-gray-50">
-      <div className="max-w-6xl mx-auto px-4 md:px-6">
+    <section className="py-10 sm:py-14 md:py-20 bg-gradient-to-br from-teal-50 to-gray-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-teal-900 mb-4">Track Your Concerns Now</h2>
-          <p className="text-lg text-gray-700">
-            Monitor your reports, see actions taken, and join community conversations
+        <div className="text-center mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-teal-900 mb-3">
+            Track Your Concerns Now
+          </h2>
+          <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-xl mx-auto">
+            Monitor your reports, see actions taken, and join community
+            conversations
           </p>
         </div>
 
-        {/* Filter Section */}
-        <div className="flex flex-wrap gap-3 justify-center mb-12">
-          {['all', 'pending', 'in-progress', 'resolved'].map((status) => (
+        {/* Filter buttons */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-7 sm:mb-10">
+          {FILTERS.map((status) => (
             <Button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-6 py-2 rounded-full font-medium transition ${
+              size="sm"
+              className={`px-4 py-1.5 rounded-full font-medium transition text-xs sm:text-sm ${
                 filter === status
-                  ? 'bg-yellow-400 text-teal-900 hover:bg-yellow-500'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-teal-700'
+                  ? "bg-yellow-400 text-teal-900 hover:bg-yellow-500 shadow"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-teal-600 shadow-sm"
               }`}
             >
-              {status === 'all' ? 'All' : getStatusLabel(status)}
+              {status === "all"
+                ? "All"
+                : status === "inProgress"
+                  ? "In Progress"
+                  : status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
         </div>
 
-        {/* Carousel View */}
-        <div className="mb-16">
-          <div 
-            ref={carouselRef}
-            onTouchEnd={handleSwipe}
-            className="relative overflow-hidden rounded-xl"
-          >
-            {/* Carousel Track */}
-            <div className="flex transition-transform duration-500 ease-out" 
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-              {filteredConcerns.map((concern) => (
+        {/* Carousel */}
+        <div className="mb-8 sm:mb-12">
+          {isLoading && <CarouselSkeleton />}
+
+          {isError && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+              <p className="text-red-600 font-semibold text-sm">
+                Failed to load concerns.
+              </p>
+            </div>
+          )}
+
+          {!isLoading && !isError && filtered.length === 0 && (
+            <div className="bg-white rounded-xl shadow p-10 text-center">
+              <p className="text-gray-500 text-sm sm:text-base">
+                No concerns found for this filter.
+              </p>
+            </div>
+          )}
+
+          {!isLoading && !isError && filtered.length > 0 && (
             <div
-              key={concern.id}
-              className={`min-w-full bg-white shadow-lg hover:shadow-xl transition border-l-4 ${getLeftBorderColor(concern.status)} overflow-hidden`}
+              className="relative overflow-hidden rounded-xl"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
             >
-              {/* Card Header */}
-              <div className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{concern.title}</h3>
-                    <p className="text-gray-600">{concern.description}</p>
-                  </div>
-                  <div className="flex gap-2 flex-wrap md:flex-col md:items-end">
-                    <Badge className="bg-teal-100 text-teal-800 hover:bg-teal-200">
-                      {concern.category}
-                    </Badge>
-                    <Badge className={getStatusColor(concern.status)}>
-                      {getStatusLabel(concern.status)}
-                    </Badge>
-                  </div>
-                </div>
+              {/* Track */}
+              <div
+                className="flex transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {filtered.map((concern) => {
+                  const cfg = getConfig(concern.status);
+                  const latestUpdate = concern.updates[0] ?? null;
 
-                <div className="text-sm text-gray-500 mb-6">
-                  Submitted: {new Date(concern.dateSubmitted).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </div>
+                  return (
+                    <div
+                      key={concern.id}
+                      // FIX: min-w-full keeps each slide full width;
+                      // no fixed height — let content determine height naturally
+                      className={`min-w-full bg-white shadow-lg border-l-4 ${cfg.leftBorder}`}
+                    >
+                      <div className="p-4 sm:p-6 md:p-8">
+                        {/* Title + badges */}
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 leading-snug">
+                              {concern.title ?? "Untitled Concern"}
+                            </h3>
+                            <p className="text-gray-600 text-sm line-clamp-2">
+                              {concern.details}
+                            </p>
+                          </div>
+                          {/* Badges: row on mobile, col on sm+ */}
+                          <div className="flex flex-row sm:flex-col items-start sm:items-end gap-2 flex-wrap">
+                            {concern.category && (
+                              <Badge className="bg-teal-100 text-teal-800 hover:bg-teal-200 text-xs">
+                                {concern.category.name}
+                              </Badge>
+                            )}
+                            <Badge className={`text-xs ${cfg.badge}`}>
+                              {cfg.label}
+                            </Badge>
+                          </div>
+                        </div>
 
-                {/* Action Taken - Only show for In Progress and Resolved */}
-                {(concern.status === 'in-progress' || concern.status === 'resolved') && (
-                  <div className="bg-teal-50 border-l-4 border-teal-700 p-4 rounded mb-6">
-                    <h4 className="font-semibold text-teal-900 mb-2">Action Taken</h4>
-                    <p className="text-teal-800">{concern.actionTaken}</p>
-                  </div>
-                )}
+                        <p className="text-xs text-gray-400 mb-4">
+                          Submitted: {formatDate(concern.issuedAt)}
+                          {concern.location && ` · 📍 ${concern.location}`}
+                        </p>
 
-                {/* Pending Status Notice */}
-                {concern.status === 'pending' && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded mb-6">
-                    <h4 className="font-semibold text-yellow-900 mb-2">Status</h4>
-                    <p className="text-yellow-800">This concern is awaiting approval from the Barangay Official. Once approved, actions and feedback will be displayed here.</p>
-                  </div>
-                )}
+                        {/* Latest update */}
+                        {latestUpdate && concern.status !== "pending" && (
+                          <div
+                            className={`border-l-4 ${cfg.noticeBorder} ${cfg.noticeBg} p-3 sm:p-4 rounded mb-4`}
+                          >
+                            <h4
+                              className={`font-semibold ${cfg.noticeText} mb-1 text-xs sm:text-sm`}
+                            >
+                              Latest Update
+                            </h4>
+                            <p
+                              className={`${cfg.noticeText} text-xs sm:text-sm`}
+                            >
+                              {latestUpdate.updateMessage}
+                            </p>
+                          </div>
+                        )}
 
-                {/* Community Feedback - Only show for In Progress and Resolved */}
-                {(concern.status === 'in-progress' || concern.status === 'resolved') && (
-                  <div className="bg-green-50 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-green-900 mb-2">Community Feedback</h4>
-                    <p className="text-green-800 mb-3">{concern.feedback}</p>
-                    <button className="flex items-center gap-2 text-green-700 hover:text-green-900 font-medium transition">
-                      <ThumbsUp size={18} />
-                      <span>{concern.upvotes} people found this helpful</span>
-                    </button>
-                  </div>
-                )}
+                        {/* Pending notice */}
+                        {concern.status === "pending" && (
+                          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 sm:p-4 rounded mb-4">
+                            <h4 className="font-semibold text-yellow-900 mb-1 text-xs sm:text-sm">
+                              Status
+                            </h4>
+                            <p className="text-yellow-800 text-xs sm:text-sm">
+                              This concern is awaiting review from the Barangay
+                              Official.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* View full link */}
+                        <Link
+                          href={`/concern/${concern.id}`}
+                          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold
+                                     text-teal-600 hover:text-teal-800 transition group"
+                        >
+                          View full details
+                          <span className="group-hover:translate-x-0.5 transition-transform">
+                            →
+                          </span>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-              ))}
-            </div>
 
-            {/* Previous Button */}
-            <button
-              onClick={handlePrevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-teal-700 p-2 rounded-full shadow-lg transition z-10"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft size={24} />
-            </button>
+              {/* Prev / Next */}
+              {filtered.length > 1 && (
+                <>
+                  <button
+                    onClick={prev}
+                    className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2
+                               bg-white/90 hover:bg-white text-teal-700 p-1.5 sm:p-2
+                               rounded-full shadow-lg transition z-10"
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    onClick={next}
+                    className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2
+                               bg-white/90 hover:bg-white text-teal-700 p-1.5 sm:p-2
+                               rounded-full shadow-lg transition z-10"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </>
+              )}
 
-            {/* Next Button */}
-            <button
-              onClick={handleNextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-teal-700 p-2 rounded-full shadow-lg transition z-10"
-              aria-label="Next slide"
-            >
-              <ChevronRight size={24} />
-            </button>
-
-            {/* Slide Indicators */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {filteredConcerns.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-2 h-2 rounded-full transition ${
-                    index === currentSlide ? 'bg-teal-700 w-6' : 'bg-white/60'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {filteredConcerns.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-lg text-gray-600">No concerns found with the current filter.</p>
+              {/* Dot indicators */}
+              {filtered.length > 1 && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {filtered.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentSlide(i)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        i === currentSlide
+                          ? "bg-teal-700 w-5"
+                          : "bg-teal-300 w-2"
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
     </section>
-  )
+  );
 }

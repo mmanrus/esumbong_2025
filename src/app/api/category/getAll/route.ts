@@ -12,12 +12,15 @@ if (!url) {
 
 
 export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get("type") || ""
+    console.log("Type:", type)
     try {
         const cookieStore = await cookies()
         const accessToken = cookieStore.get(COOKIE_NAME)?.value
-        const res = await fetch(`${url}/api/category`, {
+        const res = await fetch(`${url}/api/category?type=${encodeURIComponent(type)}`, {
             method: "GET",
-            credentials: "include", 
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
                 authorization: `Bearer ${accessToken}`

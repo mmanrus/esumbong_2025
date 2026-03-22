@@ -8,7 +8,6 @@ const url = process.env.NEXT_PUBLIC_BACKEND_URL
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-
         const cookieStore = await cookies()
         const accessToken = cookieStore.get(COOKIE_NAME)?.value
         
@@ -26,6 +25,7 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({
                 name: body.name,
                 description: body.description,
+                type: body.type,
             }),
         })
 

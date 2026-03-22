@@ -52,7 +52,7 @@ export function AppSidebar({ sidebarPages, activePage, user, ...props }: AppSide
                   <Image
                     height={10}
                     width={10}
-                    src="/esumbong.png"
+                    src="/esumbongLogo.png"
                     alt="E-Sumbong Logo"
                     className="w-auto object-contain"
                   />

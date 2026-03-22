@@ -20,10 +20,11 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
     { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
-    { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
-    { id: "/officials/spamConcern", url: "/officials/spamConcern", title: "Spam Conern", icon: FolderX },
+    { id: "/officials/spamConcern", url: "/officials/spamConcern", title: "Spam Concern", icon: FolderX },
     { id: "/officials/spamFeedback", url: "/officials/spamFeedback", title: "Spam Feedback", icon: FolderX },
+    { id: "/officials/manageAnnouncements", url: "/officials/manageAnnouncements", title: "Manage Announcements", icon: Pencil },
+    { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
   ],
 
   resident: [

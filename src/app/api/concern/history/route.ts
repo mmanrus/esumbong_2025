@@ -10,6 +10,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(
     request: NextRequest,
 ) {
+    const { searchParams } = new URL(request.url)
+    const cursor = searchParams.get("cursor") || ""
     const cookieStore = await cookies(); // synchronous
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
 
@@ -18,7 +20,7 @@ export async function GET(
     }
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/history`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/concern/history?cursor=${encodeURIComponent(cursor)}`, {
             credentials: "include",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -32,7 +34,12 @@ export async function GET(
         }
         const data = await res.json();
         if (process.env.NODE_ENV === "development") console.log("Concern history data:", data);
-        return NextResponse.json({ data }, { status: 200 });
+        console.log(data)
+        return NextResponse.json({
+            data: data.data,
+            nextCursor: data.nextCursor,
+            hasNextPage: data.hasNextPage,
+        })
     } catch (error) {
         if (process.env.NODE_ENV === "development") console.error("Error fetching announcement:" + error);
         return NextResponse.json({ error: "An error occurred while processing the request." }, { status: 500 });
