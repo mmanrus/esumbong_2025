@@ -1,49 +1,41 @@
-export const dynamic = "force-dynamic";
-import { cookies } from "next/headers"
+// app/api/notification/me/route.ts
 import { COOKIE_NAME } from "@/lib/constants"
-import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server"
 
-const url = process.env.NEXT_PUBLIC_BACKEND_URL
+export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url)
+    const cursor = searchParams.get("cursor") || ""
+    const take = searchParams.get("take") || "20"
 
-export async function GET() {
-    try {
-        const cookieStore = await cookies()
-        const accessToken = cookieStore.get(COOKIE_NAME)?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get(COOKIE_NAME)?.value
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-        if (!accessToken) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
+    const params = new URLSearchParams()
+    if (cursor) params.set("cursor", cursor)
+    params.set("take", take)
 
-        const result = await fetch(`${url}/api/notification`, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-            },
-        })
+    const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/me?${params}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+    const data = await res.json()
+    return NextResponse.json(data, { status: res.status })
+}
 
-        if (!result.ok) {
-            return NextResponse.json(
-                { error: "Failed to fetch Notification" },
-                { status: result.status }
-            )
-        }
-        const data = await result.json()
 
-        return NextResponse.json(
-            {
-                message: "Notification fetched successfully",
-                data: data.data
-            },
-            { status: 200 },
-        )
+// app/api/notification/read-all/route.ts
 
-    } catch (error) {
-        console.log("Error getting notifications:", error)
-        return NextResponse.json(
-            { error: "Something went wrong upon getting your notifications" },
-            { status: 500 }
-        )
-    }
+export async function PATCH(request: NextRequest) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get(COOKIE_NAME)?.value
+  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/read-all`,
+    { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+  )
+  const data = await res.json()
+  return NextResponse.json(data, { status: res.status })
 }

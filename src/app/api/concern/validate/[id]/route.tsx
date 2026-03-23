@@ -14,7 +14,6 @@ export async function PATCH(
     const { validation, media, updateMessage } = body;
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
-    console.log(media)
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || ""
     const res = await fetch(

@@ -45,7 +45,6 @@ export default function Timeline({ updates, createdAt }: TimelineProps) {
 
     return null;
   };
-  console.log(updates);
   const openViewer = (media: any[], index: number) => {
     setViewerMedia(media);
     setStartIndex(index);

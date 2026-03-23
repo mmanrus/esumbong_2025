@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import OfficialLayout from "./client-layout";
+import { NotificationProvider } from "@/contexts/notificationContext";
 
 export const metadata: Metadata = {
   title: "e-Sumbong",
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <OfficialLayout>{children}</OfficialLayout>;
+  return (
+    <NotificationProvider>
+      <OfficialLayout>{children}</OfficialLayout>
+    </NotificationProvider>
+  );
 }

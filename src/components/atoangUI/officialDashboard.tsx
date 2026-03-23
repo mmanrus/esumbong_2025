@@ -8,6 +8,8 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
+  Tag,
+  Calendar,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import useSWR from "swr";
@@ -20,8 +22,9 @@ import { ConcernStats } from "./dashboardResident";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { Status, statusConfig } from "./concern/userConcernRows";
+import { Status, statusConfig, StatusP } from "./concern/userConcernRows";
 import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
 export function OfficialDashboard() {
   const [recentConcerns, setRecentConcerns] = useState<Concern[]>([]);
@@ -36,7 +39,6 @@ export function OfficialDashboard() {
   const socket = useWebSocket();
   const router = useRouter();
 
-  // Fetch stats
   useEffect(() => {
     fetchStats();
   }, []);
@@ -48,31 +50,25 @@ export function OfficialDashboard() {
       if (!res.ok) return;
       const data = await res.json();
       setStats(data.stats);
-    } catch (error) {
-      console.error("error retrieving stats:", error);
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // WebSocket updates
   useEffect(() => {
     if (!socket) return;
     socket.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === "NEW_STAT") {
-        setStats(data.stats);
-      }
+      if (data.type === "NEW_STAT") setStats(data.stats);
     };
   }, [socket]);
 
-  // Fetch recent concerns via SWR
-  const {
-    data,
-    error,
-    isLoading: swrLoading,
-  } = useSWR(`/api/concern/getAll?recent=true&archived=false`, fetcher);
+  const { data, isLoading: swrLoading } = useSWR(
+    `/api/concern/getAll?recent=true&archived=false`,
+    fetcher,
+  );
 
   useEffect(() => {
     if (!data) return;
@@ -98,13 +94,11 @@ export function OfficialDashboard() {
       setIsLoadingMore(false);
     }
   };
-  // Pagination logic
-  const totalPages = Math.ceil(recentConcerns.length / itemsPerPage);
 
+  const totalPages = Math.ceil(recentConcerns.length / itemsPerPage);
   const paginatedConcerns = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    const end = currentPage * itemsPerPage;
-    return recentConcerns.slice(start, end);
+    return recentConcerns.slice(start, start + itemsPerPage);
   }, [recentConcerns, currentPage]);
 
   const statsCard = [
@@ -112,22 +106,25 @@ export function OfficialDashboard() {
       label: "Total Concerns",
       value: stats ? Object.values(stats).reduce((a, b) => a + b, 0) : 0,
       icon: FileText,
-      colorClass: "stat-card-total",
-      textColor: "text-status-ongoing",
+      border: "border-l-blue-400",
+      textColor: "text-blue-600",
+      bg: "bg-blue-50",
     },
     {
       label: "Pending",
       value: stats?.pending ?? 0,
       icon: Clock,
-      colorClass: "stat-card-pending",
-      textColor: "text-status-pending",
+      border: "border-l-yellow-400",
+      textColor: "text-yellow-600",
+      bg: "bg-yellow-50",
     },
     {
       label: "Resolved",
-      value: stats?.inProgress ?? 0,
+      value: stats?.resolved ?? 0,
       icon: CheckCircle,
-      colorClass: "stat-card-resolved",
-      textColor: "text-status-resolved",
+      border: "border-l-green-400",
+      textColor: "text-green-600",
+      bg: "bg-green-50",
     },
     {
       label: "Unresolved",
@@ -135,90 +132,98 @@ export function OfficialDashboard() {
         recentConcerns?.filter((c: any) => c.status === "unresolved").length ||
         0,
       icon: XCircle,
-      colorClass: "stat-card-unresolved",
-      textColor: "text-status-unresolved",
+      border: "border-l-red-400",
+      textColor: "text-red-600",
+      bg: "bg-red-50",
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Page Title */}
+    <div className="space-y-5 sm:space-y-6 pb-20 lg:pb-0">
+      {/* Title */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
           Dashboard Overview
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground text-sm mt-0.5">
           Monitor and manage barangay concerns
         </p>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      {/* Stats — 2 col on mobile, 4 col on xl */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {statsCard.map((stat) => (
-          <div key={stat.label} className={`stat-card ${stat.colorClass}`}>
-            <div className="flex items-start bg-gray-50 hover:bg-gray-100 transition-colors p-2 rounded justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">
-                  {stat.label}
-                </p>
-                <p className={`text-3xl font-bold mt-2 ${stat.textColor}`}>
-                  {stat.value}
-                </p>
+          <Card
+            key={stat.label}
+            className={`border-l-4 ${stat.border} shadow-sm`}
+          >
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-snug">
+                    {stat.label}
+                  </p>
+                  <p
+                    className={`text-2xl sm:text-4xl font-bold mt-1 tabular-nums ${stat.textColor}`}
+                  >
+                    {stat.value}
+                  </p>
+                </div>
+                <div
+                  className={`p-1.5 sm:p-2 rounded-full ${stat.bg} shrink-0`}
+                >
+                  <stat.icon
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.textColor}`}
+                  />
+                </div>
               </div>
-              <div className="p-2 rounded-lg bg-muted/50">
-                <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       {/* Recent Concerns */}
-      <div className="bg-card rounded-xl shadow-sm border">
-        <div className="p-5 border-b">
-          <h2 className="text-lg font-semibold text-foreground">
+      <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
+        <div className="p-4 sm:p-5 border-b">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">
             Recent Concerns
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Latest submitted concerns
           </p>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Desktop: table. Mobile: card list */}
+
+        {/* ── Desktop table (hidden on mobile) ── */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Ticket #
-                </th>
-                {/**
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Complainant
-                </th> */}
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Category
-                </th>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Date
-                </th>
-                <th className="text-left px-5 py-3 text-sm font-medium text-muted-foreground">
-                  Status
-                </th>
+                {["Ticket #", "Category", "Date", "Status"].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left px-5 py-3 text-sm font-medium text-muted-foreground"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {swrLoading ? (
-                Array.from({ length: 6 }).map((_, index) => (
-                  <tr key={index}>
-                    <td colSpan={5} className="px-5 py-6">
-                      <Skeleton className="h-4 md:h-5 lg:h-10 flex-1" />
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={4} className="px-5 py-4">
+                      <Skeleton className="h-5 w-full" />
                     </td>
                   </tr>
                 ))
               ) : paginatedConcerns.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
-                    className="px-5 py-6 text-center text-muted-foreground"
+                    colSpan={4}
+                    className="px-5 py-8 text-center text-muted-foreground text-sm"
                   >
                     No recent concerns yet
                   </td>
@@ -226,9 +231,8 @@ export function OfficialDashboard() {
               ) : (
                 paginatedConcerns.map((concern) => {
                   const config = concern
-                    ? statusConfig[concern.status as Status]
+                    ? statusConfig[concern.status as StatusP]
                     : undefined;
-
                   const StatusIcon = config?.icon;
                   return (
                     <tr
@@ -236,13 +240,13 @@ export function OfficialDashboard() {
                       className="border-t hover:bg-muted/30 transition-colors cursor-pointer"
                       onClick={() => router.push(`/concern/${concern.id}`)}
                     >
-                      <td className="px-5 py-4 text-sm font-medium text-foreground">
-                        {concern.id}
+                      <td className="px-5 py-4 text-sm font-mono text-muted-foreground">
+                        #{concern.id}
                       </td>
-                      <td className="px-5 py-4 text-sm text-muted-foreground">
+                      <td className="px-5 py-4 text-sm text-muted-foreground max-w-40 truncate">
                         {concern.category?.name ?? concern.other ?? "N/A"}
                       </td>
-                      <td className="px-5 py-4 text-sm text-muted-foreground">
+                      <td className="px-5 py-4 text-sm text-muted-foreground whitespace-nowrap">
                         {formatDate(new Date(concern.issuedAt))}
                       </td>
                       <td className="px-5 py-4">
@@ -251,15 +255,15 @@ export function OfficialDashboard() {
                           className={cn(
                             config?.bgColor,
                             config?.color,
-                            "border-0 text-sm",
+                            "border-0 text-xs",
                           )}
                         >
                           {StatusIcon && (
-                            <StatusIcon className="h-4 w-4 mr-1" />
+                            <StatusIcon className="h-3 w-3 mr-1" />
                           )}
                           {concern.status
                             ?.replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}
+                            .replace(/^./, (s) => s.toUpperCase())}
                         </Badge>
                       </td>
                     </tr>
@@ -270,36 +274,124 @@ export function OfficialDashboard() {
           </table>
         </div>
 
+        {/* ── Mobile card list (hidden on sm+) ── */}
+        <div className="sm:hidden divide-y">
+          {swrLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-4 space-y-2 animate-pulse">
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+              </div>
+            ))
+          ) : paginatedConcerns.length === 0 ? (
+            <p className="p-6 text-center text-muted-foreground text-sm">
+              No recent concerns yet
+            </p>
+          ) : (
+            paginatedConcerns.map((concern) => {
+              const config = concern
+                ? statusConfig[concern.status as StatusP]
+                : undefined;
+              const StatusIcon = config?.icon;
+              return (
+                <div
+                  key={concern.id}
+                  className="p-3 flex items-start justify-between gap-2 hover:bg-muted/30
+                               cursor-pointer transition-colors active:bg-muted/50"
+                  onClick={() => router.push(`/concern/${concern.id}`)}
+                >
+                  <div className="flex-1 min-w-0">
+                    {/* ID + status */}
+                    <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                      <span
+                        className="text-[10px] font-mono text-muted-foreground bg-muted
+                                         px-1.5 py-0.5 rounded"
+                      >
+                        #{concern.id}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          config?.bgColor,
+                          config?.color,
+                          "border-0 text-[10px] py-0",
+                        )}
+                      >
+                        {StatusIcon && (
+                          <StatusIcon className="h-2.5 w-2.5 mr-0.5" />
+                        )}
+                        {concern.status
+                          ?.replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (s) => s.toUpperCase())}
+                      </Badge>
+                    </div>
+                    {/* Category + date */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Tag className="h-2.5 w-2.5" />
+                        {concern.category?.name ?? concern.other ?? "N/A"}
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Calendar className="h-2.5 w-2.5" />
+                        {formatDate(new Date(concern.issuedAt))}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                </div>
+              );
+            })
+          )}
+        </div>
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between gap-4 p-3 mt-[-5] bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages} •
+          <div
+            className="flex items-center justify-between gap-3 p-3 sm:p-4
+                          bg-gray-50 border-t border-gray-200"
+          >
+            <div className="text-xs text-muted-foreground hidden sm:block">
+              Page {currentPage} of {totalPages}
             </div>
-            <div className="flex gap-2">
+            <div className="text-xs text-muted-foreground sm:hidden">
+              {currentPage}/{totalPages}
+            </div>
+            <div className="flex gap-1.5 sm:gap-2">
               <Button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1"
+                className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
               >
-                <ChevronLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Previous</span>
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline ml-1">Prev</span>
               </Button>
-              <div className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white rounded border border-gray-300">
+              <div className="flex items-center px-2 text-xs bg-white rounded border border-gray-300">
                 {currentPage} / {totalPages}
               </div>
-              <Button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1"
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              {currentPage < totalPages ? (
+                <Button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  variant="outline"
+                  size="sm"
+                  className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
+                >
+                  <span className="hidden sm:inline mr-1">Next</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              ) : hasNextPage ? (
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  size="sm"
+                  className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
+                >
+                  {isLoadingMore ? "..." : "More"}
+                </Button>
+              ) : null}
             </div>
           </div>
         )}

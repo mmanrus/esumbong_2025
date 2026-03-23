@@ -14,7 +14,6 @@ if (!url) {
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || ""
-    console.log("Type:", type)
     try {
         const cookieStore = await cookies()
         const accessToken = cookieStore.get(COOKIE_NAME)?.value

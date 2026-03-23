@@ -44,7 +44,6 @@ export async function GET(
 
         const data = await res.json();
         const updates = await resUpdates.json();
-        console.log("Fetched concern updates:", data.data);
         return NextResponse.json({
             message: "Concern fetched successfully",
             data: data.data,

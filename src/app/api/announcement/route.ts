@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-    console.log("Resident announcement getting.")
     const { searchParams } = new URL(request.url)
     const cursor = searchParams.get("cursor") || ""
 

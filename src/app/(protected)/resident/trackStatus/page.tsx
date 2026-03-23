@@ -6,8 +6,8 @@ export default function Page() {
     <>
       <div className="space-y-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Track Status</h1>
-          <p className="text-muted-foreground text-base">
+          <h1 className="text-md md:text-3xl font-bold text-foreground mb-2">Track Status</h1>
+          <p className="text-sm text-muted-foreground md:text-base">
             Monitor the progress of your submitted concerns in real-time
           </p>
         </div>

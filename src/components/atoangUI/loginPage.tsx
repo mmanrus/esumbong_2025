@@ -43,7 +43,6 @@ function LoginPage() {
 
       // Call your server action
       const result = await login(null, formData);
-      console.log(result.isLocked);
       if (result.isLocked) {
         router.push("/locked"); // ✅ explicitly redirect to /locked
         return;
