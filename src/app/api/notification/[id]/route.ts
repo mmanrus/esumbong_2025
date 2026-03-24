@@ -9,14 +9,16 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+
+  context: { params: Promise<{ id: string }> } // do NOT destructure here
 ) {
+  const { id } = await context.params
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/${params.id}/read`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/${id}/read`,
     { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
   )
   const data = await res.json()
@@ -25,16 +27,18 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+
+  context: { params: Promise<{ id: string }> } // do NOT destructure here
 ) {
+  const { id } = await context.params
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   // id = "all" → clear all
-  const endpoint = params.id === "all"
+  const endpoint = id === "all"
     ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/all`
-    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/${params.id}`
+    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notification/${id}`
 
   const res = await fetch(endpoint, {
     method: "DELETE",
