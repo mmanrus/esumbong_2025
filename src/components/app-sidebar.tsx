@@ -77,6 +77,8 @@ export function AppSidebar({
                           ? "Resident Dashboard"
                           : user?.type === "barangay_official"
                             ? "Barangay Official"
+                            :user?.type === "superAdmin"
+                            ? "Super Admin"
                             : "Dashboard"}
                     </span>
                   </div>
