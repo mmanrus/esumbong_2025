@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/lib/constants";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
     if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/lib/constants";
 
 // POST /api/super-admin/geography/barangay
 // Body: { name: string, municipalityId: number }
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
     if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 }
 
 // DELETE /api/super-admin/geography/barangay?id=123
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest,) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
     if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

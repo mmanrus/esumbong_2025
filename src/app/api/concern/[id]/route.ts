@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     request: NextRequest, // must be NextRequest
-    context: { params: Promise<{ id: string}> } // do NOT destructure here
+    context: { params: Promise<{ id: string}> } 
 ) {
     const { id } =  await context.params; // destructure inside function body
 
