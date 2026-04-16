@@ -1,3 +1,4 @@
+// api/auth/register/route.ts
 export const dynamic = "force-dynamic";
 import { SignupFormSchema} from "@/defs/definitions"
 import { NextResponse } from "next/server"

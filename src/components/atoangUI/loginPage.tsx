@@ -55,10 +55,18 @@ function LoginPage() {
 
       // Refresh AuthProvider to get updated user
       await refreshUser();
-      if (result.user?.type === "admin") router.push("/admin");
-      else if (result.user?.type === "resident") router.push("/resident");
-      else if (result.user?.type === "barangay_official")
-        router.push("/officials");
+      const destinations: Record<string, string> = {
+        admin: "/admin",
+        resident: "/resident",
+        superAdmin: "/super-admin",
+        barangay_official: "/officials",
+      };
+
+      const destination = result.user?.type
+        ? destinations[result.user.type] ?? "/login"
+        : "/login";
+
+      router.push(destination);
     } catch (err) {
       console.error(err);
     } finally {

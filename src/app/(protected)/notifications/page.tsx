@@ -172,7 +172,6 @@ export default function NotificationsPage() {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground
                          flex items-center gap-2">
             <Bell className="h-6 w-6 text-primary flex-shrink-0" />
-            Notifications
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             Manage and review all your notifications

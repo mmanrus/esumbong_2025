@@ -12,9 +12,11 @@ import {
   Clock,
   Tag,
   MessageSquare,
-  FolderX
+  FolderX,
+  Globe,       
+  ShieldCheck, 
 } from "lucide-react";
-export type UserRole = "admin" | "resident" | "barangay_official";
+export type UserRole = "admin" | "resident" | "barangay_official" | "superAdmin";
 export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
     { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
@@ -42,5 +44,11 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/admin/users", url: "/admin/users", title: "User Management", icon: Users },
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
+  ],
+   superAdmin: [
+    { id: "/super-admin/dashboard",  url: "/super-admin",  title: "Dashboard",  icon: LayoutDashboard },
+    { id: "/super-admin/barangays",  url: "/super-admin/barangays",  title: "Barangays",  icon: ShieldCheck },
+    { id: "/super-admin/admins",     url: "/super-admin/admins",     title: "Admins",     icon: Users },
+    { id: "/super-admin/geography",  url: "/super-admin/geography",  title: "Geography",  icon: Globe },
   ],
 }

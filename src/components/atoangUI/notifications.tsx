@@ -46,7 +46,6 @@ export default function NotificationComponent() {
           className="relative gap-2 text-foreground hover:bg-muted"
         >
           <Bell className="h-4 w-4" />
-          {!isMobile && <span className="text-sm">Notifications</span>}
 
           {/* Unread badge — shows actual unread count, not total */}
           {unreadCount > 0 && (
@@ -58,7 +57,6 @@ export default function NotificationComponent() {
           )}
         </Button>
       </DropdownMenuTrigger>
-
       <DropdownMenuContent
         align="end"
         className="w-80 sm:w-96 p-0 rounded-xl shadow-xl border overflow-hidden"

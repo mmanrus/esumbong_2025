@@ -19,7 +19,11 @@ export type User = {
   position?: string;
   profilePhoto?: string;
   address: string;
-  barangay?: string;
+  barangay: {
+    id: number;
+    name: string;
+  };
+  barangayId: number
 };
 
 type AuthContextType = {

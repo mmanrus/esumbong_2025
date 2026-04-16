@@ -19,11 +19,11 @@ export const SignupFormSchema = z
       .trim(),
     confirmPassword: z.string().trim(),
     type: z
-      .enum(["resident", "barangay_official", "admin"])
+      .enum(["resident", "barangay_official", "admin"]).default("resident")
       .refine((val) => !!val, {
         message: "User type is required",
       }),
-
+    barangayId: z.coerce.number({ message: "Please select your barangay" }).min(1, "Please select your barangay"),
     contactNumber: z.string().min(1, "Contact number required"),
     age: z.coerce
       .number({

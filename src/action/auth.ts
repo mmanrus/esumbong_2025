@@ -33,36 +33,64 @@ export async function login(prevState: any, formData: FormData) {
     ...(process.env.NODE_ENV === "production" ? { credentials: "include" } : {}),
     body: JSON.stringify({ email, password }),
   });
-  const result = await res.json()
-  const { user, access, refresh } = result;
+  const result = await res.json();
+
   if (res.status === 423) {
     await setSession({
       isLocked: true,
       email: result.email,
-      unlockTime: result.unlockTime || new Date(Date.now() + result.secondsRemaining * 1000).toISOString(),
+      unlockTime:
+        result.unlockTime ||
+        new Date(Date.now() + result.secondsRemaining * 1000).toISOString(),
       secondsRemaining: result.secondsRemaining,
     });
-    return { isLocked: true, message: "Your account has been locked.", success: false };
-  }
-  if (!res.ok) {
-    return { message: result.message || "Invalid email or password", success: false };
+    return {
+      isLocked: true,
+      message: "Your account has been locked.",
+      success: false,
+    };
   }
 
+  if (!res.ok) {
+    return {
+      message: result.message || "Invalid email or password",
+      success: false,
+    };
+  }
+
+  const backendPayload = result.user ?? result;
+  const authPayload = backendPayload.user ?? backendPayload;
+  const accessToken = backendPayload.access;
+  const refreshToken = backendPayload.refresh;
 
   // store access/refresh separately
   const cookieStore = await cookies();
-  cookieStore.set("access_token", access, { httpOnly: true, secure: true });
-  cookieStore.set("refresh_token", refresh, { httpOnly: true, secure: true });
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    path: "/",
+  } as const;
+  if (accessToken) {
+    cookieStore.set("access_token", accessToken, cookieOptions);
+  }
+  if (refreshToken) {
+    cookieStore.set("refresh_token", refreshToken, cookieOptions);
+  }
 
   // store SMALL session cookie
   await setSession({
-    userId: user.user?.id,
-    type: user.user?.type,
-    dailyPostCount: user.user?.dailyPostCount,
-    isVerified: user.user?.isVerified,
+    userId: authPayload?.id,
+    type: authPayload?.type,
+    dailyPostCount: authPayload?.dailyPostCount,
+    isVerified: authPayload?.isVerified,
   });
 
-  return { message: "Login successful.", success: true, user: user.user };
+  return {
+    message: "Login successful.",
+    success: true,
+    user: authPayload,
+  };
 }
 
 

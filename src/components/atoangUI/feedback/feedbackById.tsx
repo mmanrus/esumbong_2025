@@ -34,7 +34,10 @@ import useSWR from "swr";
 import { formatDate } from "@/lib/formatDate";
 import DialogAlert from "../alertDialog";
 import Loading from "@/app/(protected)/feedback/[id]/loading";
-import { StarRatingDisplay, StarRatingInput } from "@/components/atoangUI/starRating";
+import {
+  StarRatingDisplay,
+  StarRatingInput,
+} from "@/components/atoangUI/starRating";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +47,7 @@ type Feedback = {
   feedback: string;
   star: number | null;
   issuedAt: string;
+  isAnonymous: boolean;
   user: {
     fullname: string;
     id: any;
@@ -55,13 +59,13 @@ type Feedback = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function maskName(name: string) {
-  return name.charAt(0) + "***** ******";
+  return "Anonymous user";
 }
 function maskEmail(email: string) {
-  return email.charAt(0) + "*****@****.com";
+  return "Anonymous user";
 }
 function maskPhone(phone: string) {
-  return phone.charAt(0) + "********";
+  return "Anonymous user";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -293,25 +297,25 @@ export default function FeedbackById() {
                   <p className="text-sm font-medium flex items-center gap-1.5">
                     <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <span className="truncate">
-                      {feedback?.user?.fullname
-                        ? maskName(feedback.user.fullname)
-                        : "—"}
+                      {feedback?.isAnonymous
+                        ? "Anonymous User"
+                        : feedback?.user.fullname}
                     </span>
                   </p>
                   <p className="text-sm font-medium flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <span className="truncate">
-                      {feedback?.user?.email
-                        ? maskEmail(feedback.user.email)
-                        : "—"}
+                      {feedback?.isAnonymous
+                        ? "Anonymous User"
+                        : feedback?.user.email}
                     </span>
                   </p>
                   <p className="text-sm font-medium flex items-center gap-1.5">
                     <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <span>
-                      {feedback?.user?.contactNumber
-                        ? maskPhone(feedback.user.contactNumber)
-                        : "—"}
+                      {feedback?.isAnonymous
+                        ? "Anonymous User"
+                        : feedback?.user.contactNumber}
                     </span>
                   </p>
                 </div>

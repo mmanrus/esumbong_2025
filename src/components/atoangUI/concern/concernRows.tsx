@@ -42,35 +42,8 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
       </tr>
     );
   }
-  const [isLoading, setIsLoading] = useState(false);
-  const handleValidation = async (
-    status: "approved" | "rejected" | "pending",
-    concernId: any,
-  ) => {
-    setIsLoading(true);
-
-    const res = await fetch(`/api/concern/validate/${concernId}`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify({ validation: status }),
-    });
-    if (!res.ok) {
-      toast.error("Error upon validation the concern");
-      return;
-    }
-    toast.success(
-      `Concern has been validated as ${
-        status.charAt(0).toUpperCase() + status.slice(1)
-      }`,
-    );
-    setIsLoading(false);
-    return;
-  };
-
   const [selectedConcern, setSelectedConcern] = useState<any | null>(null);
-  const [newValidation, setNewvalidation] = useState<
-    "approved" | "rejected" | "pending"
-  >();
+
   return (
     <>
       {concerns.map((concern: Concern, index: number) => (
@@ -116,53 +89,6 @@ export default function ViewConcernRows({ concerns, onDelete }: Props) {
               <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
               <span className="hidden sm:inline">View</span>
             </Button>
-            <DialogAlert
-              trigger={
-                <Button className="px-2 sm:px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs sm:text-sm h-8 sm:h-auto">
-                  <span className="hidden sm:inline">Validate</span>
-                  <span className="sm:hidden">Val</span>
-                </Button>
-              }
-              Icon={Info}
-              IconColor="blue-600"
-              headMessage="Validate Concern as?"
-            >
-              <form
-                className="flex flex-row gap-3 justify-center"
-                onSubmit={async (e) => {
-                  e.preventDefault(); // Prevent the form from reloading the page
-                  if (!newValidation) {
-                    toast.error("Please select a status to validate concern.");
-                    return;
-                  }
-                  await handleValidation(newValidation, concern.id);
-                }}
-              >
-                <Button
-                  disabled={concern?.validation === "approved" || isLoading}
-                  type="submit"
-                  onClick={() => setNewvalidation("approved")}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  type="submit"
-                  disabled={concern?.validation === "rejected" || isLoading}
-                  onClick={() => setNewvalidation("rejected")}
-                >
-                  Reject
-                </Button>
-                <Button
-                  variant="outline"
-                  type="submit"
-                  disabled={concern?.validation === "pending" || isLoading}
-                  onClick={() => setNewvalidation("pending")}
-                >
-                  Pending
-                </Button>
-              </form>
-            </DialogAlert>
           </td>
         </tr>
       ))}

@@ -1,12 +1,12 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Form,
   FormControl,
@@ -25,9 +25,10 @@ import {
 } from "@/components/ui/select";
 import { SignupFormSchema, SignUpFormType } from "@/defs/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/authContext"; // adjust path if needed
 
 export default function OpenAddUserDialog({
   open,
@@ -35,9 +36,11 @@ export default function OpenAddUserDialog({
   mutate,
 }: {
   open: boolean;
-  mutate: () => void;
+  mutate: () => Promise<unknown>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { user } = useAuth();
+
   const form = useForm({
     defaultValues: {
       fullname: "",
@@ -46,11 +49,31 @@ export default function OpenAddUserDialog({
       address: "",
       confirmPassword: "",
       contactNumber: "",
-      type: undefined,
+      age: undefined as number | undefined,
+      type: undefined as "admin" | "resident" | "barangay_official" | undefined,
+      barangayId: user?.barangayId ?? undefined,
     },
     resolver: zodResolver(SignupFormSchema),
   });
+
+  // Sync barangayId whenever the dialog opens or user changes
+  useEffect(() => {
+    if (open && user?.barangayId) {
+      form.setValue("barangayId", user.barangayId);
+    }
+  }, [open, user?.barangayId, form]);
+
+  // Cleanup: ensure dialog closes on unmount
+  useEffect(() => {
+    return () => {
+      if (open) {
+        setOpen(false);
+      }
+    };
+  }, [open, setOpen]);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit = async (data: SignUpFormType) => {
     setIsLoading(true);
     try {
@@ -64,26 +87,43 @@ export default function OpenAddUserDialog({
       if (!res.ok) {
         const errorData = await res.json();
         toast.error("Registration failed", {
-          description: errorData?.message || "Unknown error",
+          description:
+            errorData?.error || errorData?.message || "Unknown error",
         });
+        return;
       }
 
-      toast.success("Registration successful!");
-      mutate();
+      toast.success("User added successfully!");
       setOpen(false);
       form.reset();
-    } catch (error) {
-      console.error("Registration error:", error);
+      try {
+        await mutate();
+      } catch (error) {
+        console.warn("Failed to refresh users after add:", error);
+      }
+    } catch {
+      toast.error("An error occurred during registration.");
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add User</DialogTitle>
+          {/* Show which barangay this user will be added to */}
+          {user?.barangay?.name && (
+            <p className="text-sm text-gray-500 mt-1">
+              Adding to{" "}
+              <span className="font-medium text-gray-700">
+                {user.barangay.name}
+              </span>
+            </p>
+          )}
         </DialogHeader>
+
         <Form {...form}>
           <form
             className="w-full space-y-4"
@@ -96,12 +136,7 @@ export default function OpenAddUserDialog({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full"
-                      {...field}
-                    />
+                    <Input type="email" placeholder="Email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,14 +148,9 @@ export default function OpenAddUserDialog({
               name="fullname"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Full name</FormLabel>
                   <FormControl>
-                    <Input
-                      type="fullname"
-                      placeholder="Enter your full name"
-                      className="w-full"
-                      {...field}
-                    />
+                    <Input placeholder="Enter full name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,17 +164,54 @@ export default function OpenAddUserDialog({
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Enter your address"
-                      className="w-full"
-                      {...field}
-                    />
+                    <Input placeholder="Enter address" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="contactNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="09XXXXXXXXX" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="age"
+              render={({ field }) => {
+                const ageValue = field.value as number | undefined;
+                return (
+                  <FormItem>
+                    <FormLabel>Age</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Age"
+                        min={18}
+                        max={100}
+                        value={ageValue ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+
             <FormField
               control={form.control}
               name="password"
@@ -152,12 +219,7 @@ export default function OpenAddUserDialog({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      className="w-full"
-                      {...field}
-                    />
+                    <Input type="password" placeholder="Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,12 +231,11 @@ export default function OpenAddUserDialog({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Enter the password again</FormLabel>
+                  <FormLabel>Confirm password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Confirm password"
-                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -182,55 +243,41 @@ export default function OpenAddUserDialog({
                 </FormItem>
               )}
             />
+
+            {/* Type — admin can only create residents or officials, not other admins */}
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <FormLabel>User type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select user type" />
                       </SelectTrigger>
                     </FormControl>
-
                     <SelectContent>
+                      {/* superAdmin is excluded server-side and never shown */}
                       <SelectItem value="resident">Resident</SelectItem>
                       <SelectItem value="barangay_official">
                         Barangay Official
                       </SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <FormMessage />
-                </FormItem>
-              )}
+            {/* barangayId is hidden — prefilled from session */}
+            <input
+              type="hidden"
+              {...form.register("barangayId", { valueAsNumber: true })}
             />
-            <FormField
-              control={form.control}
-              name="contactNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact number</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="contactNumber"
-                      placeholder="Enter your contact number"
-                      className="w-full"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={isLoading} className="mt-4 w-full">
-              Add User
+
+            <Button type="submit" disabled={isLoading} className="mt-2 w-full">
+              {isLoading ? "Adding..." : "Add User"}
             </Button>
           </form>
         </Form>

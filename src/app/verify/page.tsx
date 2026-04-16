@@ -130,7 +130,7 @@ export default function Page() {
       });
 
       if (!res.ok) {
-        toast.error("Error submitting your concern.");
+        toast.error("Error submitting your verification ID.");
         return;
       }
 
