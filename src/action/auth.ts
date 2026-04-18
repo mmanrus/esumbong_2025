@@ -82,6 +82,7 @@ export async function login(prevState: any, formData: FormData) {
   await setSession({
     userId: authPayload?.id,
     type: authPayload?.type,
+    barangayId: authPayload?.barangayId,
     dailyPostCount: authPayload?.dailyPostCount,
     isVerified: authPayload?.isVerified,
   });

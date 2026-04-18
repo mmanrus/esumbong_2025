@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
 
         const needsValue = body.get("needsBarangayAssistance");
         if (needsValue === null) {
+            console.log("needsBarangay assystance error")
             return NextResponse.json(
                 { error: "Missing needsBarangayAssistance field" },
                 { status: 400 },
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
         }
         const needsValueIsAnonymous = body.get("isAnonymous");
         if (needsValue === null) {
+            
+            console.log("needsValueIsAnonymous error")
             return NextResponse.json(
                 { error: "Missing isAnonymous field" },
                 { status: 400 },
@@ -69,6 +72,7 @@ export async function POST(request: NextRequest) {
 
         if (!res.ok) {
             const errorText = await res.text();
+            console.log("Error", errorText)
             return NextResponse.json(
                 { error: "Failed to submit concern", details: errorText },
                 { status: res.status },
@@ -76,7 +80,6 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await res.json();
-
         return NextResponse.json(
             { message: "Concern submitted successfully", data },
             { status: 200 },

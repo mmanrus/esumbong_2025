@@ -125,11 +125,6 @@ export function UserConcernRows() {
     );
   }
 
-  if (error) {
-    toast.error("Failed to load concerns");
-    notFound();
-  }
-
   if (!Array.isArray(userConcerns) || userConcerns.length === 0) {
     return (
       <Card className="p-10 border border-dashed border-gray-300">

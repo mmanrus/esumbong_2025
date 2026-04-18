@@ -132,7 +132,9 @@ export function DashboardAdmin() {
         </h1>
       </div>
 
-      {/* Stats — 2 col on mobile, 4 col on lg */}
+      {/* Stats — 2 col on mobile, 4 col on lg, this 
+        will display wrong data this should be barangay specific data I want you to change the controller for the getStats and the service for it
+      */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative z-10">
         {statsCard.map((stat, index) => (
           <Card
@@ -166,12 +168,35 @@ export function DashboardAdmin() {
           </Card>
         ))}
       </div>
-
+      {/**
+       * Add and use the { user } = useAuth() imported from @/context/authContext
+       * to get display the barangay from user.barangay.name
+       * And admin's job, or like a welcoming message
+       *
+       */}
       {/* Illustrated empty state card */}
       <Card
         className="border-2 border-dashed border-muted-foreground/20 min-h-[200px] sm:min-h-[300px]
                        flex items-center justify-center relative z-10 overflow-hidden"
       >
+        {/* Welcome */}
+        <div className="relative z-10">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground leading-snug">
+            Welcome back, <span className="text-primary">{user?.fullname}</span>
+            !
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            {user?.barangay?.name && (
+              <span className="font-medium text-foreground">
+                {user.barangay.name} ·{" "}
+              </span>
+            )}
+            Barangay Esumbong Administrator
+          </p>
+          <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1">
+            Manage residents, and keep your community informed.
+          </p>
+        </div>
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-secondary/5" />
         <div
           className="absolute top-8 left-8 w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-primary/10 animate-float"

@@ -20,7 +20,15 @@ export const ourFileRouter = {
     // Optional: do something with DB
     // await prisma.media.create({ data: { url: file.ufsUrl, name: file.name, type: file.type } });
     return { url: file.ufsUrl, name: file.name, type: file.type, size: file.size };
-  }), 
+  }),
+  profilePhotoUploader: f({
+    image: {
+      maxFileCount: 1,
+      maxFileSize: "4MB",
+    },
+  }).onUploadComplete(async ({ file }) => {
+    return { url: file.ufsUrl, name: file.name, type: file.type, size: file.size };
+  }),
   documentUploader: f({
     image: {
       maxFileCount: 5,
