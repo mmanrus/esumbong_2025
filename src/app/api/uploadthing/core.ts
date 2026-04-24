@@ -1,9 +1,16 @@
 
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
+import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
+  imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
+  
+    .onUploadComplete(async ({ file }) => {
+      console.log("file url", file.url);
+      return { url: file.url };
+    }),
   // Define as many FileRoutes as you like, each with a unique routeSlug
   mediaUploader: f({
     image: {

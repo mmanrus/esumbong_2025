@@ -43,14 +43,14 @@ export default function UserDetailsDialog({
   user,
   onDelete,
   onUpdate,
-  children
+  children,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete: (userId: any) => void;
   onUpdate: (updatedUser: any) => void;
   user: any;
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -133,12 +133,21 @@ export default function UserDetailsDialog({
       toast.warning("No changes to save.");
       return;
     }
+    const payload: Record<string, string> = {};
 
+    if (!unlockFullname && fullname !== user.fullname)
+      payload.fullname = fullname;
+    if (!unlockNumber && contactNumber !== user.contactNumber)
+      payload.contactNumber = contactNumber;
+    if (!unlockEmail && email !== user.email) payload.email = email;
+    if (!unlockType && type !== user.type) payload.type = type;
+    if (changePassword && password.trim() !== "") payload.password = password;
     try {
       const res = await fetch(`/api/users/update/${user?.id}`, {
         credentials: "include",
         method: "PATCH",
-        body: formData,
+        headers: { "Content-Type": "application/json" }, // ← add this
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const { error } = await res.json();
@@ -181,7 +190,7 @@ export default function UserDetailsDialog({
       onOpenChange(false);
       setIsLoading(false);
       toast.success("Successful verification");
-      return
+      return;
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
@@ -227,16 +236,16 @@ export default function UserDetailsDialog({
                     Verification Document
                   </span>
                   {isAI && (
-                  <div className="absolute top-3 left-3 z-10">
-                    <Badge
-                      variant="destructive"
-                      className="flex items-center gap-1 text-xs shadow-md"
-                    >
-                      <Bot className="w-3 h-3" />
-                      AI Generated
-                    </Badge>
-                  </div>
-                )}
+                    <div className="absolute top-3 left-3 z-10">
+                      <Badge
+                        variant="destructive"
+                        className="flex items-center gap-1 text-xs shadow-md"
+                      >
+                        <Bot className="w-3 h-3" />
+                        AI Generated
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => setShowMediaOverlay(false)}

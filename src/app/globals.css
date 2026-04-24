@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import '../styles/_variables.scss';
 @import '../styles/_keyframe-animations.scss';
+@import 'react-quill-new/dist/quill.snow.css';
 
 @custom-variant dark (&:is(.dark *));
 
