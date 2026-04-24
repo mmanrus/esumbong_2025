@@ -3,63 +3,70 @@
 import RichTextEditor, { ContentBlock } from "./RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnnouncementForm, AnnouncementFormSchema } from "@/defs/announcements";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useUploadThing } from "@/lib/uploadthing";
-import { uploadEditorImages } from "@/lib/upload-editor-image";
 import RichTextViewer from "./RichTextViewer";
 
-export default function Page() {
-  const [form, setForm] = useState<AnnouncementForm>({
-    title: "",
-    announcement: "",
-    notifyResidents: false,
-    notifyOfficials: false,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const handleChange = (field: any, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-  const [content, setContent] = useState<ContentBlock[]>([]);
+// ── Stable empty array — never recreated, so RichTextEditor never sees
+//    a new `initialContent` reference between renders
+const EMPTY_CONTENT: ContentBlock[] = [];
 
-  const handleContentChange = (blocks: ContentBlock[]) => {
-    setContent(blocks);
-    // Mark announcement as non-empty if any text block has content or any image block exists
-    const hasContent = blocks.some(
+export default function Page() {
+  // ── Title & notification flags only — announcement is tracked separately
+  const [title, setTitle] = useState("");
+  const [notifyResidents, setNotifyResidents] = useState(false);
+  const [notifyOfficials, setNotifyOfficials] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+
+  // ── Content lives in refs — does NOT drive re-renders of the page
+  const contentRef = useRef<ContentBlock[]>([]);
+  // Only used for the Preview panel and the submit-button disabled check
+  const [contentSnapshot, setContentSnapshot] = useState<ContentBlock[]>([]);
+  const [hasContent, setHasContent] = useState(false);
+
+  const { startUpload } = useUploadThing("imageUploader");
+
+  // ── Stable onChange — never recreated, so RichTextEditor/QuillBlock
+  //    never see a prop change that triggers a re-render
+  const handleContentChange = useCallback((blocks: ContentBlock[]) => {
+    contentRef.current = blocks;
+
+    const filled = blocks.some(
       (b) =>
         (b.type === "text" && b.content && b.content !== "<p><br></p>") ||
         (b.type === "images" && (b.images?.length ?? 0) > 0),
     );
-    handleChange("announcement", hasContent ? JSON.stringify(blocks) : "");
-  };
-  const [isPreview, setIsPreview] = useState(false);
-  const { startUpload } = useUploadThing("imageUploader");
 
-  const handleUpload = async (files: File[]): Promise<string[]> => {
-    try {
-      const uploadedFiles = await startUpload(files);
+    setHasContent(filled);
 
-      if (!uploadedFiles) {
-        throw new Error("Upload failed");
-      }
+    // Only update snapshot when the user explicitly opens Preview
+    // (avoids unnecessary renders while typing)
+  }, []);
 
-      return uploadedFiles.map((file) => file.url);
-    } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
-    }
-  };
+  // ── Sync snapshot when switching to preview
+  const handlePreviewClick = useCallback(() => {
+    setContentSnapshot([...contentRef.current]);
+    setIsPreview(true);
+  }, []);
 
-  // 2. New handleSubmit — uploads File objects from content blocks at submit time
-
-  const handleSubmit = async (e: any) => {
+  // ── Submit
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const validation = AnnouncementFormSchema.safeParse(form);
+    const formValues: AnnouncementForm = {
+      title,
+      announcement: hasContent ? JSON.stringify(contentRef.current) : "",
+      notifyResidents,
+      notifyOfficials,
+    };
+
+    const validation = AnnouncementFormSchema.safeParse(formValues);
     if (!validation.success) {
       toast.error("Validation failed", {
         description: Object.values(validation.error.flatten().fieldErrors)
@@ -71,57 +78,44 @@ export default function Page() {
     }
 
     try {
-      toast.info("Uploading images...");
+      toast.info("Uploading images…");
 
-      // Collect all File objects still pending in image blocks
-      const imageBlockFiles: {
-        blockId: string;
-        imageId: string;
-        file: File;
-      }[] = [];
-      for (const block of content) {
+      // Collect pending File objects from image blocks
+      const pending: { blockId: string; imageId: string; file: File }[] = [];
+      for (const block of contentRef.current) {
         if (block.type === "images" && block.images) {
           for (const img of block.images) {
-            if (img.file) {
-              imageBlockFiles.push({
-                blockId: block.id,
-                imageId: img.id,
-                file: img.file,
-              });
-            }
+            if (img.file) pending.push({ blockId: block.id, imageId: img.id, file: img.file });
           }
         }
       }
 
-      // Upload all pending files in one batch
-      let finalContent = content;
-      // After building finalContent, sync it back to state
-      if (imageBlockFiles.length > 0) {
-        const uploadedFiles = await startUpload(
-          imageBlockFiles.map((i) => i.file),
-        );
-        if (!uploadedFiles) throw new Error("Upload failed");
+      let finalContent = contentRef.current;
 
-        finalContent = content.map((block) => {
+      if (pending.length > 0) {
+        const uploaded = await startUpload(pending.map((p) => p.file));
+        if (!uploaded) throw new Error("Upload failed");
+
+        finalContent = contentRef.current.map((block) => {
           if (block.type !== "images" || !block.images) return block;
-          const updatedImages = block.images.map((img) => {
-            const match = imageBlockFiles.findIndex(
-              (f) => f.blockId === block.id && f.imageId === img.id,
-            );
-            if (match === -1) return img;
-            return { ...img, url: uploadedFiles[match].url, file: undefined };
-          });
-          return { ...block, images: updatedImages };
+          return {
+            ...block,
+            images: block.images.map((img) => {
+              const idx = pending.findIndex(
+                (p) => p.blockId === block.id && p.imageId === img.id,
+              );
+              if (idx === -1) return img;
+              return { ...img, url: uploaded[idx].url, file: undefined };
+            }),
+          };
         });
-
-        setContent(finalContent);
       }
 
       const formData = new FormData();
-      formData.append("title", form.title);
+      formData.append("title", title);
       formData.append("announcement", JSON.stringify(finalContent));
-      formData.append("notifyResidents", String(form.notifyResidents || false));
-      formData.append("notifyOfficials", String(form.notifyOfficials || false));
+      formData.append("notifyResidents", String(notifyResidents));
+      formData.append("notifyOfficials", String(notifyOfficials));
 
       const res = await fetch("/api/announcement", {
         method: "POST",
@@ -136,13 +130,14 @@ export default function Page() {
       }
 
       toast.success("Announcement added successfully");
-      setForm({
-        title: "",
-        announcement: "",
-        notifyResidents: false,
-        notifyOfficials: false,
-      });
-      setContent([]);
+
+      // Reset
+      setTitle("");
+      setNotifyResidents(false);
+      setNotifyOfficials(false);
+      setHasContent(false);
+      setContentSnapshot([]);
+      contentRef.current = [];
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while adding the announcement.");
@@ -157,20 +152,19 @@ export default function Page() {
         <i data-lucide="megaphone" className="w-7 h-7"></i>
         <span>Manage Announcements</span>
       </h2>
+
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <form
-          id="announcementForm"
-          className="space-y-4"
-          onSubmit={handleSubmit}
-        >
+        <form id="announcementForm" className="space-y-4" onSubmit={handleSubmit}>
+
+          {/* Title — updating this no longer re-renders RichTextEditor */}
           <Input
             type="text"
             placeholder="Title of Announcement"
-            value={form.title}
-            onChange={(e) => handleChange("title", e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
 
-          {/* Toggle */}
+          {/* Edit / Preview toggle */}
           <div className="flex gap-3 mb-6">
             <button
               type="button"
@@ -184,13 +178,13 @@ export default function Page() {
               Edit
             </button>
             <button
-              onClick={() => setIsPreview(true)}
+              type="button"
+              onClick={handlePreviewClick}
               className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
                 isPreview
                   ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                   : "bg-white text-stone-600 border border-stone-200 hover:border-stone-300"
               }`}
-              type="button"
             >
               Preview
             </button>
@@ -199,39 +193,38 @@ export default function Page() {
           {/* Editor / Viewer */}
           {!isPreview ? (
             <RichTextEditor
-              initialContent={content}
-              onChange={handleContentChange} // ← was setContent
+              initialContent={EMPTY_CONTENT}
+              onChange={handleContentChange}
             />
           ) : (
             <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-8">
-              <RichTextViewer content={content} />
+              <RichTextViewer content={contentSnapshot} />
             </div>
           )}
+
           <div className="flex flex-row gap-3 justify-start">
             <Button
               type="submit"
               className="cursor-pointer bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700"
-              disabled={!form.title || !form.announcement || isLoading}
+              disabled={!title || !hasContent || isLoading}
             >
               Push Announcement
             </Button>
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="notify-officials"
-                checked={form.notifyOfficials}
-                onCheckedChange={(checked) =>
-                  handleChange("notifyOfficials", checked)
-                }
+                checked={notifyOfficials}
+                onCheckedChange={setNotifyOfficials}
               />
               <Label htmlFor="notify-officials">Notify Officials</Label>
             </div>
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="notify-residents"
-                checked={form.notifyResidents}
-                onCheckedChange={(checked) =>
-                  handleChange("notifyResidents", checked)
-                }
+                checked={notifyResidents}
+                onCheckedChange={setNotifyResidents}
               />
               <Label htmlFor="notify-residents">Notify Residents</Label>
             </div>

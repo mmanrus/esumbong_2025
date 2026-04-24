@@ -1,7 +1,7 @@
 import { OfficialDashboard } from "@/components/atoangUI/officialDashboard";
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Barangay Official Dashboard",
   description: "...",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],

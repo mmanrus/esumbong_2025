@@ -31,6 +31,15 @@ export default function RichTextViewer({ content }: RichTextViewerProps) {
     setIsCarouselOpen(true);
   };
 
+  // Guard against undefined or invalid content
+  if (!content || !Array.isArray(content) || content.length === 0) {
+    return (
+      <article className="w-full max-w-4xl mx-auto px-4 py-8">
+        <p className="text-stone-500">No content available.</p>
+      </article>
+    );
+  }
+
   return (
     <>
       {/*
@@ -84,7 +93,6 @@ export default function RichTextViewer({ content }: RichTextViewerProps) {
               transition={{ delay: index * 0.08, duration: 0.4 }}
             >
               {block.type === "text" ? (
-                // FIX: render Quill's HTML directly — no markdown parsing needed
                 <div
                   className="ql-viewer"
                   dangerouslySetInnerHTML={{ __html: block.content || "" }}
@@ -111,7 +119,6 @@ export default function RichTextViewer({ content }: RichTextViewerProps) {
 }
 
 // ─── ImageGrid (viewer) ───────────────────────────────────────────────────────
-// FIX: same overlay fix as the editor — overlay on index 2, not index 1
 
 function ImageGrid({
   images,
@@ -142,7 +149,7 @@ function ImageGrid({
   const showOverlay = (i: number) => count >= 5 && i === 2;
 
   return (
-    <div className={`grid ${getGridCols()} gap-2 rounded-xl overflow-hidden my-6`}>
+    <div className={`grid ${getGridCols()} gap-1 rounded-xl overflow-hidden my-6`}>
       {images.map((image, i) => {
         const cls = getImageClass(i);
         if (cls === "hidden") return null;
