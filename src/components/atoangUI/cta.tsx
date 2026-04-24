@@ -19,9 +19,9 @@ export default function CTA() {
         <Button
           onClick={() => router.push("/register")}
           className="bg-yellow-400 text-teal-900 hover:bg-yellow-500
-                     px-6 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-semibold
-                     rounded-full inline-flex items-center gap-2 transition
-                     active:scale-95"
+            px-6 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-semibold
+            rounded-full inline-flex items-center gap-2 transition
+            active:scale-95"
         >
           Get Started Now
           <ArrowRight size={18} />
