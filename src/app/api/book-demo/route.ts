@@ -3,11 +3,25 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
+    // Verify reCAPTCHA
+    const captchaRes = await fetch(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${data.captchaToken}`,
+      { method: "POST" }
+    );
+    const captchaData = await captchaRes.json();
+
+    // Block if score is too low (0 = bot, 1 = human)
+    if (!captchaData.success || captchaData.score < 0.5) {
+      return NextResponse.json(
+        { error: "Failed CAPTCHA verification" },
+        { status: 400 }
+      );
+    }
 
     // YOUR GOOGLE APPS SCRIPT WEB APP URL
     // Instructions to create this are in the accompanying SETUP.md file
     const GOOGLE_SHEETS_WEBHOOK_URL = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-    
+
     // YOUR EMAIL SERVICE WEBHOOK (e.g., Make.com, n8n, or Zapier webhook)
     const EMAIL_WEBHOOK_URL = process.env.EMAIL_WEBHOOK_URL;
 
@@ -89,11 +103,11 @@ export async function POST(request: NextRequest) {
 
               <div style="margin-top: 30px; padding: 20px; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid #fbbf24;">
                 <p style="margin: 0; color: #92400e; font-weight: bold;">⏰ Submitted at:</p>
-                <p style="margin: 5px 0 0 0; color: #78350f;">${new Date(data.submittedAt).toLocaleString('en-US', { 
-                  dateStyle: 'full', 
-                  timeStyle: 'short',
-                  timeZone: 'Asia/Manila'
-                })} (Philippine Time)</p>
+                <p style="margin: 5px 0 0 0; color: #78350f;">${new Date(data.submittedAt).toLocaleString('en-US', {
+          dateStyle: 'full',
+          timeStyle: 'short',
+          timeZone: 'Asia/Manila'
+        })} (Philippine Time)</p>
               </div>
 
               <div style="margin-top: 30px; text-align: center;">
@@ -139,9 +153,9 @@ Submitted: ${new Date(data.submittedAt).toLocaleString()}
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Demo request submitted successfully" 
+    return NextResponse.json({
+      success: true,
+      message: "Demo request submitted successfully"
     });
 
   } catch (error) {

@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
-
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 const timeSlots = [
   "9:00 AM - 10:00 AM",
   "10:00 AM - 11:00 AM",
@@ -58,23 +58,30 @@ const initialForm: FormData = {
 
 function validate(form: FormData): FormErrors {
   const errors: FormErrors = {};
-  if (!form.barangayName.trim()) errors.barangayName = "Barangay name is required.";
-  if (!form.officialName.trim()) errors.officialName = "Official name is required.";
+  if (!form.barangayName.trim())
+    errors.barangayName = "Barangay name is required.";
+  if (!form.officialName.trim())
+    errors.officialName = "Official name is required.";
   if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
     errors.email = "A valid email is required.";
   if (!form.phone.trim()) errors.phone = "Phone number is required.";
-  if (!form.numberOfResidents) errors.numberOfResidents = "Please select a range.";
+  if (!form.numberOfResidents)
+    errors.numberOfResidents = "Please select a range.";
   return errors;
 }
 
 export default function BookDemo() {
   const [form, setForm] = useState<FormData>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -82,7 +89,7 @@ export default function BookDemo() {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
-
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const handleSubmit = async () => {
     const newErrors = validate(form);
     if (Object.keys(newErrors).length > 0) {
@@ -90,6 +97,8 @@ export default function BookDemo() {
       return;
     }
 
+    if (!executeRecaptcha) return;
+    const captchaToken = await executeRecaptcha("book_demo");
     setStatus("loading");
     setErrorMsg("");
 
@@ -97,14 +106,19 @@ export default function BookDemo() {
       const res = await fetch("/api/book-demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, submittedAt: new Date().toISOString() }),
+        body: JSON.stringify({
+          ...form,
+          submittedAt: new Date().toISOString(),
+        }),
       });
 
       if (!res.ok) throw new Error("Submission failed");
       setStatus("success");
     } catch {
       setStatus("error");
-      setErrorMsg("Something went wrong. Please try again or contact us directly.");
+      setErrorMsg(
+        "Something went wrong. Please try again or contact us directly.",
+      );
     }
   };
 
@@ -117,16 +131,29 @@ export default function BookDemo() {
               <CheckCircle2 className="w-10 h-10 text-teal-600" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-teal-800 mb-4">Request Received!</h2>
+          <h2 className="text-3xl font-bold text-teal-800 mb-4">
+            Request Received!
+          </h2>
           <p className="text-muted-foreground text-lg mb-3 leading-relaxed">
-            Thank you, <span className="font-semibold text-teal-700">{form.officialName}</span>! We've received your demo request for{" "}
-            <span className="font-semibold text-teal-700">Barangay {form.barangayName}</span>.
+            Thank you,{" "}
+            <span className="font-semibold text-teal-700">
+              {form.officialName}
+            </span>
+            ! We've received your demo request for{" "}
+            <span className="font-semibold text-teal-700">
+              Barangay {form.barangayName}
+            </span>
+            .
           </p>
           <p className="text-muted-foreground mb-8">
-            Our team will reach out to you within 24 hours to confirm your schedule.
+            Our team will reach out to you within 24 hours to confirm your
+            schedule.
           </p>
           <button
-            onClick={() => { setForm(initialForm); setStatus("idle"); }}
+            onClick={() => {
+              setForm(initialForm);
+              setStatus("idle");
+            }}
             className="inline-flex items-center gap-2 bg-teal-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-teal-700 transition-colors duration-200"
           >
             Book Another Demo
@@ -140,7 +167,6 @@ export default function BookDemo() {
   return (
     <section className="min-h-screen bg-gradient-to-b from-teal-50 to-white px-4 py-16 md:py-24">
       <div className="max-w-4xl mx-auto">
-
         {/* Header */}
         <div className="text-center mb-12">
           <span className="inline-block bg-yellow-400 text-teal-700 text-sm font-bold px-4 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -150,25 +176,43 @@ export default function BookDemo() {
             See e-Sumbong in Action
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Schedule a personalized walkthrough for your barangay. We'll show you how e-Sumbong can transform your community's concern management.
+            Schedule a personalized walkthrough for your barangay. We'll show
+            you how e-Sumbong can transform your community's concern management.
           </p>
         </div>
 
         {/* What to expect */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
           {[
-            { icon: Clock, label: "30-minute session", sub: "Focused and efficient" },
-            { icon: Users, label: "For barangay officials", sub: "Tailored to your needs" },
-            { icon: CheckCircle2, label: "No commitment", sub: "Completely free" },
+            {
+              icon: Clock,
+              label: "30-minute session",
+              sub: "Focused and efficient",
+            },
+            {
+              icon: Users,
+              label: "For barangay officials",
+              sub: "Tailored to your needs",
+            },
+            {
+              icon: CheckCircle2,
+              label: "No commitment",
+              sub: "Completely free",
+            },
           ].map((item, i) => {
             const Icon = item.icon;
             return (
-              <div key={i} className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+              <div
+                key={i}
+                className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-4 shadow-sm"
+              >
                 <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Icon className="w-5 h-5 text-teal-700" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-foreground">{item.label}</p>
+                  <p className="font-semibold text-sm text-foreground">
+                    {item.label}
+                  </p>
                   <p className="text-xs text-muted-foreground">{item.sub}</p>
                 </div>
               </div>
@@ -181,12 +225,13 @@ export default function BookDemo() {
           {/* Form header */}
           <div className="bg-teal-600 px-8 py-6">
             <h2 className="text-xl font-bold text-white">Your Information</h2>
-            <p className="text-teal-100 text-sm mt-1">Fill in your barangay details to get started</p>
+            <p className="text-teal-100 text-sm mt-1">
+              Fill in your barangay details to get started
+            </p>
           </div>
 
           <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
               {/* Barangay Name */}
               <FormField
                 label="Barangay Name"
@@ -262,7 +307,9 @@ export default function BookDemo() {
                 >
                   <option value="">Select range...</option>
                   {residentRanges.map((r) => (
-                    <option key={r} value={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </select>
               </FormField>
@@ -295,7 +342,9 @@ export default function BookDemo() {
                 >
                   <option value="">Any time works</option>
                   {timeSlots.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </select>
               </FormField>
@@ -355,7 +404,10 @@ export default function BookDemo() {
         {/* Footer note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
           Prefer to reach us directly?{" "}
-          <a href="mailto:mmanrusiana@gmail.com" className="text-teal-600 font-medium hover:underline">
+          <a
+            href="mailto:mmanrusiana@gmail.com"
+            className="text-teal-600 font-medium hover:underline"
+          >
             mmanrusiana@gmail.com
           </a>
         </p>
@@ -371,7 +423,9 @@ function inputClass(hasError: boolean) {
     "w-full rounded-lg border px-4 py-2.5 text-sm text-foreground bg-white",
     "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent",
     "placeholder:text-gray-400 transition-colors duration-150",
-    hasError ? "border-red-400 bg-red-50" : "border-gray-200 hover:border-teal-300",
+    hasError
+      ? "border-red-400 bg-red-50"
+      : "border-gray-200 hover:border-teal-300",
   ].join(" ");
 }
 
@@ -393,7 +447,9 @@ function FormField({
       <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
         <span className="text-teal-600">{icon}</span>
         {label}
-        {optional && <span className="text-gray-400 font-normal">(optional)</span>}
+        {optional && (
+          <span className="text-gray-400 font-normal">(optional)</span>
+        )}
       </label>
       {children}
       {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}

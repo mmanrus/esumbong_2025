@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import "./globals.css";
 import { AuthProvider, User } from "@/contexts/authContext";
 import { getUser } from "@/lib/dal";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,16 +48,19 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
       >
-        <ConcernProvider>
-          <AuthProvider initialUser={user as User}>
-            <WebSocketProvider>
-              <Providers>
-                <UpdateProvider>{children}</UpdateProvider>
-              </Providers>
-            </WebSocketProvider>
-          </AuthProvider>
-        </ConcernProvider>
-
+        <GoogleReCaptchaProvider
+          reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+        >
+          <ConcernProvider>
+            <AuthProvider initialUser={user as User}>
+              <WebSocketProvider>
+                <Providers>
+                  <UpdateProvider>{children}</UpdateProvider>
+                </Providers>
+              </WebSocketProvider>
+            </AuthProvider>
+          </ConcernProvider>
+        </GoogleReCaptchaProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>
