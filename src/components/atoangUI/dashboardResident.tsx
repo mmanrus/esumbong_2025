@@ -48,6 +48,35 @@ const FloatingIcon = ({
   </div>
 );
 
+// Helper to extract preview from rich content// Updated helper — handles both JSON block format AND plain HTML string
+function getAnnouncementPreview(content: string): {
+  text: string;
+  imageUrl: string | null;
+} {
+  try {
+    const blocks = JSON.parse(content);
+    if (Array.isArray(blocks)) {
+      const textBlock = blocks.find((b: any) => b.type === "text" && b.content);
+      const imageBlock = blocks.find(
+        (b: any) => b.type === "images" && b.images?.length > 0,
+      );
+      const text = (textBlock?.content ?? "")
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .trim();
+      return { text, imageUrl: imageBlock?.images?.[0]?.url ?? null };
+    }
+  } catch {}
+
+  // Fallback: plain HTML string — extract text and first img src
+  const imgMatch = content.match(/<img[^>]+src="([^"]+)"/);
+  const text = content
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  return { text, imageUrl: imgMatch?.[1] ?? null };
+}
+
 export function DashboardOverview() {
   const router = useRouter();
   const { user } = useAuth();
@@ -194,50 +223,53 @@ export function DashboardOverview() {
       </div>
 
       {/* Announcements */}
-      {announcementsData?.data && announcementsData.data.length > 0 && (
-        <div className="relative z-10">
-          <div className="mb-3 sm:mb-4">
-            <p className="text-md sm:text-2xl font-bold text-foreground flex items-center gap-2">
-              <Megaphone className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
-              Latest Announcements
-            </p>
+      {/* Change grid to always 2 cols */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+  {announcementsData?.data.slice(0, 2).map((announcement: any) => {
+    const { text, imageUrl } = getAnnouncementPreview(announcement.content);
+    return (
+      <Card
+        key={announcement.id}
+        className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow
+                   overflow-hidden cursor-pointer group"
+        onClick={() => router.push(`/announcements/${announcement.id}`)}
+      >
+        <CardContent className="p-4 flex flex-col gap-2 h-full">
+          {/* Title + Badge */}
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-semibold text-foreground
+                           group-hover:text-primary transition-colors flex-1 leading-snug line-clamp-2">
+              {announcement.title}
+            </h3>
+            <Badge variant="secondary" className="shrink-0 text-xs">New</Badge>
           </div>
 
-          {/* Announcements: 1 col on mobile, 2 col on md+ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            {announcementsData.data.slice(0, 2).map((announcement: any) => (
-              <Card
-                key={announcement.id}
-                className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow
-                           overflow-hidden cursor-pointer group"
-                onClick={() => router.push(`/announcements/${announcement.id}`)}
-              >
-                <CardContent className="px-2 py-3 sm:p-5">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3
-                      className="text-base sm:text-lg font-semibold text-foreground
-                                   group-hover:text-primary transition-colors flex-1 leading-snug"
-                    >
-                      {announcement.title}
-                    </h3>
-                    <Badge variant="secondary" className="shrink-0 text-xs">
-                      New
-                    </Badge>
-                  </div>
-                  <div
-                    className="text-sm text-muted-foreground line-clamp-3 mb-3 *:inline"
-                    dangerouslySetInnerHTML={{ __html: announcement.content }}
-                  />
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 flex-shrink-0" />
-                    {formatDate(new Date(announcement.createdAt))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          {/* Text preview — takes remaining space */}
+          <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
+            {text}
+          </p>
+
+          {/* Image — full width at bottom, only if exists */}
+          {imageUrl && (
+            <div className="w-full h-36 rounded-md overflow-hidden mt-1">
+              <img
+                src={imageUrl}
+                alt="preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* Date */}
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3 flex-shrink-0" />
+            {formatDate(new Date(announcement.createdAt))}
           </div>
-        </div>
-      )}
+        </CardContent>
+      </Card>
+    );
+  })}
+</div>
     </div>
   );
 }
