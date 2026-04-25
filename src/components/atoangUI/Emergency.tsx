@@ -23,6 +23,7 @@ type AnnouncementsPage = {
 };
 import HotlinePanel from "@/components/hotlinePanel"; // your updated component
 import { useEffect, useState } from "react";
+import { getAnnouncementPreview } from "@/lib/announcementPreview";
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
 
 async function fetchAnnouncements(
@@ -175,61 +176,71 @@ export default function EmergencyPage() {
               )}
 
               {/* Announcement cards */}
-              {announcements.map((announcement) => (
-                <Link
-                  key={announcement.id}
-                  href={`/announcement/${announcement.id}`}
-                  className="block bg-white rounded-xl shadow p-5 sm:p-6 border-l-4 border-teal-500
-                             hover:shadow-lg hover:border-teal-600 transition-all duration-200 group"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h3
-                        className="text-base sm:text-lg font-bold text-gray-900
-                                   group-hover:text-teal-700 transition-colors mb-1.5
-                                   line-clamp-2 sm:line-clamp-1"
-                      >
-                        {announcement.title}
-                      </h3>
+              {announcements.map((announcement) => {
+                const { text, imageUrl } = getAnnouncementPreview(
+                  announcement.content,
+                );
+                return (
+                  <Link
+                    key={announcement.id}
+                    href={`/announcement/${announcement.id}`}
+                    className="block bg-white rounded-xl shadow p-5 sm:p-6 border-l-4 border-teal-500
+                 hover:shadow-lg hover:border-teal-600 transition-all duration-200 group"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Left: text content */}
+                      <div className="flex-1 min-w-0">
+                        <h3
+                          className="text-base sm:text-lg font-bold text-gray-900
+                         group-hover:text-teal-700 transition-colors mb-1.5 line-clamp-1"
+                        >
+                          {announcement.title}
+                        </h3>
 
-                      <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">
-                        {stripHtml(announcement.content)}
-                      </p>
+                        <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">
+                          {text}
+                        </p>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-gray-400">
-                          📅 {formatDate(announcement.createdAt)}
-                        </span>
-                        {announcement.notifyResidents && (
-                          <span
-                            className="text-xs font-semibold px-2.5 py-0.5 rounded-full
-                                       bg-teal-100 text-teal-700 border border-teal-200"
-                          >
-                            👥 Residents
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs text-gray-400">
+                            📅 {formatDate(announcement.createdAt)}
                           </span>
-                        )}
-                        {announcement.notifyOfficials && (
-                          <span
-                            className="text-xs font-semibold px-2.5 py-0.5 rounded-full
-                                       bg-blue-100 text-blue-700 border border-blue-200"
-                          >
-                            🏛️ Officials
-                          </span>
-                        )}
+                          {announcement.notifyResidents && (
+                            <span
+                              className="text-xs font-semibold px-2.5 py-0.5 rounded-full
+                               bg-teal-100 text-teal-700 border border-teal-200"
+                            >
+                              👥 Residents
+                            </span>
+                          )}
+                          {announcement.notifyOfficials && (
+                            <span
+                              className="text-xs font-semibold px-2.5 py-0.5 rounded-full
+                               bg-blue-100 text-blue-700 border border-blue-200"
+                            >
+                              🏛️ Officials
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Arrow — hidden on very small screens */}
-                    <span
-                      className="hidden sm:block text-gray-300 group-hover:text-teal-500
-                                 group-hover:translate-x-1 transition-all duration-200
-                                 text-lg flex-shrink-0 mt-0.5"
-                    >
-                      →
-                    </span>
-                  </div>
-                </Link>
-              ))}
+                      {/* Right: image thumbnail */}
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="preview"
+                          className="w-20 h-20 object-cover rounded-lg shrink-0"
+                        />
+                      ) : (
+                        // placeholder so cards without images stay aligned
+                        <div className="w-20 h-20 rounded-lg shrink-0 bg-gray-100 flex items-center justify-center">
+                          <span className="text-2xl">📢</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
 
               {/* Next-page skeletons while fetching */}
               {isFetchingNextPage && (
