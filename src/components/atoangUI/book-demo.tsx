@@ -355,8 +355,8 @@ export default function BookDemo() {
         {/* Footer note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
           Prefer to reach us directly?{" "}
-          <a href="mailto:hello@esumbong.ph" className="text-teal-600 font-medium hover:underline">
-            hello@esumbong.ph
+          <a href="mailto:mmanrusiana@gmail.com" className="text-teal-600 font-medium hover:underline">
+            mmanrusiana@gmail.com
           </a>
         </p>
       </div>
