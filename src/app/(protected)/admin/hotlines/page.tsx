@@ -183,7 +183,7 @@ export default function ManageHotlinesPage() {
               <div className="flex items-start gap-3">
                 {/* Preview icon */}
                 <div
-                  className={`${h.iconBg} p-2.5 rounded-lg shadow-sm flex-shrink-0 mt-1`}
+                  className={`${h.iconBg} p-2.5 rounded-lg shadow-sm shrink-0 mt-1`}
                 >
                   <Icon className="w-5 h-5 text-white" />
                 </div>
@@ -250,7 +250,7 @@ export default function ManageHotlinesPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-2 flex-shrink-0">
+                <div className="flex flex-col gap-2 shrink-0">
                   <button
                     onClick={() => save(index)}
                     disabled={saving === index}
