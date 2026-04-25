@@ -1,4 +1,4 @@
-
+// api/auth/login/route.ts
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 if (!url) {
     throw new Error("Backend Url is not defined in environment variables.")
@@ -37,12 +37,11 @@ export async function POST(request: NextRequest) {
 
             }
             return NextResponse.json({ message: errorData.message || "Failed to login" },
-                { status: errorData.status }
+                { status: res.status } 
             )
         }
 
         const result = await res.json()
-        console.log("login result: ",result)
         return NextResponse.json({ message: "Login successful", user: result }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ message: "Failed to Login user", }, { status: 500 })

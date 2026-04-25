@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "@/lib/constants";
 
 export async function GET() {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+  const accessToken = cookieStore.get("access_token")?.value;
   if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/super-admin/dashboard`, {

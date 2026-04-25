@@ -7,9 +7,9 @@ import { jwtVerify } from "jose";
 // Must match the same secret your backend uses to sign access tokens.
 // We use jose (not jsonwebtoken) because middleware runs on the Edge Runtime
 // which doesn't support Node.js built-in crypto modules.
-const SESSION_SECRET = process.env.SESSION_SECRET;
-if (!SESSION_SECRET) throw new Error("JWT_SECRET is not defined");
-const jwtSecretKey = new TextEncoder().encode(SESSION_SECRET);
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("JWT_SECRET is not defined");
+const jwtSecretKey = new TextEncoder().encode(JWT_SECRET);
 
 // Dashboard routes
 const dashboardRoutes = {
@@ -79,7 +79,7 @@ export default async function middleware(req: NextRequest) {
           response.headers.append("Set-Cookie", value);
         }
       });
-
+      return response
     } else {
       // access_token exists — check if it's still valid
       const payload = await verifyAccessToken(accessToken);
@@ -107,16 +107,17 @@ export default async function middleware(req: NextRequest) {
             response.headers.append("Set-Cookie", value);
           }
         });
+        return response
 
       } else if (payload.exp && isExpiringSoon(payload.exp)) {
         // Token still valid but expires in < 2 min → fire-and-forget background refresh.
         // The current request uses the still-valid token; the next request gets the new one.
-        fetch(new URL("/api/auth/refresh", req.url), {
-          method: "POST",
-          headers: { cookie: req.headers.get("cookie") ?? "" },
-        }).catch(() => {
-          // Non-critical — token is still valid for up to 2 more minutes
-        });
+        // fetch(new URL("/api/auth/refresh", req.url), {
+        //   method: "POST",
+        //   headers: { cookie: req.headers.get("cookie") ?? "" },
+        // }).catch(() => {
+        //   // Non-critical — token is still valid for up to 2 more minutes
+        // });
       }
     }
   }

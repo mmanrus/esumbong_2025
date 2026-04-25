@@ -1,4 +1,5 @@
 "use client";
+// (protected)/super-admin/page.tsx
 import { useEffect, useState } from "react";
 import { PageHeader, LoadingSkeleton, ErrorBanner } from "@/components/atoangUI/ui";
 import { Users, Home, AlertCircle, MessageSquare, ShieldAlert } from "lucide-react";

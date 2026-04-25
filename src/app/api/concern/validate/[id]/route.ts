@@ -13,7 +13,7 @@ export async function PATCH(
     const body = await request.json();
     const { validation, media, updateMessage } = body;
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || ""
     const res = await fetch(

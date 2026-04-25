@@ -62,10 +62,7 @@ export async function login(prevState: any, formData: FormData) {
   const authPayload = backendPayload.user ?? backendPayload;
   const accessToken = backendPayload.access;
   const refreshToken = backendPayload.refresh;
-  // After successful login, alongside saving the token:
-  localStorage.setItem("lastBarangayId", String(backendPayload.barangayId));
-  localStorage.setItem("lastBarangayName", backendPayload.barangayName); // optional, for display
-  // store access/refresh separately
+   // store access/refresh separately
   const cookieStore = await cookies();
   const cookieOptions = {
     httpOnly: true,

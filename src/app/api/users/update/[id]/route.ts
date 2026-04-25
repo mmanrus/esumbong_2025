@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
     };
     console.log(backendPayload)
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value
+    const accessToken = cookieStore.get("access_token")?.value
 
     if (!accessToken) {
       return NextResponse.json({ error: "Unauthorized" })

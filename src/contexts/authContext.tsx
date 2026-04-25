@@ -6,6 +6,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
 } from "react";
 
 export type User = {
@@ -47,33 +48,35 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] =
     useState<boolean>(!!initialUser);
 
-  const fetchUser = async () => {
-    try {
-      setLoading(true);
+  const fetchUser = useCallback(async () => {
+  try {
+    setLoading(true);
+    const res = await fetch("/api/me", { credentials: "include" });
 
-      const res = await fetch("/api/me", {
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        setUser(null);
-        setIsAuthenticated(false);
-        return;
-      }
-
-      const data = await res.json();
-      setUser(data.user ?? data);
-      // After successful login, alongside saving the token:
-      localStorage.setItem("lastBarangayId", String(data.user.barangayId));
-      localStorage.setItem("lastBarangayName", data.user.barangay.name); // optional, for display
-      setIsAuthenticated(true);
-    } catch (err) {
-      console.error("Auth fetch failed:", err);
+    if (!res.ok) {
       setUser(null);
-    } finally {
-      setLoading(false);
+      setIsAuthenticated(false);
+      return;
     }
-  };
+
+    const data = await res.json();
+    setUser(data.user ?? data);
+    setIsAuthenticated(true);
+
+    // Guard against null barangay (superAdmin has none)
+    if (data.user?.barangayId) {
+      localStorage.setItem("lastBarangayId", String(data.user.barangayId));
+    }
+    if (data.user?.barangay?.name) {
+      localStorage.setItem("lastBarangayName", data.user.barangay.name);
+    }
+  } catch (err) {
+    console.error("Auth fetch failed:", err);
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+}, []); // ✅ stable reference
 
   useEffect(() => {
     if (!initialUser) {

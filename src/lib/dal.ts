@@ -31,7 +31,7 @@ export const getUser = async () => {
     if (!session?.isAuth) return null;
 
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
       method: "GET",
