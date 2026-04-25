@@ -8,9 +8,10 @@ const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 // PATCH /api/hotline/:id
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // ← Promise
 ) {
   try {
+    const { id } = await params;  // ← await it
     const body = await request.json();
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
@@ -19,7 +20,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const result = await fetch(`${url}/api/hotline/${params.id}`, {
+    const result = await fetch(`${url}/api/hotline/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -52,9 +53,10 @@ export async function PATCH(
 // DELETE /api/hotline/:id
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // ← Promise
 ) {
   try {
+    const { id } = await params;  // ← await it
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(COOKIE_NAME)?.value;
 
@@ -62,7 +64,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const result = await fetch(`${url}/api/hotline/${params.id}`, {
+    const result = await fetch(`${url}/api/hotline/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
