@@ -1,3 +1,4 @@
+import BookDemo from "@/components/atoangUI/book-demo";
 import CitizenFeedback from "@/components/atoangUI/citizen-feedback";
 import CommunityImpact from "@/components/atoangUI/community-impact";
 import CTA from "@/components/atoangUI/cta";
@@ -17,6 +18,7 @@ export default function Page() {
       <TransparencyDashboard />
       <CommunityImpact />
       <CitizenFeedback />
+      <BookDemo/>
       <CTA />
     </main>
   );

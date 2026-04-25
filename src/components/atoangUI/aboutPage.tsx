@@ -9,35 +9,35 @@ const values = [
     icon: Users,
     title: "Community-Centered",
     description:
-      "We prioritize the voices and needs of our citizens in every decision we make.",
+      "We prioritize the voices and needs of citizens in every decision we make.",
   },
   {
     icon: Lightbulb,
     title: "Innovation",
     description:
-      "We continuously improve our platform to better serve the community.",
+      "We continuously improve our platform to better serve communities nationwide.",
   },
   {
     icon: Award,
     title: "Accountability",
     description:
-      "We ensure government officials remain transparent and responsive.",
+      "We ensure government officials remain transparent and responsive to their constituents.",
   },
   {
     icon: CheckCircle2,
     title: "Efficiency",
     description:
-      "We streamline concern resolution for faster community impact.",
+      "We streamline concern resolution for faster community impact across all barangays.",
   },
 ];
 
 const milestones = [
   {
-    number: "5000+",
-    label: "Active Citizens",
+    number: "10+",
+    label: "Barangays Ready",
   },
   {
-    number: "250+",
+    number: "500+",
     label: "Issues Resolved",
   },
   {
@@ -61,11 +61,10 @@ export default function About() {
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
             The E-Sumbong Web-Based Concern and Feedback Management System is
-            proudly developed to serve the residents and officials of Barangay
-            Cogon Pardo, Cebu City. This system was created to modernize the
-            barangay's concern-handling process by replacing manual reporting
+            designed to serve barangay residents and officials across the Philippines.
+            This system modernizes concern-handling processes by replacing manual reporting
             with a more organized, secure, and accessible online platform
-            tailored to the needs of the Cogon Pardo community.
+            tailored to meet the unique needs of each barangay community.
           </p>
         </div>
       </section>
@@ -80,10 +79,10 @@ export default function About() {
             </h2>
           </div>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Our mission is to strengthen public service in Barangay Cogon Pardo
+            Our mission is to strengthen public service in barangays nationwide
             by promoting transparency, accountability, and efficient
             communication between residents and barangay officials through a
-            reliable web-based system.
+            reliable, customizable web-based system.
           </p>
         </div>
       </section>
@@ -184,17 +183,17 @@ export default function About() {
             Our Vision
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-            We envision a future where every citizen in Barangay Cogon Pardo has
+            We envision a future where every citizen in every barangay has
             equal access to government services, transparent communication
             channels, and the power to influence local development. Through
-            e-Sumbong, we aim to create a model community that demonstrates how
+            e-Sumbong, we aim to create model communities that demonstrate how
             technology and civic engagement can work together to solve problems
             and improve quality of life.
           </p>
           <p className="text-lg text-muted-foreground leading-relaxed">
             By bridging the gap between residents and officials, we are building
-            a more inclusive, responsive, and effective barangay government for
-            everyone.
+            more inclusive, responsive, and effective barangay governments
+            across the Philippines.
           </p>
         </div>
       </section>
@@ -206,7 +205,7 @@ export default function About() {
             Join Our Community
           </h2>
           <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
-            Be part of the movement to strengthen our barangay through
+            Be part of the movement to strengthen barangays through
             transparency, accountability, and collective action.
           </p>
           <button
