@@ -5,13 +5,19 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     // Verify reCAPTCHA
     const captchaRes = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${data.captchaToken}`,
-      { method: "POST" }
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${data.captchaToken}`,
+      }
     );
     const captchaData = await captchaRes.json();
+    console.log("reCAPTCHA verification response:", captchaData);
 
-    // Block if score is too low (0 = bot, 1 = human)
-    if (!captchaData.success || captchaData.score < 0.5) {
+    // Skip CAPTCHA enforcement on localhost (browser-error is a known local dev issue)
+    const isDev = process.env.NODE_ENV === "development";
+    if (!isDev && (!captchaData.success || captchaData.score < 0.5)) {
       return NextResponse.json(
         { error: "Failed CAPTCHA verification" },
         { status: 400 }
