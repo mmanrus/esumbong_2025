@@ -21,7 +21,8 @@ type AnnouncementsPage = {
   nextCursor: number | null;
   hasNextPage: boolean;
 };
-
+import HotlinePanel from "@/components/hotlinePanel"; // your updated component
+import { useEffect, useState } from "react";
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
 
 async function fetchAnnouncements(
@@ -102,7 +103,16 @@ export default function EmergencyPage() {
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? (lastPage.nextCursor ?? undefined) : undefined,
   });
+  const [barangayId, setBarangayId] = useState<number | null>(null);
+  const [barangayName, setBarangayName] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Read the last logged-in barangay from localStorage
+    const stored = localStorage.getItem("lastBarangayId");
+    const storedName = localStorage.getItem("lastBarangayName");
+    if (stored) setBarangayId(parseInt(stored));
+    if (storedName) setBarangayName(storedName);
+  }, []);
   const announcements = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
@@ -113,9 +123,19 @@ export default function EmergencyPage() {
         <div className="max-w-6xl mx-auto">
           {/* ── Page Title ── */}
           <div className="mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
               Emergency &amp; Announcements
             </h1>
+            {barangayName && (
+              <p className="text-sm text-teal-600 font-medium">
+                📍 Showing hotlines for {barangayName}
+              </p>
+            )}
+            {!barangayName && (
+              <p className="text-sm text-gray-400">
+                Log in to see your barangay's emergency hotlines.
+              </p>
+            )}
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl">
               Stay informed with critical updates and emergency contact
               information for your community.
@@ -124,39 +144,6 @@ export default function EmergencyPage() {
 
           {/* ── Layout ── */}
           <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* ── Hotlines — top on mobile, sticky sidebar on desktop ── */}
-            <aside className="order-first lg:order-none">
-              <div className="bg-white rounded-xl shadow-lg p-5 sm:p-6 lg:sticky lg:top-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-teal-700 mb-5">
-                  🚨 Emergency Hotlines
-                </h2>
-
-                {/* Mobile: 2-col grid. Tablet: 3-col. Desktop: single column list */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 lg:gap-0 lg:space-y-4">
-                  {hotlines.map((hotline, index) => (
-                    <div
-                      key={index}
-                      className="lg:border-b lg:border-gray-200 lg:pb-4 lg:last:border-b-0
-                                 bg-gray-50 lg:bg-transparent rounded-lg lg:rounded-none p-3 lg:p-0"
-                    >
-                      <p className="font-semibold text-gray-900 text-sm leading-tight">
-                        {hotline.name}
-                      </p>
-                      <a
-                        href={`tel:${hotline.number.replace(/\D/g, "")}`}
-                        className="text-teal-600 font-bold text-base sm:text-lg hover:text-teal-800 transition block"
-                      >
-                        {hotline.number}
-                      </a>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {hotline.available}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
             {/* ── Announcements List ── */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-5">
               {/* Loading skeletons */}
@@ -276,6 +263,7 @@ export default function EmergencyPage() {
           </div>
         </div>
       </section>
+      <HotlinePanel barangayId={barangayId} />
     </main>
   );
 }

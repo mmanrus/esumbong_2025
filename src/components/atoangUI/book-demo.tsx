@@ -100,7 +100,6 @@ export default function BookDemo() {
     if (!executeRecaptcha) return;
     const captchaToken = await executeRecaptcha("book_demo");
 
-    console.log("captcha token:", captchaToken); // ✅ add this
     setStatus("loading");
     setErrorMsg("");
 

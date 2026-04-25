@@ -103,7 +103,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </header>
           <main className="flex flex-1">
             <div className="flex-1 p-3 overflow-y-auto">{children}</div>
-            <HotlinePanel />
+            <HotlinePanel barangayId={user.barangayId}/>
           </main>
         </SidebarInset>
       </SidebarProvider>

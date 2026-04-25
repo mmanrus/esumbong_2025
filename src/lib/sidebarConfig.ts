@@ -13,8 +13,9 @@ import {
   Tag,
   MessageSquare,
   FolderX,
-  Globe,       
-  ShieldCheck, 
+  Globe,
+  ShieldCheck,
+  Phone,
 } from "lucide-react";
 export type UserRole = "admin" | "resident" | "barangay_official" | "superAdmin";
 export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
@@ -44,11 +45,13 @@ export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
     { id: "/admin/users", url: "/admin/users", title: "User Management", icon: Users },
     { id: "/announcements", url: "/announcements", title: "Announcements", icon: Megaphone },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
+    // in the admin array:
+    { id: "/admin/hotlines", url: "/admin/hotlines", title: "Hotlines", icon: Phone },
   ],
-   superAdmin: [
-    { id: "/super-admin/dashboard",  url: "/super-admin",  title: "Dashboard",  icon: LayoutDashboard },
-    { id: "/super-admin/barangays",  url: "/super-admin/barangays",  title: "Barangays",  icon: ShieldCheck },
-    { id: "/super-admin/admins",     url: "/super-admin/admins",     title: "Admins",     icon: Users },
-    { id: "/super-admin/geography",  url: "/super-admin/geography",  title: "Geography",  icon: Globe },
+  superAdmin: [
+    { id: "/super-admin/dashboard", url: "/super-admin", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/super-admin/barangays", url: "/super-admin/barangays", title: "Barangays", icon: ShieldCheck },
+    { id: "/super-admin/admins", url: "/super-admin/admins", title: "Admins", icon: Users },
+    { id: "/super-admin/geography", url: "/super-admin/geography", title: "Geography", icon: Globe },
   ],
 }

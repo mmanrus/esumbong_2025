@@ -14,7 +14,7 @@ export type User = {
   email: string;
   type: string;
   createdAt: Date;
-  isVerified?: Boolean
+  isVerified?: Boolean;
   contactNumber: string;
   position?: string;
   profilePhoto?: string;
@@ -23,7 +23,7 @@ export type User = {
     id: number;
     name: string;
   };
-  barangayId: number
+  barangayId: number;
 };
 
 type AuthContextType = {
@@ -63,6 +63,9 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
       const data = await res.json();
       setUser(data.user ?? data);
+      // After successful login, alongside saving the token:
+      localStorage.setItem("lastBarangayId", String(data.user.barangayId));
+      localStorage.setItem("lastBarangayName", data.user.barangay.name); // optional, for display
       setIsAuthenticated(true);
     } catch (err) {
       console.error("Auth fetch failed:", err);
