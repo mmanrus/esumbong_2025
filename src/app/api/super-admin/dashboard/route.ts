@@ -1,7 +1,6 @@
 // src/app/api/super-admin/dashboard/route.ts
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { COOKIE_NAME } from "@/lib/constants";
 
 export async function GET() {
   const cookieStore = await cookies();

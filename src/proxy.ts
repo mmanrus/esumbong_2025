@@ -112,12 +112,12 @@ export default async function middleware(req: NextRequest) {
       } else if (payload.exp && isExpiringSoon(payload.exp)) {
         // Token still valid but expires in < 2 min → fire-and-forget background refresh.
         // The current request uses the still-valid token; the next request gets the new one.
-        // fetch(new URL("/api/auth/refresh", req.url), {
-        //   method: "POST",
-        //   headers: { cookie: req.headers.get("cookie") ?? "" },
-        // }).catch(() => {
-        //   // Non-critical — token is still valid for up to 2 more minutes
-        // });
+        fetch(new URL("/api/auth/refresh", req.url), {
+          method: "POST",
+          headers: { cookie: req.headers.get("cookie") ?? "" },
+        }).catch(() => {
+          // Non-critical — token is still valid for up to 2 more minutes
+        });
       }
     }
   }
@@ -180,11 +180,18 @@ export default async function middleware(req: NextRequest) {
 
     if (session.type === "resident") {
       const isVerified = session.isVerified;
-      if (process.env.NODE_ENV === "development") console.log("isVerified?", isVerified);
+      const hasPending = session.hasPendingVerification;
+      if (process.env.NODE_ENV === "development") console.log("isVerified?", isVerified, "hasPending?", hasPending);
 
       if (!isVerified) {
-        if (!path.startsWith("/verify")) {
-          return NextResponse.redirect(new URL("/verify", req.nextUrl));
+        if (hasPending) {
+          if (!path.startsWith("/verify/pending") && !path.startsWith("/verify")) {
+            return NextResponse.redirect(new URL("/verify/pending", req.nextUrl));
+          }
+        } else {
+          if (!path.startsWith("/verify")) {
+            return NextResponse.redirect(new URL("/verify", req.nextUrl));
+          }
         }
         return NextResponse.next();
       } else {

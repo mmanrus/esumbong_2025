@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const session = await getUnlockTime()
-        console.log("session", session)
+        
         if (!session?.unlockTime) {
             return NextResponse.json({ error: "No lock data" }, { status: 404 });
         }

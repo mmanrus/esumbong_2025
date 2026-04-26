@@ -1,4 +1,3 @@
-import { COOKIE_NAME } from "@/lib/constants";
 import { Description } from "@radix-ui/react-dialog";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,7 +9,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
     const body = await req.json()
 
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value
+    const accessToken = cookieStore.get("access_token")?.value
     if (!accessToken) {
         return NextResponse.json({
             error: "Unauthorized"

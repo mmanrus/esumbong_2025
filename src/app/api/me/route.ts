@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
-import { COOKIE_NAME } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;

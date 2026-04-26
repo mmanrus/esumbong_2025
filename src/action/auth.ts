@@ -62,6 +62,9 @@ export async function login(prevState: any, formData: FormData) {
   const authPayload = backendPayload.user ?? backendPayload;
   const accessToken = backendPayload.access;
   const refreshToken = backendPayload.refresh;
+  
+  const hasPendingVerification = authPayload?.verificationMedia && authPayload.verificationMedia.length > 0 && !authPayload?.isVerified;
+  
    // store access/refresh separately
   const cookieStore = await cookies();
   const cookieOptions = {
@@ -70,11 +73,19 @@ export async function login(prevState: any, formData: FormData) {
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     path: "/",
   } as const;
+  const accessCookieOptions = {
+    ...cookieOptions,
+    maxAge: 60 * 15, // 15 minutes
+  };
+  const refreshCookieOptions = {
+    ...cookieOptions,
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  };
   if (accessToken) {
-    cookieStore.set("access_token", accessToken, cookieOptions);
+    cookieStore.set("access_token", accessToken, accessCookieOptions);
   }
   if (refreshToken) {
-    cookieStore.set("refresh_token", refreshToken, cookieOptions);
+    cookieStore.set("refresh_token", refreshToken, refreshCookieOptions);
   }
 
   // store SMALL session cookie
@@ -84,6 +95,7 @@ export async function login(prevState: any, formData: FormData) {
     barangayId: authPayload?.barangayId,
     dailyPostCount: authPayload?.dailyPostCount,
     isVerified: authPayload?.isVerified,
+    hasPendingVerification,
   });
 
   return {

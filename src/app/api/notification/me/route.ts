@@ -1,5 +1,4 @@
 // app/api/notification/me/route.ts
-import { COOKIE_NAME } from "@/lib/constants"
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 

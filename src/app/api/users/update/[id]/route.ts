@@ -1,6 +1,5 @@
 // api/users/update/[id]/route.ts
 
-import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
