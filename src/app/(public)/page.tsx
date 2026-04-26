@@ -4,6 +4,7 @@ import CommunityImpact from "@/components/atoangUI/community-impact";
 import CTA from "@/components/atoangUI/cta";
 import Header from "@/components/atoangUI/headers";
 import TransparencyDashboard from "@/components/atoangUI/transparency-dashboard";
+import FeaturesShowcase from "@/components/FeatureShowcase";
 
 export const metadata = {
   title: "E-Sumbong - Your Voice, Our Action",
@@ -18,6 +19,7 @@ export default function Page() {
       <TransparencyDashboard />
       <CommunityImpact />
       <CitizenFeedback />
+      <FeaturesShowcase/>
       <BookDemo/>
       <CTA />
     </main>

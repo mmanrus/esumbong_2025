@@ -21,6 +21,7 @@ export type UserRole = "admin" | "resident" | "barangay_official" | "superAdmin"
 export const SIDEBAR_CONFIG: Record<UserRole, SidebarPage[]> = {
   barangay_official: [
     { id: "/officials", url: "/officials", title: "Dashboard", icon: LayoutDashboard },
+    { id: "/analytics", url: "/officials/analytics", title: "Analytics", icon: ChartBar },
     { id: "/officials/viewConcerns", url: "/officials/viewConcerns", title: "View Concerns", icon: FolderOpen },
     { id: "/officials/archives", url: "/officials/archives", title: "Archives", icon: Archive },
     { id: "/feedback", url: "/feedback", title: "Feedback", icon: MessageSquare },
