@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   try {
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value
+    const accessToken = cookieStore.get("access_token")?.value
     if (!accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

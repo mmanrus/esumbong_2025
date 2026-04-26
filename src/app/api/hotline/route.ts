@@ -1,5 +1,4 @@
 
-import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
 
     if (!accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

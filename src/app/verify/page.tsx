@@ -199,14 +199,20 @@ export default function Page() {
             </div>
           </form>
 
-          <div className="mt-4">
-            <form action={logout} className="w-full">
-              <button
+          <div className="flex mt-4 justify-center">
+            <form action={logout}>
+              <Button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-stone-900 text-stone-100 text-sm font-medium tracking-wide hover:bg-stone-800 active:scale-[0.98] transition-all"
+                className={clsx(
+                  `bg-green-700 text-white px-6 py-3 
+                    rounded-md hover:bg-green-800 text-lg
+                    font-semibold transition`,
+                  loading && "bg-green-950",
+                )}
+                disabled={loading}
               >
                 Logout
-              </button>
+              </Button>
             </form>
           </div>
         </CardContent>

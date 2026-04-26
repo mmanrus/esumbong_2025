@@ -3,7 +3,6 @@
 
 export const dynamic = "force-dynamic";
 
-import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,7 +12,7 @@ export async function GET(
     const { searchParams } = new URL(request.url)
     const cursor = searchParams.get("cursor") || ""
     const cookieStore = await cookies(); // synchronous
-    const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
 
     if (!accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -45,3 +44,4 @@ export async function GET(
         return NextResponse.json({ error: "An error occurred while processing the request." }, { status: 500 });
     }
 }
+

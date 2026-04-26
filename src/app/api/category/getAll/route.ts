@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-import { COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type") || ""
     try {
         const cookieStore = await cookies()
-        const accessToken = cookieStore.get(COOKIE_NAME)?.value
+        const accessToken = cookieStore.get("access_token")?.value
         const res = await fetch(`${url}/api/category?type=${encodeURIComponent(type)}`, {
             method: "GET",
             credentials: "include",

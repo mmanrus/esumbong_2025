@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const take = searchParams.get("take") || "20"
 
     const cookieStore = await cookies()
-    const token = cookieStore.get(COOKIE_NAME)?.value
+    const token = cookieStore.get("access_token")?.value
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const params = new URLSearchParams()
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   const cookieStore = await cookies()
-  const token = cookieStore.get(COOKIE_NAME)?.value
+  const token = cookieStore.get("access_token")?.value
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const res = await fetch(

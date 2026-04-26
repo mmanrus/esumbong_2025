@@ -1,11 +1,9 @@
 // src/app/api/super-admin/admins/route.ts
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { COOKIE_NAME } from "@/lib/constants";
-
 export async function GET() {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+  const accessToken = cookieStore.get("access_token")?.value;
   if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/super-admin/admins`, {
@@ -18,7 +16,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get(COOKIE_NAME)?.value;
+  const accessToken = cookieStore.get("access_token")?.value;
   if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
