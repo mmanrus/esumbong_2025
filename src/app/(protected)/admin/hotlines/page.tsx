@@ -77,9 +77,10 @@ export default function ManageHotlinesPage() {
   const [hotlines, setHotlines] = useState<Hotline[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<number | string | null>(null);
-
+  const { user } = useAuth();
+  const barangayId = user?.barangayId;
   useEffect(() => {
-    fetch("/api/hotline", { credentials: "include" })
+      fetch(`/api/hotline?barangayId=${barangayId}`)
       .then((r) => r.json())
       .then((data) => setHotlines(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));

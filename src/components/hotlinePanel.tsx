@@ -15,6 +15,7 @@ import {
   Building2,
   Users,
 } from "lucide-react";
+import { useWebSocket } from "@/contexts/webSocketContext";
 
 // ─── Icon registry — add more as needed ───────────────────────────────────────
 export const ICON_OPTIONS = [
@@ -52,6 +53,7 @@ type Hotline = {
 export function useHotlines(barangayId?: number | null) {
   const [hotlines, setHotlines] = useState<Hotline[]>([]);
   const [loading, setLoading] = useState(true);
+  const socket = useWebSocket();
 
   // GET on mount — no token needed, barangayId from auth context
   useEffect(() => {
@@ -61,7 +63,43 @@ export function useHotlines(barangayId?: number | null) {
       .then((r) => r.json())
       .then((data) => setHotlines(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
-  }, []);
+  }, [barangayId]);
+
+  // Handle WebSocket updates
+  useEffect(() => {
+    if (!socket || !barangayId) return;
+
+    const prev = socket.onmessage;
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("HotlinePanel received WS message:", data);
+
+        if (data.type && data.hotline && data.hotline.barangayId === barangayId) {
+          console.log("Processing hotline event:", data.type);
+          if (data.type === "hotlineCreated") {
+            setHotlines((h) => [...h, data.hotline]); // Add to end to match order
+          } else if (data.type === "hotlineUpdated") {
+            setHotlines((h) => h.map((hotline) =>
+              hotline.id === data.hotline.id ? data.hotline : hotline
+            ));
+          } else if (data.type === "hotlineDeleted") {
+            console.log("Deleting hotline with id:", data.hotline.id);
+            setHotlines((h) => h.filter((hotline) => hotline.id !== data.hotline.id));
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+
+      if (prev) prev.call(socket, event);
+    };
+
+    return () => {
+      socket.onmessage = prev;
+    };
+  }, [socket, barangayId]);
+
   return { hotlines, loading };
 }
 
@@ -74,13 +112,11 @@ export default function HotlinePanel({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const { hotlines, loading } = useHotlines(barangayId);
-
   if (!barangayId) return null; // No barangay context, don't show
-
   return (
     <>
       {/* Desktop: fixed right aside */}
-      <aside className="hidden lg:flex flex-col w-72 bg-white border-l shadow-md p-5 overflow-y-auto gap-4">
+      <aside className="hidden lg:flex rounded-md flex-col w-72 bg-white border-l shadow-md p-5 overflow-y-auto gap-4">
         <PanelHeader />
         {loading ? <LoadingSkeleton /> : <HotlineList hotlines={hotlines} />}
       </aside>

@@ -117,11 +117,11 @@ export default function EmergencyPage() {
   const announcements = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
 
-      <section className="py-8 sm:py-12 px-4 sm:px-6 md:px-8">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 md:px-8 flex-1">
+        <div className="max-w-7xl mx-auto">
           {/* ── Page Title ── */}
           <div className="mb-8 sm:mb-12">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
@@ -143,10 +143,10 @@ export default function EmergencyPage() {
             </p>
           </div>
 
-          {/* ── Layout ── */}
-          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* ── Layout with Hotline Panel ── */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* ── Announcements List ── */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+            <div className="flex-1 space-y-4 sm:space-y-5">
               {/* Loading skeletons */}
               {isLoading && (
                 <>
@@ -271,10 +271,19 @@ export default function EmergencyPage() {
                 </p>
               )}
             </div>
+
+            {/* ── Desktop Hotline Panel (Right Side) ── */}
+            <div className="hidden lg:block lg:w-80 flex-shrink-0">
+              <HotlinePanel barangayId={barangayId} />
+            </div>
           </div>
         </div>
       </section>
-      <HotlinePanel barangayId={barangayId} />
+
+      {/* ── Mobile Hotline Panel (FAB + Bottom Sheet) ── */}
+      <div className="lg:hidden">
+        <HotlinePanel barangayId={barangayId} />
+      </div>
     </main>
   );
 }
