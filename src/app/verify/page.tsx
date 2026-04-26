@@ -16,7 +16,8 @@ import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContext";
-import {  useRouter } from "next/navigation";
+import { logout } from "@/action/auth";
+import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/contexts/webSocketContext";
 
 export default function Page() {
@@ -197,6 +198,17 @@ export default function Page() {
               </Button>
             </div>
           </form>
+
+          <div className="mt-4">
+            <form action={logout} className="w-full">
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-stone-900 text-stone-100 text-sm font-medium tracking-wide hover:bg-stone-800 active:scale-[0.98] transition-all"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
         </CardContent>
       </Card>
     </div>
