@@ -23,7 +23,7 @@ export default function Header() {
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-yellow-400 mb-6 drop-shadow-lg">Your Voice, Our Action</h2>
         <p className="text-lg text-yellow-100 max-w-2xl mx-auto drop-shadow-md italic">
-          Where Every Concern in Every Barangay Matters, Every Report is Heard, and Every Issue Leads to Action.
+          Where Every Concern in your Barangay Matters, Every Report is Heard, and Every Issue Leads to Action.
         </p>
       </div>
     </header>
